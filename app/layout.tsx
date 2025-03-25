@@ -3,6 +3,7 @@ import "./globals.css"
 import { Inter } from "next/font/google"
 import { AppProviders } from "@/providers/app-providers"
 import { BottomNav } from "@/components/common/navigation/bottom-nav"
+import { headers } from "next/headers"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -17,6 +18,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const headersList = headers()
+  const pathname = headersList.get("x-pathname") || ""
+  const isNotFoundPage = pathname === "/_not-found"
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -25,7 +30,7 @@ export default function RootLayout({
             <main className="flex-1 pb-16">
               {children}
             </main>
-            <BottomNav />
+            {!isNotFoundPage && <BottomNav />}
           </div>
         </AppProviders>
       </body>
