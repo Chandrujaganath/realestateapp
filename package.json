@@ -1,20 +1,15 @@
 {
-  "name": "my-v0-project",
+  "name": "realestate-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "seed:users": "node --loader ts-node/esm scripts/seed-users.ts",
-    "seed:data": "node --loader ts-node/esm scripts/seed-production-data.ts",
-    "seed:emulator-users": "sh scripts/seed-emulator-users.sh",
-    "seed:production-users": "sh scripts/seed-production-users.sh",
-    "seed": "node scripts/seed.js"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@auth/core": "^0.38.0",
+    "@auth/core": "0.34.2",
     "@hookform/resolvers": "latest",
     "@jest/globals": "latest",
     "@playwright/test": "latest",
@@ -46,7 +41,7 @@
     "@radix-ui/react-toggle-group": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
     "@types/uuid": "^10.0.0",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.4.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
@@ -54,8 +49,8 @@
     "crypto": "latest",
     "date-fns": "latest",
     "embla-carousel-react": "8.5.1",
-    "firebase": "latest",
-    "firebase-admin": "latest",
+    "firebase": "^10.9.0",
+    "firebase-admin": "^11.11.1",
     "firebase-functions": "latest",
     "firebase-functions-test": "latest",
     "framer-motion": "^12.5.0",
@@ -71,9 +66,9 @@
     "nodemailer": "latest",
     "path": "latest",
     "qrcode": "latest",
-    "react": "^18",
+    "react": "^18.2.0",
     "react-day-picker": "8.10.1",
-    "react-dom": "^18",
+    "react-dom": "^18.2.0",
     "react-hook-form": "latest",
     "react-qr-code": "^2.0.15",
     "react-resizable-panels": "^2.1.7",
@@ -87,17 +82,17 @@
     "zod": "latest"
   },
   "devDependencies": {
-    "@types/node": "^22",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/node": "^20.10.6",
+    "@types/react": "^18.2.46",
+    "@types/react-dom": "^18.2.0",
     "crypto-browserify": "^3.12.1",
-    "eslint": "^9.23.0",
-    "eslint-config-next": "^15.2.3",
-    "postcss": "^8",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.0.4",
+    "postcss": "^8.4.32",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^3.4.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5.3.3"
   }
 }
