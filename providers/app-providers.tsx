@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense } from "react";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider } from "@/contexts/auth-context";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import dynamic from "next/dynamic";

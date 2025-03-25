@@ -6,9 +6,10 @@ import { getFunctions, Functions } from "firebase/functions"
 import type { Messaging } from "firebase/messaging"
 // Import getMessaging conditionally on client side
 
-// Check if Firebase config is available
+// Check if Firebase config is available client side
 const isFirebaseConfigValid = 
   process.env.NEXT_PUBLIC_FIREBASE_API_KEY && 
+  process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN && 
   process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
 // Only initialize if config is valid

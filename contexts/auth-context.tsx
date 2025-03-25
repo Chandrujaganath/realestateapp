@@ -11,6 +11,8 @@ import {
   UserCredential
 } from 'firebase/auth';
 import { unsubscribe } from 'diagnostics_channel';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 // Add Plot type for import in CCTV pages
 export interface Plot {
@@ -96,10 +98,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const getUserOwnedPlots = async () => {
-    // Implementation of getUserOwnedPlots method
-    // This is a placeholder and should be implemented based on your actual requirements
-    return [];
+  const getUserOwnedPlots = async (): Promise<Plot[]> => {
+    try {
+      if (!user || !db) {
+        console.warn("User not authenticated or Firestore not initialized");
+        return [];
+      }
+      
+      // Query plots collection for plots owned by the current user
+      const plotsRef = collection(db, 'plots');
+      const q = query(plotsRef, where('ownerId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+      
+      const plots: Plot[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        plots.push({
+          id: doc.id,
+          projectId: data.projectId,
+          projectName: data.projectName,
+          number: data.number,
+          location: data.location,
+          area: data.area,
+          price: data.price,
+          status: data.status,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date()
+        });
+      });
+      
+      return plots;
+    } catch (error) {
+      console.error("Error fetching user plots:", error);
+      return [];
+    }
   };
 
   return (
