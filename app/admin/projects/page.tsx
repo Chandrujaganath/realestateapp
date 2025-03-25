@@ -22,12 +22,24 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
+interface Project {
+  id: string;
+  name: string;
+  location: string;
+  status: "active" | "pending" | "inactive";
+  totalPlots: number;
+  soldPlots: number;
+  startDate: string;
+  managerId: string | null;
+  managerName: string | null;
+}
+
 export default function ProjectsPage() {
   const { getProjects } = useAuth()
-  const [projects, setProjects] = useState([])
-  const [filteredProjects, setFilteredProjects] = useState([])
+  const [projects, setProjects] = useState<Project[]>([])
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([])
   const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState("all")
+  const [activeTab, setActiveTab] = useState<"all" | "active" | "pending" | "inactive">("all")
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -67,12 +79,12 @@ export default function ProjectsPage() {
     }
   }, [searchQuery, projects, activeTab])
 
-  const handleTabChange = (value) => {
+  const handleTabChange = (value: "all" | "active" | "pending" | "inactive") => {
     setActiveTab(value)
     setSearchQuery("")
   }
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
   }
 

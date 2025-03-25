@@ -11,7 +11,7 @@ import {
   UserCredential
 } from 'firebase/auth';
 import { unsubscribe } from 'diagnostics_channel';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 // Add Plot type for import in CCTV pages
@@ -28,6 +28,21 @@ export interface Plot {
   updatedAt: Date;
 }
 
+interface VisitRequest {
+  id: string;
+  visitorName: string;
+  visitorEmail: string;
+  visitorPhone: string;
+  projectName: string;
+  propertyType: string;
+  requestDate: string;
+  preferredDate: string;
+  preferredTime: string;
+  status: "pending" | "approved" | "rejected";
+  notes?: string;
+  rejectionReason?: string;
+}
+
 interface AuthContextType {
   user: FirebaseUser | null;
   loading: boolean;
@@ -35,7 +50,12 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<UserCredential>;
   signUp: (email: string, password: string) => Promise<UserCredential>;
   logOut: () => Promise<void>;
-  getUserOwnedPlots: () => Promise<Plot[]>; // Add method to fetch user's plots
+  getUserOwnedPlots: () => Promise<Plot[]>;
+  createProject: (projectData: any) => Promise<void>;
+  getProjectTemplates: () => Promise<any[]>;
+  getVisitRequests: () => Promise<VisitRequest[]>;
+  approveVisitRequest: (id: string) => Promise<void>;
+  rejectVisitRequest: (id: string, reason: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -134,8 +154,115 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const createProject = async (projectData: any) => {
+    try {
+      if (!user || !db) {
+        throw new Error("User not authenticated or Firestore not initialized");
+      }
+
+      const projectsRef = collection(db, 'projects');
+      const projectWithMetadata = {
+        ...projectData,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        createdBy: user.uid
+      };
+
+      await addDoc(projectsRef, projectWithMetadata);
+    } catch (error) {
+      console.error("Error creating project:", error);
+      throw error;
+    }
+  };
+
+  const getProjectTemplates = async () => {
+    try {
+      if (!db) {
+        throw new Error("Firestore not initialized");
+      }
+
+      const templatesRef = collection(db, 'projectTemplates');
+      const querySnapshot = await getDocs(templatesRef);
+      
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.error("Error fetching project templates:", error);
+      return [];
+    }
+  };
+
+  const getVisitRequests = async (): Promise<VisitRequest[]> => {
+    try {
+      if (!db) {
+        throw new Error("Firestore not initialized");
+      }
+
+      const requestsRef = collection(db, 'visitRequests');
+      const querySnapshot = await getDocs(requestsRef);
+      
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as VisitRequest[];
+    } catch (error) {
+      console.error("Error fetching visit requests:", error);
+      return [];
+    }
+  };
+
+  const approveVisitRequest = async (id: string) => {
+    try {
+      if (!db) {
+        throw new Error("Firestore not initialized");
+      }
+
+      const requestRef = doc(db, 'visitRequests', id);
+      await updateDoc(requestRef, {
+        status: "approved",
+        approvedAt: serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Error approving visit request:", error);
+      throw error;
+    }
+  };
+
+  const rejectVisitRequest = async (id: string, reason: string) => {
+    try {
+      if (!db) {
+        throw new Error("Firestore not initialized");
+      }
+
+      const requestRef = doc(db, 'visitRequests', id);
+      await updateDoc(requestRef, {
+        status: "rejected",
+        rejectionReason: reason,
+        rejectedAt: serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Error rejecting visit request:", error);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, error, signIn, signUp, logOut, getUserOwnedPlots }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      error, 
+      signIn, 
+      signUp, 
+      logOut, 
+      getUserOwnedPlots,
+      createProject,
+      getProjectTemplates,
+      getVisitRequests,
+      approveVisitRequest,
+      rejectVisitRequest
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth, type ProjectTemplate } from '@/contexts/auth-context'
+import { useAuth } from '@/contexts/auth-context'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,22 +23,37 @@ type DayType = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "sat
 type StatusType = "active" | "inactive" | "completed";
 
 // Define the type for form data
+interface TimeSlot {
+  start: string;
+  end: string;
+}
+
+interface DayTimeSlots {
+  day: DayType;
+  slots: TimeSlot[];
+}
+
+interface ProjectTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  defaultTimeSlots: DayTimeSlots[];
+}
+
 interface FormData {
   name: string;
   city: string;
   description: string;
   status: StatusType;
   managersAssigned: string[];
-  timeSlots: {
-    day: DayType;
-    slots: { start: string; end: string }[];
-  }[];
+  timeSlots: DayTimeSlots[];
 }
 
 export default function CreateProjectPage() {
   const router = useRouter()
   const { createProject, getProjectTemplates } = useAuth()
-  const [activeTab, setActiveTab] = useState("template")
+  const [activeTab, setActiveTab] = useState<"template" | "scratch">("template")
+  
   const [templates, setTemplates] = useState<ProjectTemplate[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [loading, setLoading] = useState(false)

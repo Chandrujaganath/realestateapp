@@ -10,17 +10,8 @@ import {
   CreatePlotPayload,
   UpdatePlotPayload
 } from "@/features/projects/types/project";
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, Query, CollectionReference, DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-
-// Simple project type for the hook
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  status: string;
-  createdAt: Date;
-}
 
 /**
  * Hook for accessing project data and operations
@@ -34,57 +25,61 @@ export function useProjects(filterBy?: { status?: string; location?: string }) {
   
   const projectService = new ProjectService();
   
-  useEffect(() => {
-    async function fetchProjects() {
-      try {
-        setLoading(true);
+  const fetchProjects = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      if (!db) {
+        throw new Error("Firestore not initialized");
+      }
+
+      let projectsQuery: Query<DocumentData> = collection(db, 'projects');
+      
+      // Apply filters if provided
+      if (filterBy) {
+        const constraints = [];
         
-        let projectsQuery = collection(db, 'projects');
-        
-        // Apply filters if provided
-        if (filterBy) {
-          const constraints = [];
-          
-          if (filterBy.status) {
-            constraints.push(where('status', '==', filterBy.status));
-          }
-          
-          if (filterBy.location) {
-            constraints.push(where('location', '==', filterBy.location));
-          }
-          
-          if (constraints.length > 0) {
-            projectsQuery = query(projectsQuery, ...constraints);
-          }
+        if (filterBy.status) {
+          constraints.push(where('status', '==', filterBy.status));
         }
         
-        const querySnapshot = await getDocs(projectsQuery);
+        if (filterBy.location) {
+          constraints.push(where('location', '==', filterBy.location));
+        }
         
-        const fetchedProjects: Project[] = querySnapshot.docs.map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            name: data.name,
-            description: data.description,
-            status: data.status,
-            image: data.image,
-            location: data.location,
-            createdAt: data.createdAt.toDate(),
-            updatedAt: data.updatedAt.toDate(),
-          };
-        });
-        
-        setProjects(fetchedProjects);
-      } catch (err) {
-        console.error('Error fetching projects:', err);
-        setError('Failed to fetch projects');
-      } finally {
-        setLoading(false);
+        if (constraints.length > 0) {
+          projectsQuery = query(projectsQuery, ...constraints);
+        }
       }
+      
+      const querySnapshot = await getDocs(projectsQuery);
+      
+      const fetchedProjects: Project[] = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name,
+          description: data.description || "",
+          status: data.status,
+          image: data.image,
+          location: data.location,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        };
+      });
+      
+      setProjects(fetchedProjects);
+    } catch (err) {
+      console.error('Error fetching projects:', err);
+      setError('Failed to fetch projects');
+    } finally {
+      setLoading(false);
     }
-    
-    fetchProjects();
   }, [filterBy?.status, filterBy?.location]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
   
   /**
    * Fetch a project by ID
@@ -93,7 +88,9 @@ export function useProjects(filterBy?: { status?: string; location?: string }) {
     setLoading(true);
     try {
       const project = await projectService.getProjectById(id);
-      setCurrentProject(project);
+      if (project) {
+        setCurrentProject(project as Project);
+      }
       setError(null);
       return project;
     } catch (err) {

@@ -19,6 +19,9 @@ export class UserService extends FirebaseService {
    */
   async getAllUsers(): Promise<User[]> {
     try {
+      if (!db) {
+        throw new Error("Firestore database is not initialized");
+      }
       const usersRef = collection(db, this.collectionName);
       const q = query(usersRef, orderBy("displayName", "asc"));
       const querySnapshot = await getDocs(q);
@@ -35,6 +38,9 @@ export class UserService extends FirebaseService {
    */
   async getUserById(id: string): Promise<User | null> {
     try {
+      if (!db) {
+        throw new Error("Firestore database is not initialized");
+      }
       const userDoc = await getDoc(doc(db, this.collectionName, id));
       
       if (!userDoc.exists()) {
@@ -53,6 +59,9 @@ export class UserService extends FirebaseService {
    */
   async getUsersByRole(role: string): Promise<User[]> {
     try {
+      if (!db) {
+        throw new Error("Firestore database is not initialized");
+      }
       const usersRef = collection(db, this.collectionName);
       const q = query(
         usersRef,

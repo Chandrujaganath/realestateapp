@@ -14,11 +14,15 @@ declare global {
 
 // Declare module augmentation for the Firebase lib exports
 declare module "@/lib/firebase" {
-  export const app: FirebaseApp | undefined;
-  export const auth: Auth | undefined;
-  export const db: Firestore | undefined;
-  export const storage: FirebaseStorage | undefined;
-  export const functions: Functions | undefined;
-  export const messaging: Messaging | null;
-  export const usingDummyImplementation: boolean;
+  namespace FirebaseLib {
+    const app: FirebaseApp | undefined;
+    const auth: Auth | undefined;
+    const db: Firestore | undefined;
+    const storage: FirebaseStorage | undefined;
+    const functions: Functions | undefined;
+    const messaging: Messaging | null;
+    const usingDummyImplementation: boolean;
+  }
+  
+  export = FirebaseLib;
 } 

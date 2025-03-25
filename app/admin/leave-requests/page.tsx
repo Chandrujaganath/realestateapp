@@ -44,18 +44,38 @@ import {
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DatePickerWithRange } from "@/components/date-picker"
+import { DateRange } from "react-day-picker"
+
+type LeaveRequestStatus = "pending" | "approved" | "rejected"
+type LeaveRequestType = "vacation" | "medical" | "sick" | "personal"
+
+interface LeaveRequest {
+  id: string
+  managerId: string
+  managerName: string
+  requestDate: string
+  startDate: string
+  endDate: string
+  reason: string
+  status: LeaveRequestStatus
+  type: LeaveRequestType
+  details?: string
+  approvedAt?: string
+  rejectedAt?: string
+  rejectionReason?: string
+}
 
 export default function LeaveRequestsPage() {
   const { getAllLeaveRequests, approveLeaveRequest, rejectLeaveRequest } = useAuth()
-  const [leaveRequests, setLeaveRequests] = useState([])
-  const [filteredRequests, setFilteredRequests] = useState([])
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([])
+  const [filteredRequests, setFilteredRequests] = useState<LeaveRequest[]>([])
   const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("pending")
+  const [statusFilter, setStatusFilter] = useState<LeaveRequestStatus | "all">("pending")
   const [loading, setLoading] = useState(true)
-  const [selectedRequestId, setSelectedRequestId] = useState(null)
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
   const [rejectionReason, setRejectionReason] = useState("")
   const [processingAction, setProcessingAction] = useState(false)
-  const [dateRange, setDateRange] = useState({
+  const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
   })
@@ -65,8 +85,10 @@ export default function LeaveRequestsPage() {
       try {
         if (getAllLeaveRequests) {
           const data = await getAllLeaveRequests()
-          setLeaveRequests(data || [])
-          setFilteredRequests(data.filter(req => req.status === statusFilter) || [])
+          // Type assertion to ensure data matches our LeaveRequest interface
+          const typedData = data as unknown as LeaveRequest[]
+          setLeaveRequests(typedData || [])
+          setFilteredRequests(typedData.filter(req => req.status === statusFilter) || [])
         }
       } catch (error) {
         console.error("Failed to fetch leave requests:", error)
@@ -90,7 +112,7 @@ export default function LeaveRequestsPage() {
     if (dateRange.from && dateRange.to) {
       filtered = filtered.filter(request => {
         const requestDate = new Date(request.requestDate)
-        return requestDate >= dateRange.from && requestDate <= dateRange.to
+        return requestDate >= dateRange.from! && requestDate <= dateRange.to!
       })
     }
 
@@ -106,7 +128,7 @@ export default function LeaveRequestsPage() {
     setFilteredRequests(filtered)
   }, [searchQuery, statusFilter, dateRange, leaveRequests])
 
-  const handleApproveRequest = async (id) => {
+  const handleApproveRequest = async (id: string) => {
     setProcessingAction(true)
     try {
       if (approveLeaveRequest) {
@@ -166,8 +188,8 @@ export default function LeaveRequestsPage() {
       startDate: "2023-06-15",
       endDate: "2023-06-18",
       reason: "Family vacation",
-      status: "pending",
-      type: "vacation",
+      status: "pending" as const,
+      type: "vacation" as const,
       details: "Annual family trip",
     },
     {
@@ -178,8 +200,8 @@ export default function LeaveRequestsPage() {
       startDate: "2023-06-10",
       endDate: "2023-06-11",
       reason: "Personal appointment",
-      status: "pending",
-      type: "personal",
+      status: "pending" as const,
+      type: "personal" as const,
       details: "Doctor's appointment",
     },
     {
@@ -190,8 +212,8 @@ export default function LeaveRequestsPage() {
       startDate: "2023-06-05",
       endDate: "2023-06-09",
       reason: "Medical leave",
-      status: "approved",
-      type: "medical",
+      status: "approved" as const,
+      type: "medical" as const,
       details: "Surgery recovery",
       approvedAt: "2023-05-21",
     },
@@ -203,15 +225,15 @@ export default function LeaveRequestsPage() {
       startDate: "2023-05-30",
       endDate: "2023-05-30",
       reason: "Sick day",
-      status: "rejected",
-      type: "sick",
+      status: "rejected" as const,
+      type: "sick" as const,
       details: "Not feeling well",
       rejectionReason: "Short staffed on this day, please reschedule",
       rejectedAt: "2023-05-16",
     },
   ]
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: LeaveRequestStatus) => {
     switch (status) {
       case "pending":
         return <Badge variant="outline" className="flex items-center gap-1"><Clock className="h-3 w-3" /> Pending</Badge>
@@ -224,7 +246,7 @@ export default function LeaveRequestsPage() {
     }
   }
 
-  const getLeaveTypeBadge = (type) => {
+  const getLeaveTypeBadge = (type: LeaveRequestType) => {
     switch (type) {
       case "vacation":
         return <Badge variant="secondary">Vacation</Badge>
@@ -236,6 +258,16 @@ export default function LeaveRequestsPage() {
         return <Badge variant="default">Personal</Badge>
       default:
         return <Badge variant="outline">{type}</Badge>
+    }
+  }
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value as LeaveRequestStatus | "all")
+  }
+
+  const handleDateChange = (date: DateRange | undefined) => {
+    if (date) {
+      setDateRange(date)
     }
   }
 
@@ -305,7 +337,7 @@ export default function LeaveRequestsPage() {
             <div className="grid w-full md:w-64">
               <Select 
                 value={statusFilter} 
-                onValueChange={setStatusFilter}
+                onValueChange={handleStatusChange}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by status" />
@@ -319,7 +351,7 @@ export default function LeaveRequestsPage() {
               </Select>
             </div>
             <div className="grid w-full md:w-72">
-              <DatePickerWithRange date={dateRange} setDate={setDateRange} />
+              <DatePickerWithRange date={dateRange} setDate={handleDateChange} />
             </div>
             <div className="relative w-full md:w-64">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />

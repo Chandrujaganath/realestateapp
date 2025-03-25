@@ -1,4 +1,4 @@
-import type { UserRole } from "@/contexts/auth-context"
+import type { UserRole } from "@/types/admin"
 
 export interface Announcement {
   id: string

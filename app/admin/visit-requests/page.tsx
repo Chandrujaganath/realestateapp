@@ -45,18 +45,34 @@ import {
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DatePickerWithRange } from "@/components/date-picker"
+import { DateRange } from "react-day-picker"
+
+interface VisitRequest {
+  id: string;
+  visitorName: string;
+  visitorEmail: string;
+  visitorPhone: string;
+  projectName: string;
+  propertyType: string;
+  requestDate: string;
+  preferredDate: string;
+  preferredTime: string;
+  status: "pending" | "approved" | "rejected";
+  notes?: string;
+  rejectionReason?: string;
+}
 
 export default function VisitRequestsPage() {
   const { getVisitRequests, approveVisitRequest, rejectVisitRequest } = useAuth()
-  const [visitRequests, setVisitRequests] = useState([])
-  const [filteredRequests, setFilteredRequests] = useState([])
+  const [visitRequests, setVisitRequests] = useState<VisitRequest[]>([])
+  const [filteredRequests, setFilteredRequests] = useState<VisitRequest[]>([])
   const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("pending")
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending")
   const [loading, setLoading] = useState(true)
-  const [selectedRequestId, setSelectedRequestId] = useState(null)
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
   const [rejectionReason, setRejectionReason] = useState("")
   const [processingAction, setProcessingAction] = useState(false)
-  const [dateRange, setDateRange] = useState({
+  const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
   })
@@ -99,16 +115,16 @@ export default function VisitRequestsPage() {
     if (searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(request => 
-        (request.visitorName && request.visitorName.toLowerCase().includes(query)) ||
-        (request.projectName && request.projectName.toLowerCase().includes(query)) ||
-        (request.propertyType && request.propertyType.toLowerCase().includes(query))
+        request.visitorName.toLowerCase().includes(query) ||
+        request.projectName.toLowerCase().includes(query) ||
+        request.propertyType.toLowerCase().includes(query)
       )
     }
 
     setFilteredRequests(filtered)
   }, [searchQuery, statusFilter, dateRange, visitRequests])
 
-  const handleApproveRequest = async (id) => {
+  const handleApproveRequest = async (id: string) => {
     setProcessingAction(true)
     try {
       if (approveVisitRequest) {
@@ -215,7 +231,7 @@ export default function VisitRequestsPage() {
     },
   ]
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: VisitRequest["status"]) => {
     switch (status) {
       case "pending":
         return <Badge variant="outline" className="flex items-center gap-1"><Clock className="h-3 w-3" /> Pending</Badge>

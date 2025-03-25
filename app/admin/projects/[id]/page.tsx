@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ArrowLeft, Building2, Edit, MapPin, Users, Calendar, Clock, Trash } from "lucide-react"
 import Link from "next/link"
-import { type Project } from "../page"
+import { type Project } from "@/features/projects/types/project"
 import BackButton from "@/components/back-button"
 
 // Extended Project type to include fields used in this component
