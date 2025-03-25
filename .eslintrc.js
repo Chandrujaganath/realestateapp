@@ -18,7 +18,8 @@ module.exports = {
   plugins: [
     '@typescript-eslint',
     'react-hooks',
-    'import'
+    'import',
+    'prettier'
   ],
   rules: {
     // TypeScript specific rules
@@ -62,7 +63,10 @@ module.exports = {
     'prefer-const': 'warn',
     'no-unused-expressions': 'warn',
     'no-duplicate-imports': 'error',
-    'no-undef': 'error'
+    'no-undef': 'error',
+
+    // Prettier rules
+    'prettier/prettier': 'error'
   },
   settings: {
     react: {
