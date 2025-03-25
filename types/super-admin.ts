@@ -1,24 +1,37 @@
+/**
+ * Type definitions for the Super Admin module
+ */
+
+/** 
+ * Admin user type 
+ */
 export interface AdminUser {
   id: string
   name: string
   email: string
-  role: "Admin"
+  role: string
   isActive: boolean
   createdAt: Date
   lastLogin?: Date
 }
 
+/**
+ * System template types
+ */
 export interface SystemTemplate {
   id: string
   name: string
   description: string
-  type: "plotLayout" | "timeSlots" | "managerTasks"
+  type: "email" | "notification" | "document" | "contract"
   data: any // This will be specific to the template type
   createdBy: string
   createdAt: Date
   updatedAt: Date
 }
 
+/**
+ * System settings
+ */
 export interface SystemSettings {
   id: string
   maxBookingsPerDay: number
@@ -31,6 +44,9 @@ export interface SystemSettings {
   updatedAt: Date
 }
 
+/**
+ * Audit log
+ */
 export interface AuditLog {
   id: string
   actionType: string
@@ -44,10 +60,13 @@ export interface AuditLog {
     id: string
     name?: string
   }
-  details: any
+  details: Record<string, any>
   timestamp: Date
 }
 
+/**
+ * Dashboard stats
+ */
 export interface SuperAdminDashboardStats {
   userCounts: {
     total: number
