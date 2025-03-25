@@ -1,0 +1,126 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isUserWithRole(role) {
+      // Use case-insensitive comparison by converting both to lowercase
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role.toLowerCase() == role.toLowerCase();
+    }
+    
+    function isAdmin() {
+      return isUserWithRole('admin') || isUserWithRole('superadmin');
+    }
+    
+    function isManager() {
+      return isUserWithRole('manager');
+    }
+    
+    function isClient() {
+      return isUserWithRole('client');
+    }
+    
+    function isGuest() {
+      return isUserWithRole('guest');
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User profiles - users can read/write only their own data
+    // Admins can read all user data, but can only modify user roles if superadmin
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin() || isManager();
+      allow create: if isAuthenticated();
+      allow update: if isOwner(userId) 
+        || isAdmin() 
+        || (isManager() && !("role" in request.resource.data));
+      allow delete: if isAdmin();
+    }
+    
+    // Projects - admins and managers can create/update
+    match /projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin() || isManager();
+      allow delete: if isAdmin();
+    }
+    
+    // Plots - all users can read, only admins and managers can create/update
+    match /plots/{plotId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin() || isManager();
+      allow delete: if isAdmin();
+    }
+    
+    // Bookings - clients can create bookings and read their own
+    match /bookings/{bookingId} {
+      allow read: if isAdmin() || isManager() || 
+        (isAuthenticated() && resource.data.clientId == request.auth.uid);
+      allow create: if isAuthenticated();
+      allow update: if isAdmin() || isManager() || 
+        (isAuthenticated() && resource.data.clientId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+    
+    // Visits - guests and clients can create visits, admins and managers can approve
+    match /visits/{visitId} {
+      allow read: if isAdmin() || isManager() || 
+        (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated();
+      allow update: if isAdmin() || isManager() || 
+        (isAuthenticated() && resource.data.userId == request.auth.uid &&
+        !("status" in request.resource.data && request.resource.data.status == "approved"));
+      allow delete: if isAdmin();
+    }
+    
+    // Announcements collection
+    match /announcements/{announcementId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Tasks collection
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin() || 
+                    (isManager() && 
+                     isOwner(resource.data.assignedTo));
+      allow delete: if isAdmin();
+    }
+    
+    // Attendance collection
+    match /attendance/{attendanceId} {
+      allow read: if isAdmin() || 
+                  (isManager() && 
+                   resource.data.userId == request.auth.uid);
+      allow create, update: if isManager() || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Sell requests collection
+    match /sellRequests/{requestId} {
+      allow read: if isAuthenticated();
+      allow create: if isClient();
+      allow update: if isAdmin() || 
+                    (isClient() && 
+                     isOwner(resource.data.requestedBy) && 
+                     resource.data.status == 'pending');
+      allow delete: if isAdmin();
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read: if isOwner(resource.data.userId);
+      allow create: if isAdmin();
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
+

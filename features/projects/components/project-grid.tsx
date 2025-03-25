@@ -88,7 +88,7 @@ export function ProjectGrid({ projects, loading = false }: ProjectGridProps) {
               </p>
             </CardContent>
             <CardFooter>
-              <Badge variant={project.status === 'active' ? 'default' : project.status === 'completed' ? 'success' : 'secondary'}>
+              <Badge variant={project.status === 'active' ? 'default' : project.status === 'completed' ? 'outline' : 'secondary'}>
                 {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
               </Badge>
             </CardFooter>

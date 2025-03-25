@@ -1,12 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useAuth } from '@/context/auth-context'
+import { useAuth } from '@/contexts/auth-context'
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Volume2, VolumeX, Maximize2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import type { Plot } from "@/context/auth-context"
+import type { Plot } from "@/contexts/auth-context"
 
 export default function ClientCctvDetailPage({ params }: { params: { id: string } }) {
   const { user, getUserOwnedPlots } = useAuth()

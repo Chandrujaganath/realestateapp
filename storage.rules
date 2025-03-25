@@ -1,0 +1,60 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function hasRole(role) {
+      // Use case-insensitive comparison by converting both to lowercase
+      return isAuthenticated() && request.auth.token.role.toLowerCase() == role.toLowerCase();
+    }
+    
+    function isAdmin() {
+      return hasRole('admin') || hasRole('superadmin');
+    }
+    
+    function isManager() {
+      return hasRole('manager');
+    }
+    
+    function isClient() {
+      return hasRole('client');
+    }
+    
+    function isGuest() {
+      return hasRole('guest');
+    }
+    
+    // QR codes
+    match /qrcodes/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isManager();
+    }
+    
+    // Project images
+    match /projects/{allPaths=**} {
+      allow read: if true; // Public read access
+      allow write: if isAdmin();
+    }
+    
+    // User profile images
+    match /profiles/{userId}/{allPaths=**} {
+      allow read: if true; // Public read access
+      allow write: if request.auth.uid == userId || isAdmin();
+    }
+    
+    // Plot images
+    match /plots/{allPaths=**} {
+      allow read: if true; // Public read access
+      allow write: if isAdmin();
+    }
+    
+    // Default rule
+    match /{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
+
