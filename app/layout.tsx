@@ -2,7 +2,7 @@ import React from "react"
 import "./globals.css"
 import { Inter } from "next/font/google"
 import { AppProviders } from "@/providers/app-providers"
-import { BottomNav } from "@/components/common/navigation/bottom-nav"
+import { BottomNavWrapper } from "@/components/common/navigation/bottom-nav-wrapper"
 import { headers } from "next/headers"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -13,14 +13,13 @@ export const metadata = {
   generator: 'v0.dev'
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const headersList = headers()
+  const headersList = await headers()
   const pathname = headersList.get("x-pathname") || ""
-  const isNotFoundPage = pathname === "/_not-found"
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -30,7 +29,7 @@ export default function RootLayout({
             <main className="flex-1 pb-16">
               {children}
             </main>
-            {!isNotFoundPage && <BottomNav />}
+            <BottomNavWrapper />
           </div>
         </AppProviders>
       </body>
