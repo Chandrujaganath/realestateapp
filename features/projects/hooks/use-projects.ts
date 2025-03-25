@@ -13,6 +13,15 @@ import {
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
+// Simple project type for the hook
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  createdAt: Date;
+}
+
 /**
  * Hook for accessing project data and operations
  */

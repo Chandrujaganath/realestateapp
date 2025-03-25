@@ -7,8 +7,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useTasks } from "@/features/tasks/hooks/use-tasks";
-import { useProjects } from "@/features/projects/hooks/use-projects";
-import { useUsers } from "@/features/users/hooks/use-users";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
@@ -70,8 +68,6 @@ interface CreateTaskFormProps {
 export function CreateTaskForm({ onSuccess }: CreateTaskFormProps) {
   const router = useRouter();
   const { createTask } = useTasks();
-  const { projects, loading: projectsLoading } = useProjects();
-  const { users, loading: usersLoading } = useUsers();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   

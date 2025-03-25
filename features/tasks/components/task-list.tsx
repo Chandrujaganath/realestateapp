@@ -120,7 +120,7 @@ export function TaskList({
       case "in_progress":
         return <Badge variant="secondary">In Progress</Badge>;
       case "completed":
-        return <Badge variant="success">Completed</Badge>;
+        return <Badge variant="default">Completed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
