@@ -7,7 +7,7 @@ import { ImportantAnnouncementBanner } from '@/components/announcements/importan
 import { UserAnnouncements } from '@/components/announcements/user-announcements';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/context/auth-context';
 
 interface ExtendedUser {
   displayName?: string;
