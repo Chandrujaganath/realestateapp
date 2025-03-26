@@ -90,7 +90,7 @@ export default function CreateProjectPage() {
     const _fetchTemplates = async () => {
       try {
         const _templatesData = await getProjectTemplates();
-        setTemplates(templatesData);
+        setTemplates(_templatesData);
         setFetchingTemplates(false);
       } catch (error) {
         console.error('Error fetching templates:', error);
@@ -98,7 +98,7 @@ export default function CreateProjectPage() {
       }
     };
 
-    fetchTemplates();
+    _fetchTemplates();
   }, [getProjectTemplates]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -114,7 +114,7 @@ export default function CreateProjectPage() {
     setSelectedTemplate(templateId);
 
     // Find the selected template
-    const template = templates.find((_t) => t.id === templateId);
+    const template = templates.find((_t) => _t.id === templateId);
 
     if (template) {
       // Pre-fill form with template data
@@ -144,7 +144,7 @@ export default function CreateProjectPage() {
     value: string
   ) => {
     const updatedTimeSlots = [...formData.timeSlots];
-    updatedTimeSlots[dayIndex].slots[slotIndex][field] = value;
+    updatedTimeSlots[dayIndex].slots[slotIndex][_field] = value;
     setFormData((prev) => ({ ...prev, timeSlots: updatedTimeSlots }));
   };
 
@@ -158,7 +158,7 @@ export default function CreateProjectPage() {
         templateId: activeTab === 'template' ? selectedTemplate : undefined,
       };
 
-      await createProject(projectData);
+      await createProject(_projectData);
       router.push('/admin/projects');
     } catch (error) {
       console.error('Error creating project:', error);
@@ -191,7 +191,7 @@ export default function CreateProjectPage() {
           </TabsTrigger>
         </TabsList>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={_handleSubmit}>
           <TabsContent value="template" className="space-y-6 mt-6">
             <Card className="glass-card">
               <CardHeader>
@@ -206,7 +206,7 @@ export default function CreateProjectPage() {
                     {Array(3)
                       .fill(0)
                       .map((_, _i) => (
-                        <Card key={i} className="border border-border/50">
+                        <Card key={_i} className="border border-border/50">
                           <CardContent className="p-4">
                             <div className="flex items-start gap-4">
                               <div className="h-5 w-5 mt-0.5 rounded-full bg-muted animate-pulse" />
@@ -232,7 +232,7 @@ export default function CreateProjectPage() {
                     </Button>
                   </div>
                 ) : (
-                  <RadioGroup value={selectedTemplate} onValueChange={handleTemplateSelect}>
+                  <RadioGroup value={selectedTemplate} onValueChange={_handleTemplateSelect}>
                     <div className="space-y-4">
                       {templates.map((template) => (
                         <Card
@@ -458,7 +458,7 @@ export default function CreateProjectPage() {
                             variant="ghost"
                             size="icon"
                             className="mt-6"
-                            onClick={() => removeTimeSlot(dayIndex, slotIndex)}
+                            onClick={() => _removeTimeSlot(dayIndex, slotIndex)}
                             disabled={daySlot.slots.length <= 1}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -470,7 +470,7 @@ export default function CreateProjectPage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => addTimeSlot(dayIndex)}
+                        onClick={() => _addTimeSlot(dayIndex)}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Time Slot

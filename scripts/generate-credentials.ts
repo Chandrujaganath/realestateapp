@@ -9,7 +9,7 @@ const _roles = ['guest', 'client', 'manager', 'admin', 'superadmin'];
 function generateCredentials() {
   const credentials = [];
 
-  for (const role of roles) {
+  for (const role of _roles) {
     for (let i = 1; i <= 5; i++) {
       const email = `${role}${i}@realestate-app.com`;
       const password = `${role}${i}Pass123!`;
@@ -35,15 +35,15 @@ function saveCredentials(credentials: any[]) {
   const iv = crypto.randomBytes(16);
 
   const _encrypt = (_text: string) => {
-    const cipher = crypto.createCipheriv(algorithm, secretKey, iv);
-    const _encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+    const cipher = crypto.createCipheriv(_algorithm, secretKey, iv);
+    const _encrypted = Buffer.concat([cipher.update(_text), cipher.final()]);
     return {
       iv: iv.toString('hex'),
-      content: encrypted.toString('hex'),
+      content: _encrypted.toString('hex'),
     };
   };
 
-  const _encryptedData = encrypt(JSON.stringify(credentials));
+  const _encryptedData = _encrypt(JSON.stringify(credentials));
 
   // Save encryption key separately
   fs.writeFileSync(
@@ -55,7 +55,7 @@ function saveCredentials(credentials: any[]) {
   );
 
   // Save encrypted credentials
-  fs.writeFileSync(filePath, JSON.stringify(encryptedData));
+  fs.writeFileSync(filePath, JSON.stringify(_encryptedData));
 
   console.log(`Credentials saved to ${filePath}`);
   console.log('Encryption key saved to encryption-key.json');

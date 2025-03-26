@@ -87,7 +87,7 @@ export default function LeaveRequestsPage() {
         if (getAllLeaveRequests) {
           const _data = await getAllLeaveRequests();
           // Type assertion to ensure data matches our LeaveRequest interface
-          const typedData = data as unknown as LeaveRequest[];
+          const typedData = _data as unknown as LeaveRequest[];
           setLeaveRequests(typedData || []);
           setFilteredRequests(typedData.filter((req) => req.status === statusFilter) || []);
         }
@@ -98,7 +98,7 @@ export default function LeaveRequestsPage() {
       }
     };
 
-    fetchRequests();
+    _fetchRequests();
   }, [getAllLeaveRequests]);
 
   useEffect(() => {
@@ -342,7 +342,7 @@ export default function LeaveRequestsPage() {
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4 items-end mb-6">
             <div className="grid w-full md:w-64">
-              <Select value={statusFilter} onValueChange={handleStatusChange}>
+              <Select value={statusFilter} onValueChange={_handleStatusChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
@@ -355,7 +355,7 @@ export default function LeaveRequestsPage() {
               </Select>
             </div>
             <div className="grid w-full md:w-72">
-              <DatePickerWithRange date={dateRange} setDate={handleDateChange} />
+              <DatePickerWithRange date={dateRange} setDate={_handleDateChange} />
             </div>
             <div className="relative w-full md:w-64">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -384,7 +384,7 @@ export default function LeaveRequestsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockRequests.map((request) => (
+                {_mockRequests.map((request) => (
                   <TableRow key={request.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -401,7 +401,7 @@ export default function LeaveRequestsPage() {
                             <span> to {request.endDate}</span>
                           )}
                         </div>
-                        <div className="mt-1">{getLeaveTypeBadge(request.type)}</div>
+                        <div className="mt-1">{_getLeaveTypeBadge(request.type)}</div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -419,14 +419,14 @@ export default function LeaveRequestsPage() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{getStatusBadge(request.status)}</TableCell>
+                    <TableCell>{_getStatusBadge(request.status)}</TableCell>
                     <TableCell className="text-right">
                       {request.status === 'pending' && (
                         <div className="flex justify-end gap-2">
                           <Button
                             variant="default"
                             size="sm"
-                            onClick={() => handleApproveRequest(request.id)}
+                            onClick={() => _handleApproveRequest(request.id)}
                             disabled={processingAction}
                           >
                             <CheckCircle className="mr-1 h-3 w-3" />
@@ -475,7 +475,7 @@ export default function LeaveRequestsPage() {
                                 </Button>
                                 <Button
                                   variant="destructive"
-                                  onClick={handleRejectRequest}
+                                  onClick={_handleRejectRequest}
                                   disabled={!rejectionReason || processingAction}
                                 >
                                   Confirm Rejection

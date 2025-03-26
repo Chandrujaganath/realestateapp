@@ -3,29 +3,29 @@
 import {
   collection,
   doc,
-  _getDoc,
+  getDoc,
   getDocs,
-  _setDoc,
-  _updateDoc,
-  _deleteDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
   query,
   where,
-  _orderBy,
-  _limit,
+  orderBy,
+  limit,
   Timestamp,
-  _serverTimestamp,
+  serverTimestamp,
   CollectionReference,
   Query,
 } from 'firebase/firestore';
 import { Firestore } from 'firebase/firestore';
-import { _httpsCallable } from 'firebase/functions';
+import { httpsCallable } from 'firebase/functions';
 import { Functions } from 'firebase/functions';
 import type React from 'react';
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 import { useAuth } from '@/hooks/use-auth';
 import { db } from '@/lib/firebase';
-import { _functions } from '@/lib/firebase';
+import { functions } from '@/lib/firebase';
 import type {
   AdminUser,
   SystemTemplate,
@@ -107,10 +107,10 @@ export const SuperAdminProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       if (!db) throw new Error('Firestore not initialized');
 
       const _adminQuery = query(collection(db as Firestore, 'users'), where('role', '==', 'Admin'));
-      const _snapshot = await getDocs(adminQuery);
+      const _snapshot = await getDocs(_adminQuery);
       const adminList: AdminUser[] = [];
 
-      snapshot.forEach((doc) => {
+      _snapshot.forEach((doc) => {
         const data = doc.data();
         adminList.push({
           id: doc.id,
@@ -263,14 +263,14 @@ export const SuperAdminProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       // Mock implementation
       const mockSettings: SystemSettings = {
         id: 'global',
-        maxBookingsPerDay: 10,
-        defaultGeofenceRadius: 100,
-        announcementDefaults: {
-          duration: 7,
+          maxBookingsPerDay: 10,
+          defaultGeofenceRadius: 100,
+          announcementDefaults: {
+            duration: 7,
           priority: 'medium',
         },
         updatedBy: user?.uid || '',
-        updatedAt: new Date(),
+          updatedAt: new Date(),
       };
 
       setSettings(mockSettings);
@@ -388,13 +388,13 @@ export const SuperAdminProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const errorFallbackStats: SuperAdminDashboardStats = {
         userCounts: {
           total: 0,
-          byRole: {
-            Guest: 0,
-            Client: 0,
-            Manager: 0,
-            Admin: 0,
-            SuperAdmin: 0,
-          },
+        byRole: {
+          Guest: 0,
+          Client: 0,
+          Manager: 0,
+          Admin: 0,
+          SuperAdmin: 0,
+        },
         },
         projectStats: {
           total: 0,

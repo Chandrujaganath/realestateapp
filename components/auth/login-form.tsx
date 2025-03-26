@@ -2,8 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -20,27 +19,29 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useAuth } from '@/hooks/use-auth';
 import { toast } from '@/hooks/use-toast';
+import { AlertCircle } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 });
 
-export function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const _router = useRouter();
-  const { signIn } = useAuth();
+interface LoginFormProps {
+  onLoginSubmit: (email: string, password: string) => Promise<void>;
+  isLoading: boolean;
+  loginError: string | null;
+}
 
+export function LoginForm({ onLoginSubmit, isLoading, loginError }: LoginFormProps) {
+  const [error, setError] = useState<string | null>(null);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,32 +50,50 @@ export function LoginForm() {
     },
   });
 
+  // Use this to reset the form error when user types
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      if (error) setError(null);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, error]);
+
+  // Update local error state when loginError changes
+  useEffect(() => {
+    if (loginError) {
+      setError(loginError);
+    }
+  }, [loginError]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      setIsLoading(true);
-      await signIn(values.email, values.password);
-      // The signIn function handles redirection based on role
+      setError(null);
+      await onLoginSubmit(values.email, values.password);
     } catch (error) {
-      console.error('Login error:', error);
-      toast({
-        title: 'Error',
-        description:
-          error instanceof Error ? error.message : 'Failed to sign in. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
+      console.error('Login form error:', error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Failed to sign in. Please try again.');
+      }
     }
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
           <CardDescription>Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <div className="bg-destructive/10 p-3 rounded-md flex items-start mb-4 text-sm">
+              <AlertCircle className="h-4 w-4 text-destructive mr-2 mt-0.5" />
+              <div className="text-destructive">{error}</div>
+            </div>
+          )}
+          
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -84,7 +103,7 @@ export function LoginForm() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your email" {...field} />
+                      <Input placeholder="Enter your email" {...field} autoComplete="email" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -97,15 +116,37 @@ export function LoginForm() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        {...field} 
+                        autoComplete="current-password" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Signing In...' : 'Sign In'}
+                {isLoading ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing In...
+                  </span>
+                ) : (
+                  'Sign In'
+                )}
               </Button>
+              
+              {/* Test account reminder for development */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted/50 rounded">
+                  <strong>Dev Note:</strong> Try using test@example.com / password123
+                </div>
+              )}
             </form>
           </Form>
         </CardContent>
@@ -126,3 +167,4 @@ export function LoginForm() {
     </div>
   );
 }
+

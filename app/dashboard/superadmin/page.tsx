@@ -11,12 +11,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useSuperAdmin } from '@/contexts/super-admin-context';
+import { _useSuperAdmin } from '@/contexts/super-admin-context';
 import { useAuth } from '@/hooks/use-auth';
 
 export default function SuperAdminDashboard() {
   const { user } = useAuth();
-  const { dashboardStats, loadingDashboardStats, getDashboardStats } = useSuperAdmin();
+  const { dashboardStats, loadingDashboardStats, getDashboardStats } = _useSuperAdmin();
 
   useEffect(() => {
     console.log('SuperAdminDashboard - Current user:', user);
@@ -37,7 +37,7 @@ export default function SuperAdminDashboard() {
 
     // Only fetch dashboard stats if we have a user and that user is a superadmin
     if (user) {
-      fetchDashboardData();
+      _fetchDashboardData();
     }
 
     // Include getDashboardStats in the dependency array, but wrap it in useCallback in the SuperAdminProvider
@@ -65,7 +65,7 @@ export default function SuperAdminDashboard() {
     );
   }
 
-  if (!isSuperAdmin) {
+  if (!_isSuperAdmin) {
     console.log('SuperAdminDashboard - User role is not superadmin:', user.role);
     return (
       <div className="flex items-center justify-center h-screen">

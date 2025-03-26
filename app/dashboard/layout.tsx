@@ -3,15 +3,10 @@
 import type React from 'react';
 
 import DashboardLayout from '@/components/layout/dashboard-layout';
-import { AuthProvider } from '@/hooks/use-auth';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/use-auth-simple';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthProvider>
-      <DashboardContent>{children}</DashboardContent>
-    </AuthProvider>
-  );
+  return <DashboardContent>{children}</DashboardContent>;
 }
 
 // Separate component to use auth hook inside the provider

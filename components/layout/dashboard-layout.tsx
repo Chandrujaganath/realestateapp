@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 
 import { ImportantAnnouncementBanner } from '@/components/announcements/important-announcement-banner';
 import Sidebar from '@/components/navigation/sidebar';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/use-auth-simple';
 import { UserRole } from '@/features/users/types/user';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

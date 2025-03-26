@@ -49,16 +49,17 @@ export default function ManagerLeaveRequestsPage() {
         }
         const _leaveRequestsRef = collection(db, 'leaveRequests');
         const _q = query(
-          leaveRequestsRef,
+          _leaveRequestsRef,
           where('managerId', '==', user.uid),
           orderBy('createdAt', 'desc')
         );
 
-        const _querySnapshot = await getDocs(q);
+        const _querySnapshot = await getDocs(_q);
         const requests: LeaveRequest[] = [];
 
-        querySnapshot.forEach((doc) => {
-          requests.push({ id: doc.id, ...doc.data() } as LeaveRequest);
+        _querySnapshot.forEach((doc) => {
+          const data = doc.data() as Omit<LeaveRequest, 'id'>;
+          requests.push({ id: doc.id, ...data });
         });
 
         setLeaveRequests(requests);
@@ -70,7 +71,7 @@ export default function ManagerLeaveRequestsPage() {
       }
     };
 
-    fetchLeaveRequests();
+    _fetchLeaveRequests();
   }, [user]);
 
   const handleUpdateStatus = async (requestId: string, status: 'approved' | 'rejected') => {
@@ -80,14 +81,14 @@ export default function ManagerLeaveRequestsPage() {
         throw new Error('Firebase database is not initialized');
       }
       const _requestRef = doc(db, 'leaveRequests', requestId);
-      await updateDoc(requestRef, {
+      await updateDoc(_requestRef, {
         status,
         updatedAt: Timestamp.now(),
       });
 
       // Update local state
       setLeaveRequests((_prev) =>
-        prev.map((request) => (request.id === requestId ? { ...request, status } : request))
+        _prev.map((request) => (request.id === requestId ? { ...request, status } : request))
       );
 
       toast.success(

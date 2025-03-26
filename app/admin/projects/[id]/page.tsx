@@ -44,16 +44,16 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
 
         // Use the id from params directly since this is a client component
         const _projectId = params.id;
-        const projectData = await getProjectById(projectId);
+        const projectData = await getProjectById(_projectId);
         setProject(projectData as ExtendedProject);
 
         if (projectData && getManagers) {
           // Fetch assigned managers
           const _allManagers = await getManagers();
-          const _managers = allManagers.filter((manager) =>
+          const _managers = _allManagers.filter((manager) =>
             projectData.managersAssigned.includes(manager.uid)
           );
-          setAssignedManagers(managers);
+          setAssignedManagers(_managers);
         }
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -61,7 +61,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       }
     };
 
-    fetchProjectData();
+    _fetchProjectData();
   }, [params.id, getProjectById, getManagers]);
 
   const _getStatusColor = (_status: Project['status']) => {
@@ -160,7 +160,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {daySlot.slots.map((slot, _index) => (
                           <div
-                            key={index}
+                            key={_index}
                             className="flex items-center gap-2 bg-muted/50 rounded-md p-2"
                           >
                             <Clock className="h-4 w-4 text-muted-foreground" />
@@ -344,13 +344,13 @@ function ProjectDetailSkeleton() {
             <div className="space-y-6">
               {Array(3)
                 .fill(0)
-                .map((_, _i) => (
+                .map((_, i) => (
                   <div key={i} className="space-y-2">
                     <Skeleton className="h-6 w-24" />
                     <div className="grid grid-cols-3 gap-2">
                       {Array(3)
                         .fill(0)
-                        .map((_, _j) => (
+                        .map((_, j) => (
                           <Skeleton key={j} className="h-10 w-full" />
                         ))}
                     </div>

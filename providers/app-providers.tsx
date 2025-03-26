@@ -5,7 +5,13 @@ import React, { Suspense } from 'react';
 
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
-import { AuthProvider } from '@/contexts/auth-context';
+import { AuthProvider } from '@/hooks/use-auth-simple';
+
+// No SSR navigation wrapper with error boundary
+const ClientBottomNavWrapper = dynamic(() => import('@/components/client-nav-wrapper'), {
+  ssr: false,
+  loading: () => null,
+});
 
 // Use dynamic import with error boundaries for client-only messaging component
 const ClientMessagingWrapper = dynamic(() => import('@/components/client-messaging-wrapper'), {
@@ -13,15 +19,15 @@ const ClientMessagingWrapper = dynamic(() => import('@/components/client-messagi
   loading: () => null,
 });
 
-// Simple error boundary for messaging component to prevent app crashes
-function MessagingErrorBoundary({ children }: { children: React.ReactNode }) {
+// Simple error boundary component to prevent app crashes
+function ErrorBoundary({ children, fallback = null }: { children: React.ReactNode, fallback?: React.ReactNode }) {
   if (typeof window === 'undefined') return null;
 
   try {
     return <>{children}</>;
   } catch (error) {
-    console.error('Messaging component error:', error);
-    return null;
+    console.error('Component error:', error);
+    return fallback;
   }
 }
 
@@ -37,10 +43,17 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <div className="flex min-h-screen flex-col">
           <main className="flex-1 pb-16">{children}</main>
         </div>
+        
         <Suspense fallback={null}>
-          <MessagingErrorBoundary>
+          <ErrorBoundary>
+            <ClientBottomNavWrapper />
+          </ErrorBoundary>
+        </Suspense>
+        
+        <Suspense fallback={null}>
+          <ErrorBoundary>
             <ClientMessagingWrapper />
-          </MessagingErrorBoundary>
+          </ErrorBoundary>
         </Suspense>
         <Toaster />
       </AuthProvider>

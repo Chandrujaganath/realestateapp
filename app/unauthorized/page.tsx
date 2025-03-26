@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/use-auth-simple';
 
 export default function UnauthorizedPage() {
   const { user } = useAuth();
   const router = useRouter();
 
   // Function to redirect user to their appropriate dashboard
-  const _goToDashboard = () => {
+  const goToDashboard = () => {
     if (!user) {
       router.push('/auth/login');
       return;

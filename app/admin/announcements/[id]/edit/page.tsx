@@ -18,7 +18,7 @@ export default function EditAnnouncementPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const announcementId = params?.id as string;
+  const announcementId = _params?.id as string;
 
   useEffect(() => {
     const _loadAnnouncement = async () => {
@@ -45,7 +45,7 @@ export default function EditAnnouncementPage() {
       }
     };
 
-    loadAnnouncement();
+    _loadAnnouncement();
   }, [announcementId, fetchAnnouncementById]);
 
   if (isLoading) {
@@ -77,7 +77,7 @@ export default function EditAnnouncementPage() {
         />
         <div className="flex justify-center">
           <button
-            onClick={() => router.back()}
+            onClick={() => _router.back()}
             className="px-4 py-2 bg-primary text-primary-foreground rounded"
           >
             Go Back

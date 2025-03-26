@@ -139,8 +139,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Query plots collection for plots owned by the current user
       const _plotsRef = collection(db, 'plots');
-      const _q = query(plotsRef, where('ownerId', '==', user.uid));
-      const querySnapshot = await getDocs(q);
+      const _q = query(_plotsRef, where('ownerId', '==', user.uid));
+      const querySnapshot = await getDocs(_q);
 
       const plots: Plot[] = [];
       querySnapshot.forEach((doc) => {
@@ -180,7 +180,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         createdBy: user.uid,
       };
 
-      await addDoc(projectsRef, projectWithMetadata);
+      await addDoc(_projectsRef, _projectWithMetadata);
     } catch (error) {
       console.error('Error creating project:', error);
       throw error;
@@ -194,7 +194,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const _templatesRef = collection(db, 'projectTemplates');
-      const querySnapshot = await getDocs(templatesRef);
+      const querySnapshot = await getDocs(_templatesRef);
 
       return querySnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -213,7 +213,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const _requestsRef = collection(db, 'visitRequests');
-      const querySnapshot = await getDocs(requestsRef);
+      const querySnapshot = await getDocs(_requestsRef);
 
       return querySnapshot.docs.map((doc) => ({
         id: doc.id,

@@ -64,7 +64,7 @@ export function createOfflineQueue() {
 
     for (const item of queue) {
       try {
-        const processor = processors[item.operation];
+        const processor = _processors[item.operation];
         if (processor) {
           await processor(item.data);
         } else {

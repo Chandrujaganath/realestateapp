@@ -27,7 +27,7 @@ export default function AnalyticsPage() {
       }
     };
 
-    fetchAnalytics();
+    _fetchAnalytics();
   }, [getSystemAnalytics]);
 
   if (loading) {
@@ -65,7 +65,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+    <div>
         <h1 className="text-3xl font-bold">System Analytics</h1>
         <p className="text-muted-foreground">Monitor system performance and user activities</p>
       </div>
@@ -321,7 +321,7 @@ function AnalyticsSkeleton() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, _i) => (
+        {Array.from({ length: 4 }).map((_, i) => (
           <Card key={i}>
             <CardHeader className="pb-2">
               <Skeleton className="h-4 w-[120px]" />

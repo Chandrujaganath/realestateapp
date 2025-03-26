@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Home, MessageSquare } from 'lucide-react';
+import { Cog, Home, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
@@ -19,9 +19,9 @@ export default function MobileNav({ userRole, currentPath }: MobileNavProps) {
       icon: Home,
     },
     {
-      label: 'Properties',
-      href: '/project',
-      icon: Building2,
+      label: 'Settings',
+      href: '/settings',
+      icon: Cog,
     },
     {
       label: 'Messages',
@@ -31,7 +31,7 @@ export default function MobileNav({ userRole, currentPath }: MobileNavProps) {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 backdrop-blur-md bg-background/80 border-t border-border/40 z-50 shadow-md">
+    <div className="fixed bottom-0 left-0 right-0 backdrop-blur-md bg-background/80 border-t border-border/40 z-[9999] shadow-md w-full">
       <nav className="flex justify-around items-center h-16">
         {_navItems.map((item) => (
           <Link

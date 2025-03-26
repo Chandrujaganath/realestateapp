@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Building2, MessageSquare } from 'lucide-react';
+import { Home, Building2, MessageSquare, Cog } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -14,24 +14,21 @@ export function GuestBottomNav() {
       label: 'Home',
       href: '/dashboard/guest',
       icon: Home,
-      active: pathname === '/dashboard/guest',
     },
     {
-      label: 'Properties',
-      href: '/project',
-      icon: Building2,
-      active: pathname?.includes('/project') ?? false,
+      label: 'Settings',
+      href: '/settings',
+      icon: Cog,
     },
     {
       label: 'Messages',
       href: '/messages',
       icon: MessageSquare,
-      active: pathname?.includes('/messages') ?? false,
     },
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 backdrop-blur-md bg-background/80 border-t border-border/40 h-16 z-50 shadow-md">
+    <div className="fixed bottom-0 left-0 right-0 backdrop-blur-md bg-background/80 border-t border-border/40 h-16 z-[9999] shadow-md w-full">
       <div className="grid grid-cols-3 h-full">
         {_navItems.map((item) => (
           <Link

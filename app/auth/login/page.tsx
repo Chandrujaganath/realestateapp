@@ -1,173 +1,201 @@
 'use client';
 
-import { LogIn } from 'lucide-react';
-import Link from 'next/link';
+import { signInWithEmailAndPassword, AuthError } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import type React from 'react';
 import { useState, useEffect } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { setCookie } from 'cookies-next';
-import { getDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { LoginForm } from '@/components/auth/login-form';
 import { auth, db } from '@/lib/firebase';
+import { setCookie } from 'cookies-next';
+
+type LoginError = {
+  code: string;
+  message: string;
+};
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [error, setError] = useState<LoginError | null>(null);
+  const [loading, setLoading] = useState(false);
+  
+  // For debugging - show current auth state when component loads
+  useEffect(() => {
+    // Check for existing cookies
+    const authToken = document.cookie.includes('authToken');
+    const userRole = document.cookie.includes('userRole');
+    
+    console.log('Login page loaded. Auth state:');
+    console.log('- Auth token present:', authToken);
+    console.log('- User role present:', userRole);
+    
+    // If both cookies exist, attempt to redirect
+    if (authToken && userRole) {
+      console.log('Auth detected. User should be redirected by middleware.');
+    }
+  }, []);
 
-  // Direct login function without using the auth hook
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+  const getErrorMessage = (error: AuthError): LoginError => {
+    console.log('Auth error code:', error.code);
+    switch (error.code) {
+      case 'auth/invalid-email':
+        return {
+          code: error.code,
+          message: 'Invalid email address format.',
+        };
+      case 'auth/user-disabled':
+        return {
+          code: error.code,
+          message: 'This account has been disabled. Please contact support.',
+        };
+      case 'auth/user-not-found':
+        return {
+          code: error.code,
+          message: 'No account found with this email address.',
+        };
+      case 'auth/wrong-password':
+        return {
+          code: error.code,
+          message: 'Incorrect password. Please try again.',
+        };
+      case 'auth/too-many-requests':
+        return {
+          code: error.code,
+          message: 'Too many failed attempts. Please try again later.',
+        };
+      default:
+        return {
+          code: error.code,
+          message: 'An error occurred during sign in. Please try again.',
+        };
+    }
+  };
 
+  const handleLogin = async (email: string, password: string) => {
     try {
-      console.log('Attempting to sign in with:', email);
-      
-      // Direct Firebase authentication
+      setLoading(true);
+      setError(null);
+      console.log('Attempting login with:', email);
+      // Authenticate with Firebase
+      if (!auth) throw new Error('Firebase auth not initialized');
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
-      // Get the user's role from Firestore
+      console.log('Login successful, user:', user.uid);
+
+      // Get user token
+      const token = await user.getIdToken();
+      console.log('Token obtained, length:', token.length);
+
+      // Set the auth token in a cookie
+      setCookie('authToken', token, {
+        maxAge: 60 * 60 * 24 * 7, // 1 week
+        path: '/',
+        sameSite: 'strict',
+      });
+      console.log('Auth token cookie set');
+
+      // Get user info from Firestore
+      console.log('Fetching user document');
+      if (!db) throw new Error('Firestore database not initialized');
       const userDoc = await getDoc(doc(db, 'users', user.uid));
-      let role = null;
-      
+
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        role = userData.role?.toLowerCase() || 'client';
-        
-        // Set token in cookie
-        const token = await user.getIdToken();
-        setCookie('authToken', token, {
-          maxAge: 60 * 60 * 24 * 7, // 1 week
-          path: '/',
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-        });
-        
-        // Set role in cookie
+        // Ensure role is lowercase for consistency
+        const role = userData.role?.toLowerCase();
+        console.log('User role:', role);
+
+        if (!role) {
+          throw new Error('User role not found');
+        }
+
+        // Set role cookie for middleware
         setCookie('userRole', role, {
           maxAge: 60 * 60 * 24 * 7, // 1 week
           path: '/',
-          secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict',
         });
-        
-        // Update lastLogin
-        await updateDoc(doc(db, 'users', user.uid), {
-          lastLogin: serverTimestamp(),
-        });
-        
+        console.log('User role cookie set');
+
         console.log('Login successful, redirecting to dashboard for role:', role);
-        
-        // Direct page navigation based on role
-        if (role === 'admin') {
-          window.location.href = '/dashboard/admin';
-        } else if (role === 'client') {
-          window.location.href = '/dashboard/client';
-        } else if (role === 'manager') {
-          window.location.href = '/dashboard/manager';
-        } else if (role === 'guest') {
-          window.location.href = '/dashboard/guest';
-        } else if (role === 'superadmin') {
-          window.location.href = '/dashboard/superadmin';
+
+        // Small delay to ensure cookies are set before redirect
+        setTimeout(() => {
+          // Redirect based on role
+          switch (role) {
+            case 'admin':
+              router.push('/dashboard/admin');
+              break;
+            case 'client':
+              router.push('/dashboard/client');
+              break;
+            case 'manager':
+              router.push('/dashboard/manager');
+              break;
+            case 'guest':
+              router.push('/dashboard/guest');
+              break;
+            case 'superadmin':
+              router.push('/dashboard/superadmin');
+              break;
+            default:
+              router.push('/dashboard');
+          }
+        }, 500);
+      } else {
+        console.error('User document not found');
+        setError({
+          code: 'auth/user-not-found',
+          message: 'User profile not found. Please contact support.',
+        });
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      if (err instanceof Error) {
+        if ('code' in err) {
+          setError(getErrorMessage(err as AuthError));
         } else {
-          window.location.href = '/dashboard';
+          setError({
+            code: 'auth/unknown',
+            message: err.message || 'An unexpected error occurred.',
+          });
         }
       } else {
-        setError('User profile not found. Please contact support.');
-        setLoading(false);
+        setError({
+          code: 'auth/unknown',
+          message: 'An unexpected error occurred.',
+        });
       }
-    } catch (err: any) {
-      console.error('Login error:', err);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-        setError('Invalid email or password. Please try again.');
-      } else if (err.code === 'auth/too-many-requests') {
-        setError('Too many failed attempts. Please try again later.');
-      } else {
-        setError(err.message || 'Failed to sign in');
-      }
+    } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="space-y-6">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Welcome back</h1>
-        <p className="text-muted-foreground">Enter your credentials to sign in to your account</p>
-      </div>
+  // For testing - option to manually clear cookies
+  const clearAuthCookies = () => {
+    document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    console.log('Auth cookies cleared');
+  };
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+  return (
+    <div className="h-full bg-background">
+      <LoginForm 
+        onLoginSubmit={handleLogin} 
+        isLoading={loading} 
+        loginError={error?.message || null} 
+      />
+      {/* Hidden debug button - only in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-2 right-2 opacity-50">
+          <button 
+            onClick={clearAuthCookies}
+            className="text-xs text-gray-500 p-1 border border-gray-300 rounded"
+          >
+            Clear Auth (Debug)
+          </button>
         </div>
       )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="name@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
-            <Link href="/auth/forgot-password" className="text-sm text-primary hover:underline">
-              Forgot password?
-            </Link>
-          </div>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent"></span>
-              Signing in...
-            </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              <LogIn className="h-4 w-4" />
-              Sign In
-            </span>
-          )}
-        </Button>
-      </form>
-
-      <div className="text-center text-sm space-y-2">
-        <div>
-          Don't have an account?{' '}
-          <Link href="/auth/register" className="text-primary hover:underline">
-            Sign up
-          </Link>
-        </div>
-        <div>
-          Want to visit a property?{' '}
-          <Link href="/auth/register-guest" className="text-primary hover:underline">
-            Register as Guest
-          </Link>
-        </div>
-      </div>
     </div>
   );
 }

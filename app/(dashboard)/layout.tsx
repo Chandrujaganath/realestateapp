@@ -14,8 +14,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Extract page title from pathname
   const _getPageTitle = () => {
+    if (!_pathname) return 'Dashboard';
+    
     // Remove leading slash and split by slashes
-    const parts = pathname.substring(1).split('/');
+    const parts = _pathname.substring(1).split('/');
 
     // If it's a root dashboard path, return dashboard
     if (parts.length === 1 && parts[0] === 'dashboard') {
@@ -37,7 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex flex-col">
-      <PageHeader title={getPageTitle()} />
+      <PageHeader title={_getPageTitle()} />
 
       <main className="flex-1 container mx-auto p-4">{children}</main>
     </div>

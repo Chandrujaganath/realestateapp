@@ -27,7 +27,7 @@ export function useGeofence({ projectId, interval = 60000, useMock = true }: Use
           ? await mockGeofenceCheck(projectId)
           : await checkIfInProjectGeofence(projectId);
 
-        setIsWithinGeofence(isWithin);
+        setIsWithinGeofence(_isWithin);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error checking geofence'));

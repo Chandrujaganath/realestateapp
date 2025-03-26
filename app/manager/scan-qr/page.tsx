@@ -45,7 +45,7 @@ export default function ScanQrPage() {
         // Verify with the backend
         if (verifyQrCode) {
           const _result = await verifyQrCode(qrData);
-          setScanResult(result);
+          setScanResult(_result);
           toast({
             title: 'Success',
             description: `${activeTab === 'plot' ? 'Plot' : 'Visit'} QR code verified successfully`,

@@ -92,7 +92,7 @@ export function useMemoryMonitoring(intervalMs = 30000) {
       'performance' in window &&
       'memory' in (window.performance as any);
 
-    if (!canMonitor) {
+    if (!_canMonitor) {
       console.warn('Memory monitoring is not supported in this browser');
       return;
     }
@@ -119,7 +119,7 @@ export function useMemoryMonitoring(intervalMs = 30000) {
     const _intervalId = setInterval(checkMemory, intervalMs);
 
     return () => {
-      clearInterval(intervalId);
+      clearInterval(_intervalId);
     };
   }, [intervalMs]);
 

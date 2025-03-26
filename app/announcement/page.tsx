@@ -79,7 +79,7 @@ export default function AnnouncementPage() {
           <p className="text-muted-foreground">Latest updates and news about our projects</p>
         </div>
 
-        {(isAdmin || isManager) && (
+        {(_isAdmin || _isManager) && (
           <Link href="/announcement/create">
             <Button>
               <Bell className="mr-2 h-4 w-4" />
@@ -90,7 +90,7 @@ export default function AnnouncementPage() {
       </div>
 
       <div className="space-y-6">
-        {announcements.map((announcement) => (
+        {_announcements.map((announcement) => (
           <Card key={announcement.id} className="glass-card">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">

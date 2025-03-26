@@ -60,7 +60,7 @@ export default function CreateAnnouncementPage() {
     setFormData((prev) => {
       const roles = [...prev.targetRoles];
       if (roles.includes(role)) {
-        return { ...prev, targetRoles: roles.filter((_r) => r !== role) };
+        return { ...prev, targetRoles: roles.filter((_r) => _r !== role) };
       } else {
         return { ...prev, targetRoles: [...roles, role] };
       }
@@ -78,7 +78,7 @@ export default function CreateAnnouncementPage() {
       };
 
       // Create the announcement
-      const announcementId = await createAnnouncement(announcementData);
+      const announcementId = await createAnnouncement(_announcementData);
 
       // Send notification if option is selected
       if (sendNotification && announcementId) {
@@ -91,7 +91,7 @@ export default function CreateAnnouncementPage() {
             body: JSON.stringify({ announcementId }),
           });
 
-          if (!response.ok) {
+          if (!_response.ok) {
             console.error('Failed to send notifications');
           }
         } catch (notificationError) {
@@ -127,7 +127,7 @@ export default function CreateAnnouncementPage() {
         <h1 className="text-3xl font-bold">Create Announcement</h1>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={_handleSubmit}>
         <Card className="glass-card">
           <CardHeader>
             <CardTitle>Announcement Details</CardTitle>
@@ -162,7 +162,7 @@ export default function CreateAnnouncementPage() {
 
               <div className="grid gap-2">
                 <Label>Priority</Label>
-                <Select value={formData.priority} onValueChange={handlePriorityChange}>
+                <Select value={formData.priority} onValueChange={_handlePriorityChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select priority" />
                   </SelectTrigger>

@@ -32,8 +32,8 @@ export async function logAction(
   try {
     const _logData: AuditLog = {
       action,
-      performedBy: userId,
-      performedByRole: userRole,
+      performedBy: _userId,
+      performedByRole: _userRole,
       timestamp: serverTimestamp(),
       entityType,
       entityId,
@@ -42,7 +42,12 @@ export async function logAction(
       newValue,
     };
 
-    await addDoc(collection(db, 'auditLogs'), logData);
+    if (!db) {
+      console.error('Firestore database is not initialized');
+      return;
+    }
+
+    await addDoc(collection(db, 'auditLogs'), _logData);
   } catch (error) {
     console.error('Failed to log action:', error);
     // Don't throw - logging should not break the main flow

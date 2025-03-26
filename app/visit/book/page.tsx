@@ -60,12 +60,11 @@ export default function BookVisitPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, requestVisit } = useAuth();
-
   // Form state
-  const [projectId, setProjectId] = useState<string | null>(searchParams.get('projectId'));
-  const [projectName, setProjectName] = useState<string | null>(searchParams.get('projectName'));
-  const [plotId, setPlotId] = useState<string | null>(searchParams.get('plotId'));
-  const [plotNumber, setPlotNumber] = useState<string | null>(searchParams.get('plotNumber'));
+  const [projectId, setProjectId] = useState<string | null>(searchParams?.get('projectId') ?? null);
+  const [projectName, setProjectName] = useState<string | null>(searchParams?.get('projectName') ?? null);
+  const [plotId, setPlotId] = useState<string | null>(searchParams?.get('plotId') ?? null);
+  const [plotNumber, setPlotNumber] = useState<string | null>(searchParams?.get('plotNumber') ?? null);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [timeSlot, setTimeSlot] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
@@ -80,19 +79,19 @@ export default function BookVisitPage() {
 
   // Effect to set project and plot details from URL parameters
   useEffect(() => {
-    if (searchParams.get('projectId')) {
+    if (searchParams?.get('projectId')) {
       setProjectId(searchParams.get('projectId'));
     }
 
-    if (searchParams.get('projectName')) {
+    if (searchParams?.get('projectName')) {
       setProjectName(searchParams.get('projectName'));
     }
 
-    if (searchParams.get('plotId')) {
+    if (searchParams?.get('plotId')) {
       setPlotId(searchParams.get('plotId'));
     }
 
-    if (searchParams.get('plotNumber')) {
+    if (searchParams?.get('plotNumber')) {
       setPlotNumber(searchParams.get('plotNumber'));
     }
   }, [searchParams]);
@@ -128,7 +127,7 @@ export default function BookVisitPage() {
   const _handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!_validateForm()) {
       return;
     }
 
@@ -158,7 +157,7 @@ export default function BookVisitPage() {
           notes: notes.trim() || undefined,
         });
 
-        if (result.success) {
+        if (_result && 'success' in _result && _result.success) {
           toast({
             title: 'Visit Request Submitted',
             description: 'Your visit request has been submitted successfully.',
@@ -199,7 +198,7 @@ export default function BookVisitPage() {
       </div>
 
       <Card className="glass-card">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={_handleSubmit}>
           <CardHeader>
             <CardTitle>Visit Details</CardTitle>
             <CardDescription>
@@ -269,7 +268,7 @@ export default function BookVisitPage() {
                   <SelectValue placeholder="Select a time slot" />
                 </SelectTrigger>
                 <SelectContent>
-                  {TIME_SLOTS.map((slot) => (
+                  {Array.isArray(timeSlot) && timeSlot.map((slot: string) => (
                     <SelectItem key={slot} value={slot}>
                       <div className="flex items-center">
                         <Clock className="mr-2 h-4 w-4 text-muted-foreground" />

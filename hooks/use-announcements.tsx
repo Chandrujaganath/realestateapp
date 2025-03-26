@@ -34,7 +34,7 @@ export function useAnnouncements() {
         updatedAt: announcement.updatedAt ? new Date(announcement.updatedAt) : undefined,
       }));
 
-      setAnnouncements(processedAnnouncements);
+      setAnnouncements(_processedAnnouncements);
     } catch (err) {
       console.error('Error fetching announcements:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -138,9 +138,8 @@ export function useAnnouncements() {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to delete announcement');
       }
-
       // Update local state
-      setAnnouncements((_prev) => prev.filter((_a) => a.id !== id));
+      setAnnouncements((prev) => prev.filter((announcement) => announcement.id !== id));
 
       toast.success('Announcement deleted successfully');
       return true;

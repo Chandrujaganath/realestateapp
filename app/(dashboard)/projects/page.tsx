@@ -35,7 +35,7 @@ export default function ProjectsPage() {
           <p className="text-muted-foreground">Browse and explore real estate projects</p>
         </div>
 
-        {showAddButton && (
+        {_showAddButton && (
           <Link href="/projects/create">
             <Button>
               <Plus className="mr-2 h-4 w-4" />

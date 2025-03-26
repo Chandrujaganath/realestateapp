@@ -51,10 +51,10 @@ export function debounce<T extends (...args: any[]) => any>(
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
 
-  return function executedFunction(...args: Parameters<T>): void {
+  return (...args: Parameters<T>): void => {
     const _later = (): void => {
       clearTimeout(timeout);
-      func.apply(this, args);
+      func.apply(null, args);
     };
 
     clearTimeout(timeout);

@@ -9,7 +9,7 @@ export function useLazyComponent<T>(importFunc: () => Promise<{ default: T }>) {
   useEffect(() => {
     let isMounted = true;
 
-    importFunc().then((_module) => {
+    importFunc().then((module) => {
       if (isMounted) {
         setComponent(module.default);
       }
@@ -54,7 +54,7 @@ export function createPaginatedQuery<T>(
       setLoading(true);
       try {
         const result = await fetchFunction(lastDoc, initialLimit);
-        setData((_prev) => [...prev, ...result.data]);
+        setData((_prev) => [..._prev, ...result.data]);
         setLastDoc(result.lastDoc);
         setHasMore(result.data.length === initialLimit);
       } catch (error) {
@@ -84,7 +84,7 @@ export function createCachedFetch(ttlMs: number = 5 * 60 * 1000) {
 
     // If not cached or expired, fetch new data
     const _response = await fetch(url, options);
-    const data = await response.json();
+    const data = await _response.json();
 
     // Cache the new response
     cache.set(cacheKey, { data, timestamp: now });
