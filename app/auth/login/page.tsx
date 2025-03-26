@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 import { LoginForm } from '@/components/auth/login-form';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, isFirebaseInitialized } from '@/lib/firebase';
+import { addFirebaseDebugger, diagnoseFirebaseIssues } from '@/lib/firebase-checker';
 import { setCookie } from 'cookies-next';
 
 type LoginError = {
@@ -18,6 +19,43 @@ export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<LoginError | null>(null);
   const [loading, setLoading] = useState(false);
+  const [firebaseReady, setFirebaseReady] = useState(false);
+  
+  // Check if Firebase is initialized on component mount
+  useEffect(() => {
+    // Verify that Firebase auth is ready
+    const checkFirebase = () => {
+      if (isFirebaseInitialized() && auth) {
+        setFirebaseReady(true);
+        console.log('Firebase auth is ready to use');
+      } else {
+        setFirebaseReady(false);
+        console.error('Firebase auth is not initialized');
+        
+        // Log diagnostic information
+        const diagnostics = diagnoseFirebaseIssues();
+        console.error('Firebase diagnostics:', diagnostics);
+        
+        setError({
+          code: 'auth/not-initialized',
+          message: 'Firebase auth not initialized. Please try again later.'
+        });
+      }
+    };
+    
+    // Check immediately and also after a short delay to allow for async initialization
+    checkFirebase();
+    const timeout = setTimeout(checkFirebase, 1000);
+    
+    // Add the Firebase debugger in development mode
+    if (process.env.NODE_ENV === 'development') {
+      setTimeout(() => {
+        addFirebaseDebugger();
+      }, 2000);
+    }
+    
+    return () => clearTimeout(timeout);
+  }, []);
   
   // For debugging - show current auth state when component loads
   useEffect(() => {
@@ -28,6 +66,7 @@ export default function LoginPage() {
     console.log('Login page loaded. Auth state:');
     console.log('- Auth token present:', authToken);
     console.log('- User role present:', userRole);
+    console.log('- Firebase initialized:', isFirebaseInitialized());
     
     // If both cookies exist, attempt to redirect
     if (authToken && userRole) {
@@ -76,8 +115,13 @@ export default function LoginPage() {
       setLoading(true);
       setError(null);
       console.log('Attempting login with:', email);
+      
+      // First check if Firebase is initialized
+      if (!isFirebaseInitialized() || !auth) {
+        throw new Error('Firebase auth not initialized');
+      }
+      
       // Authenticate with Firebase
-      if (!auth) throw new Error('Firebase auth not initialized');
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       console.log('Login successful, user:', user.uid);
@@ -96,7 +140,10 @@ export default function LoginPage() {
 
       // Get user info from Firestore
       console.log('Fetching user document');
-      if (!db) throw new Error('Firestore database not initialized');
+      if (!db) {
+        throw new Error('Firestore database not initialized');
+      }
+      
       const userDoc = await getDoc(doc(db, 'users', user.uid));
 
       if (userDoc.exists()) {
@@ -177,6 +224,11 @@ export default function LoginPage() {
     document.cookie = 'userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     console.log('Auth cookies cleared');
   };
+  
+  // For testing - additional debugging for Firebase
+  const retryFirebaseInit = () => {
+    window.location.reload();
+  };
 
   return (
     <div className="h-full bg-background">
@@ -184,8 +236,9 @@ export default function LoginPage() {
         onLoginSubmit={handleLogin} 
         isLoading={loading} 
         loginError={error?.message || null} 
+        isFirebaseInitialized={firebaseReady}
       />
-      {/* Hidden debug button - only in development */}
+      {/* Hidden debug buttons - only in development */}
       {process.env.NODE_ENV === 'development' && (
         <div className="fixed bottom-2 right-2 opacity-50">
           <button 
@@ -193,6 +246,12 @@ export default function LoginPage() {
             className="text-xs text-gray-500 p-1 border border-gray-300 rounded"
           >
             Clear Auth (Debug)
+          </button>
+          <button 
+            onClick={retryFirebaseInit}
+            className="text-xs text-gray-500 p-1 border border-gray-300 rounded ml-2"
+          >
+            Retry Firebase (Debug)
           </button>
         </div>
       )}

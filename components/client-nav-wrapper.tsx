@@ -9,13 +9,8 @@ import { GuestBottomNav } from '@/components/navigation/guest-bottom-nav';
 import MobileNav from '@/components/navigation/mobile-nav';
 import { useAuth } from '@/hooks/use-auth-simple';
 
-// User type for our application
-type User = {
-  uid?: string;
-  role?: string;
-  displayName?: string;
-  email?: string;
-};
+// Import only the type for type checking
+import type { ExtendedUser } from '@/hooks/use-auth';
 
 export default function ClientNavWrapper() {
   const pathname = usePathname();
@@ -29,27 +24,25 @@ export default function ClientNavWrapper() {
 
   if (!mounted) return null;
   
-  // Only exclude auth-related paths
+  // Don't render navigation for auth, login pages, root, and error pages
   const excludedPaths = [
     '/auth',
     '/login',
+    '/unauthorized',
+    '/verify-email',
     '/reset-password',
+    '/',
   ];
   
-  // Don't show nav on auth pages
   if (excludedPaths.some(path => pathname === path || pathname?.startsWith(path))) {
     return null;
   }
 
-  // When still loading auth status, still show the default nav
-  if (loading) {
-    return <BottomNav />;
-  }
+  // When still loading, don't render the navigation
+  if (loading) return null;
 
-  // If no user is authenticated, show the default bottom nav
-  if (!user) {
-    return <BottomNav />;
-  }
+  // Don't render if no user is authenticated
+  if (!user) return null;
 
   // Use specific navigation components for different roles
   const role = user.role?.toLowerCase();

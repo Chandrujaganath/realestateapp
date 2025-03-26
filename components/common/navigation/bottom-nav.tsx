@@ -45,8 +45,10 @@ const _excludedPaths = [
   '/auth/register-guest',
   '/auth/register-as-client',
   '/auth/register-as-guest',
+  '/unauthorized',
+  '/verify-email',
   '/reset-password',
-  // We want to show the navigation everywhere else
+  // Remove any dashboard paths from exclusion
 ];
 
 export function BottomNav() {
@@ -83,7 +85,7 @@ export function BottomNav() {
   return (
     <AnimatePresence>
       <motion.nav
-        className="fixed bottom-0 left-0 right-0 z-[100] backdrop-blur-md bg-background/80 border-t border-border/40 h-16 shadow-md w-full"
+        className="fixed bottom-0 left-0 right-0 z-[9999] backdrop-blur-md bg-background/80 border-t border-border/40 h-16 shadow-md w-full"
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}

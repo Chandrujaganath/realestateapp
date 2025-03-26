@@ -13,7 +13,7 @@ export default function Loading() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, _i) => (
-          <Card key={i}>
+          <Card key={_i}>
             <CardHeader className="pb-2">
               <Skeleton className="h-4 w-[120px]" />
             </CardHeader>

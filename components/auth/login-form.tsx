@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -37,9 +37,15 @@ interface LoginFormProps {
   onLoginSubmit: (email: string, password: string) => Promise<void>;
   isLoading: boolean;
   loginError: string | null;
+  isFirebaseInitialized?: boolean;
 }
 
-export function LoginForm({ onLoginSubmit, isLoading, loginError }: LoginFormProps) {
+export function LoginForm({ 
+  onLoginSubmit, 
+  isLoading, 
+  loginError, 
+  isFirebaseInitialized = false 
+}: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -67,6 +73,12 @@ export function LoginForm({ onLoginSubmit, isLoading, loginError }: LoginFormPro
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      // Check if Firebase is initialized before submitting
+      if (!isFirebaseInitialized) {
+        setError('Firebase auth not initialized. Please refresh the page.');
+        return;
+      }
+      
       setError(null);
       await onLoginSubmit(values.email, values.password);
     } catch (error) {
@@ -79,6 +91,10 @@ export function LoginForm({ onLoginSubmit, isLoading, loginError }: LoginFormPro
     }
   }
 
+  const handleReload = () => {
+    window.location.reload();
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-md shadow-lg">
@@ -87,6 +103,21 @@ export function LoginForm({ onLoginSubmit, isLoading, loginError }: LoginFormPro
           <CardDescription>Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <CardContent>
+          {!isFirebaseInitialized && (
+            <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-md flex items-start mb-4 text-sm">
+              <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-500 mr-2 mt-0.5" />
+              <div className="text-yellow-800 dark:text-yellow-400">
+                Firebase authentication is initializing. 
+                <button 
+                  onClick={handleReload} 
+                  className="ml-2 text-blue-600 dark:text-blue-400 inline-flex items-center"
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" /> Refresh
+                </button>
+              </div>
+            </div>
+          )}
+          
           {error && (
             <div className="bg-destructive/10 p-3 rounded-md flex items-start mb-4 text-sm">
               <AlertCircle className="h-4 w-4 text-destructive mr-2 mt-0.5" />
@@ -127,7 +158,11 @@ export function LoginForm({ onLoginSubmit, isLoading, loginError }: LoginFormPro
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isLoading || !isFirebaseInitialized}
+              >
                 {isLoading ? (
                   <span className="flex items-center">
                     <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -135,6 +170,11 @@ export function LoginForm({ onLoginSubmit, isLoading, loginError }: LoginFormPro
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     Signing In...
+                  </span>
+                ) : !isFirebaseInitialized ? (
+                  <span className="flex items-center">
+                    <RefreshCw className="animate-spin -ml-1 mr-3 h-4 w-4" />
+                    Initializing...
                   </span>
                 ) : (
                   'Sign In'
@@ -144,7 +184,7 @@ export function LoginForm({ onLoginSubmit, isLoading, loginError }: LoginFormPro
               {/* Test account reminder for development */}
               {process.env.NODE_ENV === 'development' && (
                 <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted/50 rounded">
-                  <strong>Dev Note:</strong> Try using test@example.com / password123
+                  <strong>Dev Note:</strong> Try using admin@realestate-app.com / password123
                 </div>
               )}
             </form>
