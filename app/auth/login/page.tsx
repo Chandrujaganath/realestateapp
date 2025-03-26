@@ -1,54 +1,54 @@
-"use client";
+'use client';
 
-import type React from "react"
+import { LogIn } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import type React from 'react';
+import { useState, useEffect } from 'react';
 
-import { useState, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
-import { useAuth } from "@/hooks/use-auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { LogIn } from "lucide-react"
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function LoginPage() {
-  const { signIn, loading } = useAuth()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const expired = searchParams.get("expired")
+  const { signIn, loading } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const expired = searchParams?.get('expired') ?? null;
 
   useEffect(() => {
-    if (expired === "true") {
-      setError("Your guest account has expired. Please register again or contact support.")
+    if (expired === 'true') {
+      setError('Your guest account has expired. Please register again or contact support.');
     }
-  }, [expired])
+  }, [expired]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
     try {
-      console.log("Attempting to sign in with email:", email);
+      console.log('Attempting to sign in with email:', email);
       const userCredential = await signIn(email, password);
-      console.log("Sign in successful, user:", userCredential);
-      
+      console.log('Sign in successful, user:', userCredential);
+
       // The auth provider will handle redirection based on role
     } catch (err: any) {
-      console.error("Login error:", err);
+      console.error('Login error:', err);
       // Provide more specific error messages
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
         setError('Invalid email or password. Please try again.');
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many failed login attempts. Please try again later or reset your password.');
       } else {
-        setError(err.message || "Failed to sign in");
+        setError(err.message || 'Failed to sign in');
       }
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -115,13 +115,13 @@ export default function LoginPage() {
 
       <div className="text-center text-sm space-y-2">
         <div>
-          Don&apos;t have an account?{" "}
+          Don't have an account?{' '}
           <Link href="/auth/register" className="text-primary hover:underline">
             Sign up
           </Link>
         </div>
         <div>
-          Want to visit a property?{" "}
+          Want to visit a property?{' '}
           <Link href="/auth/register-guest" className="text-primary hover:underline">
             Register as Guest
           </Link>
@@ -130,4 +130,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
