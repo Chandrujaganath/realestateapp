@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
+import React from 'react';
+
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Project {
   id: string;
@@ -26,7 +27,7 @@ export function ProjectGrid({ projects, loading = false }: ProjectGridProps) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
+        {[1, 2, 3, 4, 5, 6].map((_i) => (
           <Card key={i} className="opacity-60 animate-pulse">
             <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-t-lg" />
             <CardHeader>
@@ -64,10 +65,10 @@ export function ProjectGrid({ projects, loading = false }: ProjectGridProps) {
           <Card className="h-full transition-all hover:shadow-md">
             <div className="relative h-48 w-full">
               {project.image ? (
-                <Image 
-                  src={project.image} 
-                  alt={project.name} 
-                  fill 
+                <Image
+                  src={project.image}
+                  alt={project.name}
+                  fill
                   className="object-cover rounded-t-lg"
                 />
               ) : (
@@ -88,7 +89,15 @@ export function ProjectGrid({ projects, loading = false }: ProjectGridProps) {
               </p>
             </CardContent>
             <CardFooter>
-              <Badge variant={project.status === 'active' ? 'default' : project.status === 'completed' ? 'outline' : 'secondary'}>
+              <Badge
+                variant={
+                  project.status === 'active'
+                    ? 'default'
+                    : project.status === 'completed'
+                      ? 'outline'
+                      : 'secondary'
+                }
+              >
                 {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
               </Badge>
             </CardFooter>
@@ -97,4 +106,4 @@ export function ProjectGrid({ projects, loading = false }: ProjectGridProps) {
       ))}
     </div>
   );
-} 
+}

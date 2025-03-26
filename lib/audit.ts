@@ -1,35 +1,36 @@
-"use client"
+'use client';
 
-import { db } from "@/lib/firebase"
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"
-import { useAuth } from '@/hooks/use-auth'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+
+import { useAuth } from '@/hooks/use-auth';
+import { db } from '@/lib/firebase';
 
 // Types for audit logs
 export interface AuditLog {
-  action: string
-  performedBy: string
-  performedByRole: string
-  timestamp: any
-  entityType: string
-  entityId: string
-  details?: any
-  oldValue?: any
-  newValue?: any
+  action: string;
+  performedBy: string;
+  performedByRole: string;
+  timestamp: any;
+  entityType: string;
+  entityId: string;
+  details?: any;
+  oldValue?: any;
+  newValue?: any;
 }
 
 // Function to log actions to Firestore
 export async function logAction(
   action: string,
-  userId: string,
-  userRole: string,
+  _userId: string,
+  _userRole: string,
   entityType: string,
   entityId: string,
   details?: any,
   oldValue?: any,
-  newValue?: any,
+  newValue?: any
 ) {
   try {
-    const logData: AuditLog = {
+    const _logData: AuditLog = {
       action,
       performedBy: userId,
       performedByRole: userRole,
@@ -39,18 +40,18 @@ export async function logAction(
       details,
       oldValue,
       newValue,
-    }
+    };
 
-    await addDoc(collection(db, "auditLogs"), logData)
+    await addDoc(collection(db, 'auditLogs'), logData);
   } catch (error) {
-    console.error("Failed to log action:", error)
+    console.error('Failed to log action:', error);
     // Don't throw - logging should not break the main flow
   }
 }
 
 // Hook to use audit logging in components
 export function useAuditLog() {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   const log = async (
     action: string,
@@ -58,9 +59,9 @@ export function useAuditLog() {
     entityId: string,
     details?: any,
     oldValue?: any,
-    newValue?: any,
+    newValue?: any
   ) => {
-    if (!user) return
+    if (!user) return;
 
     await logAction(
       action,
@@ -71,9 +72,8 @@ export function useAuditLog() {
       details,
       oldValue,
       newValue
-    )
-  }
+    );
+  };
 
-  return { log }
+  return { log };
 }
-

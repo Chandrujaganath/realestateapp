@@ -1,20 +1,33 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useTasks } from "../hooks/use-tasks";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  CalendarIcon,
+  Clock,
+  Edit,
+  Filter,
+  Loader2,
+  MoreHorizontal,
+  Search,
+  Trash,
+  CheckCircle2,
+} from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+import { useTasks } from '../hooks/use-tasks';
+import type { Task, TaskFilters } from '../types';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -22,19 +35,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { 
-  CalendarIcon, 
-  Clock, 
-  Edit, 
-  Filter, 
-  Loader2, 
-  MoreHorizontal, 
-  Search, 
-  Trash, 
-  CheckCircle2 
-} from "lucide-react";
-import type { Task, TaskFilters } from "../types";
+} from '@/components/ui/table';
 
 interface TaskListProps {
   title?: string;
@@ -44,14 +45,14 @@ interface TaskListProps {
 }
 
 export function TaskList({
-  title = "Tasks",
-  emptyMessage = "No tasks found",
+  title = 'Tasks',
+  emptyMessage = 'No tasks found',
   showFilters = true,
   initialFilters,
 }: TaskListProps) {
   const { tasks, loading, error, fetchTasks, updateTask, deleteTask } = useTasks();
   const [filters, setFilters] = useState<TaskFilters>(initialFilters || {});
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
 
   // Apply filters and search
@@ -75,8 +76,7 @@ export function TaskList({
       const query = searchQuery.toLowerCase();
       results = results.filter(
         (task) =>
-          task.title.toLowerCase().includes(query) ||
-          task.description.toLowerCase().includes(query)
+          task.title.toLowerCase().includes(query) || task.description.toLowerCase().includes(query)
       );
     }
 
@@ -88,38 +88,38 @@ export function TaskList({
     fetchTasks(filters);
   }, [fetchTasks, filters]);
 
-  const handleStatusChange = async (taskId: string, newStatus: Task["status"]) => {
+  const handleStatusChange = async (taskId: string, _newStatus: Task['status']) => {
     try {
       await updateTask(taskId, { status: newStatus });
     } catch (err) {
-      console.error("Error updating task status:", err);
+      console.error('Error updating task status:', err);
     }
   };
 
-  const handleTaskDelete = async (taskId: string) => {
-    if (confirm("Are you sure you want to delete this task?")) {
+  const _handleTaskDelete = async (taskId: string) => {
+    if (confirm('Are you sure you want to delete this task?')) {
       try {
         await deleteTask(taskId);
       } catch (err) {
-        console.error("Error deleting task:", err);
+        console.error('Error deleting task:', err);
       }
     }
   };
 
   // Function to format date
-  const formatDate = (date: Date | null | undefined) => {
-    if (!date) return "No date";
+  const _formatDate = (date: Date | null | undefined) => {
+    if (!date) return 'No date';
     return new Date(date).toLocaleDateString();
   };
 
   // Get status badge color
-  const getStatusBadge = (status: Task["status"]) => {
+  const _getStatusBadge = (status: Task['status']) => {
     switch (status) {
-      case "pending":
+      case 'pending':
         return <Badge variant="outline">Pending</Badge>;
-      case "in_progress":
+      case 'in_progress':
         return <Badge variant="secondary">In Progress</Badge>;
-      case "completed":
+      case 'completed':
         return <Badge variant="default">Completed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
@@ -127,13 +127,13 @@ export function TaskList({
   };
 
   // Get priority badge
-  const getPriorityBadge = (priority: Task["priority"]) => {
+  const _getPriorityBadge = (priority: Task['priority']) => {
     switch (priority) {
-      case "low":
+      case 'low':
         return <Badge variant="outline">Low</Badge>;
-      case "medium":
+      case 'medium':
         return <Badge variant="default">Medium</Badge>;
-      case "high":
+      case 'high':
         return <Badge variant="destructive">High</Badge>;
       default:
         return <Badge variant="outline">{priority}</Badge>;
@@ -170,9 +170,7 @@ export function TaskList({
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <CardTitle>{title}</CardTitle>
-            <CardDescription>
-              {filteredTasks.length} tasks found
-            </CardDescription>
+            <CardDescription>{filteredTasks.length} tasks found</CardDescription>
           </div>
 
           {showFilters && (
@@ -184,16 +182,16 @@ export function TaskList({
                   placeholder="Search tasks..."
                   className="pl-8 w-full md:w-[200px]"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(_e) => setSearchQuery(e.target.value)}
                 />
               </div>
 
               <Select
-                value={filters.status?.join(",") || ""}
+                value={filters.status?.join(',') || ''}
                 onValueChange={(value) => {
                   setFilters({
                     ...filters,
-                    status: value ? (value.split(",") as Task["status"][]) : undefined,
+                    status: value ? (value.split(',') as Task['status'][]) : undefined,
                   });
                 }}
               >
@@ -209,11 +207,11 @@ export function TaskList({
               </Select>
 
               <Select
-                value={filters.priority?.join(",") || ""}
+                value={filters.priority?.join(',') || ''}
                 onValueChange={(value) => {
                   setFilters({
                     ...filters,
-                    priority: value ? (value.split(",") as Task["priority"][]) : undefined,
+                    priority: value ? (value.split(',') as Task['priority'][]) : undefined,
                   });
                 }}
               >
@@ -259,12 +257,9 @@ export function TaskList({
                   <TableRow key={task.id}>
                     <TableCell>
                       <Checkbox
-                        checked={task.status === "completed"}
+                        checked={task.status === 'completed'}
                         onCheckedChange={(checked) => {
-                          handleStatusChange(
-                            task.id,
-                            checked ? "completed" : "pending"
-                          );
+                          handleStatusChange(task.id, checked ? 'completed' : 'pending');
                         }}
                       />
                     </TableCell>
@@ -292,13 +287,8 @@ export function TaskList({
                       {task.assignedTo ? (
                         <div className="flex items-center">
                           <Avatar className="h-8 w-8 mr-2">
-                            <AvatarImage
-                              src={task.assignedTo.avatar}
-                              alt={task.assignedTo.name}
-                            />
-                            <AvatarFallback>
-                              {task.assignedTo.name.slice(0, 2)}
-                            </AvatarFallback>
+                            <AvatarImage src={task.assignedTo.avatar} alt={task.assignedTo.name} />
+                            <AvatarFallback>{task.assignedTo.name.slice(0, 2)}</AvatarFallback>
                           </Avatar>
                           <span>{task.assignedTo.name}</span>
                         </div>
@@ -314,15 +304,15 @@ export function TaskList({
                           onClick={() => {
                             handleStatusChange(
                               task.id,
-                              task.status === "completed" ? "pending" : "completed"
+                              task.status === 'completed' ? 'pending' : 'completed'
                             );
                           }}
                         >
                           <CheckCircle2
                             className={`h-4 w-4 ${
-                              task.status === "completed"
-                                ? "text-green-500"
-                                : "text-muted-foreground"
+                              task.status === 'completed'
+                                ? 'text-green-500'
+                                : 'text-muted-foreground'
                             }`}
                           />
                         </Button>
@@ -347,4 +337,4 @@ export function TaskList({
       </CardContent>
     </Card>
   );
-} 
+}

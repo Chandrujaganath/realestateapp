@@ -1,13 +1,13 @@
-"use client"
+'use client';
 
-import { useEffect } from "react"
-import { registerServiceWorker } from "@/lib/register-sw"
+import { useEffect } from 'react';
+
+import { registerServiceWorker } from '@/lib/register-sw';
 
 export function ServiceWorkerRegistration() {
   useEffect(() => {
-    registerServiceWorker()
-  }, [])
+    registerServiceWorker();
+  }, []);
 
-  return null
+  return null;
 }
-

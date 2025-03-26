@@ -1,6 +1,7 @@
-import React from "react"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import React from 'react';
+
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Loading() {
   return (
@@ -15,7 +16,7 @@ export default function Loading() {
           <Skeleton className="h-10 w-[100px]" />
         </div>
       </div>
-      
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Card key={i}>
@@ -29,7 +30,7 @@ export default function Loading() {
           </Card>
         ))}
       </div>
-      
+
       <Card>
         <CardHeader>
           <Skeleton className="h-6 w-[160px] mb-2" />
@@ -43,7 +44,7 @@ export default function Loading() {
             </div>
             <Skeleton className="h-9 w-[180px]" />
           </div>
-          
+
           <div className="rounded-md border">
             <div className="p-4">
               <div className="flex justify-between border-b pb-4 mb-4">
@@ -53,7 +54,7 @@ export default function Loading() {
                 <Skeleton className="h-4 w-[80px]" />
                 <Skeleton className="h-4 w-[80px]" />
               </div>
-              
+
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="flex justify-between py-3">
                   <Skeleton className="h-4 w-[150px]" />
@@ -68,5 +69,5 @@ export default function Loading() {
         </CardContent>
       </Card>
     </div>
-  )
-} 
+  );
+}

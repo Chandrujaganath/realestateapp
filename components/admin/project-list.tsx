@@ -1,15 +1,10 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { collection, getDocs, query, orderBy, deleteDoc, doc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { useToast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { collection, getDocs, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
+import { Plus, MoreHorizontal, Pencil, Trash2, MapPin, Eye } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,87 +14,105 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Plus, MoreHorizontal, Pencil, Trash2, MapPin, Eye } from "lucide-react"
-import { formatDate } from "@/lib/utils"
+} from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useToast } from '@/hooks/use-toast';
+import { db } from '@/lib/firebase';
+import { formatDate } from '@/lib/utils';
 
 export function ProjectList() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [projects, setProjects] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [deleteId, setDeleteId] = useState<string | null>(null)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const router = useRouter();
+  const { toast } = useToast();
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const _fetchProjects = async () => {
       try {
-        const q = query(collection(db, "projects"), orderBy("createdAt", "desc"))
-        const querySnapshot = await getDocs(q)
+        const _q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'));
+        const _querySnapshot = await getDocs(q);
 
-        const projectsData = querySnapshot.docs.map((doc) => ({
+        const _projectsData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        }))
+        }));
 
-        setProjects(projectsData)
+        setProjects(projectsData);
       } catch (error) {
-        console.error("Error fetching projects:", error)
+        console.error('Error fetching projects:', error);
         toast({
-          title: "Error",
-          description: "Failed to load projects. Please try again.",
-          variant: "destructive",
-        })
+          title: 'Error',
+          description: 'Failed to load projects. Please try again.',
+          variant: 'destructive',
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProjects()
-  }, [toast])
+    fetchProjects();
+  }, [toast]);
 
-  const handleDelete = async () => {
-    if (!deleteId) return
+  const _handleDelete = async () => {
+    if (!deleteId) return;
 
     try {
-      await deleteDoc(doc(db, "projects", deleteId))
+      await deleteDoc(doc(db, 'projects', deleteId));
 
-      setProjects(projects.filter((project) => project.id !== deleteId))
+      setProjects(projects.filter((project) => project.id !== deleteId));
 
       toast({
-        title: "Project deleted",
-        description: "The project has been deleted successfully.",
-      })
+        title: 'Project deleted',
+        description: 'The project has been deleted successfully.',
+      });
     } catch (error) {
-      console.error("Error deleting project:", error)
+      console.error('Error deleting project:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete project. Please try again.",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Failed to delete project. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
-      setDeleteId(null)
-      setShowDeleteDialog(false)
+      setDeleteId(null);
+      setShowDeleteDialog(false);
     }
-  }
+  };
 
-  const confirmDelete = (id: string) => {
-    setDeleteId(id)
-    setShowDeleteDialog(true)
-  }
+  const _confirmDelete = (id: string) => {
+    setDeleteId(id);
+    setShowDeleteDialog(true);
+  };
 
-  const getStatusBadge = (status: string) => {
+  const _getStatusBadge = (status: string) => {
     switch (status) {
-      case "active":
-        return <Badge className="bg-green-500">Active</Badge>
-      case "inactive":
-        return <Badge variant="outline">Inactive</Badge>
-      case "completed":
-        return <Badge className="bg-blue-500">Completed</Badge>
+      case 'active':
+        return <Badge className="bg-green-500">Active</Badge>;
+      case 'inactive':
+        return <Badge variant="outline">Inactive</Badge>;
+      case 'completed':
+        return <Badge className="bg-blue-500">Completed</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>
+        return <Badge variant="secondary">{status}</Badge>;
     }
-  }
+  };
 
   return (
     <>
@@ -109,7 +122,7 @@ export function ProjectList() {
             <CardTitle>Projects</CardTitle>
             <CardDescription>Manage your real estate projects</CardDescription>
           </div>
-          <Button onClick={() => router.push("/admin/projects/create")}>
+          <Button onClick={() => router.push('/admin/projects/create')}>
             <Plus className="mr-2 h-4 w-4" />
             New Project
           </Button>
@@ -122,7 +135,7 @@ export function ProjectList() {
           ) : projects.length === 0 ? (
             <div className="text-center py-10">
               <p className="text-muted-foreground mb-4">No projects found</p>
-              <Button onClick={() => router.push("/admin/projects/create")}>
+              <Button onClick={() => router.push('/admin/projects/create')}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create your first project
               </Button>
@@ -160,11 +173,15 @@ export function ProjectList() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => router.push(`/admin/projects/${project.id}`)}>
+                            <DropdownMenuItem
+                              onClick={() => router.push(`/admin/projects/${project.id}`)}
+                            >
                               <Eye className="mr-2 h-4 w-4" />
                               View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => router.push(`/admin/projects/${project.id}/edit`)}>
+                            <DropdownMenuItem
+                              onClick={() => router.push(`/admin/projects/${project.id}/edit`)}
+                            >
                               <Pencil className="mr-2 h-4 w-4" />
                               Edit
                             </DropdownMenuItem>
@@ -192,18 +209,21 @@ export function ProjectList() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the project and all associated data.
+              This action cannot be undone. This will permanently delete the project and all
+              associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
-

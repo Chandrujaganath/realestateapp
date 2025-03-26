@@ -1,22 +1,10 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import { useSuperAdmin } from "@/contexts/super-admin-context"
-import { useAuth } from "@/contexts/auth-context"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { format } from 'date-fns';
+import { UserPlus, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,79 +15,107 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { format } from "date-fns"
-import type { AdminUser } from "@/types/super-admin"
-import { UserPlus, ArrowLeft } from "lucide-react"
-import Link from "next/link"
+} from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useAuth } from '@/contexts/auth-context';
+import { _useSuperAdmin } from '@/contexts/super-admin-context';
+import type { AdminUser } from '@/types/super-admin';
 
 export default function AdminManagement() {
-  const { user } = useAuth()
-  const { admins, loadingAdmins, getAdmins, createAdmin, updateAdmin, deactivateAdmin, reactivateAdmin } =
-    useSuperAdmin()
+  const { user } = useAuth();
+  const {
+    admins,
+    loadingAdmins,
+    getAdmins,
+    createAdmin,
+    updateAdmin,
+    deactivateAdmin,
+    reactivateAdmin,
+  } = _useSuperAdmin();
 
   const [newAdmin, setNewAdmin] = useState({
-    name: "",
-    email: "",
-  })
+    name: '',
+    email: '',
+  });
 
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [adminToDeactivate, setAdminToDeactivate] = useState<AdminUser | null>(null)
-  const [adminToReactivate, setAdminToReactivate] = useState<AdminUser | null>(null)
-
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [adminToDeactivate, setAdminToDeactivate] = useState<AdminUser | null>(null);
+  const [adminToReactivate, setAdminToReactivate] = useState<AdminUser | null>(null);
   useEffect(() => {
-    if (user && user.role === "SuperAdmin") {
-      getAdmins()
+    if (user && 'role' in user && user.role === 'SuperAdmin') {
+      getAdmins();
+    } else if (user && 'isSuperAdmin' in user && user.isSuperAdmin) {
+      getAdmins();
     }
-  }, [user])
+  }, [user, getAdmins]);
 
-  const handleCreateAdmin = async () => {
+  const _handleCreateAdmin = async () => {
     try {
       await createAdmin({
         name: newAdmin.name,
         email: newAdmin.email,
-        role: "Admin",
-      })
+        role: 'Admin',
+      });
 
       setNewAdmin({
-        name: "",
-        email: "",
-      })
+        name: '',
+        email: '',
+      });
 
-      setCreateDialogOpen(false)
+      setCreateDialogOpen(false);
     } catch (error) {
-      console.error("Error creating admin:", error)
+      console.error('Error creating admin:', error);
       // Handle error (show toast, etc.)
     }
-  }
+  };
 
-  const handleDeactivateAdmin = async () => {
+  const _handleDeactivateAdmin = async () => {
     if (adminToDeactivate) {
       try {
-        await deactivateAdmin(adminToDeactivate.id)
-        setAdminToDeactivate(null)
+        await deactivateAdmin(adminToDeactivate.id);
+        setAdminToDeactivate(null);
       } catch (error) {
-        console.error("Error deactivating admin:", error)
+        console.error('Error deactivating admin:', error);
         // Handle error (show toast, etc.)
       }
     }
-  }
+  };
 
-  const handleReactivateAdmin = async () => {
+  const _handleReactivateAdmin = async () => {
     if (adminToReactivate) {
       try {
-        await reactivateAdmin(adminToReactivate.id)
-        setAdminToReactivate(null)
+        await reactivateAdmin(adminToReactivate.id);
+        setAdminToReactivate(null);
       } catch (error) {
-        console.error("Error reactivating admin:", error)
+        console.error('Error reactivating admin:', error);
         // Handle error (show toast, etc.)
       }
     }
-  }
+  };
 
-  if (!user || user.role !== "SuperAdmin") {
+  if (!user || (user && 'role' in user && user.role !== 'SuperAdmin') && (user && 'isSuperAdmin' in user && !user.isSuperAdmin)) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Card className="w-[350px]">
@@ -114,7 +130,7 @@ export default function AdminManagement() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -139,7 +155,8 @@ export default function AdminManagement() {
             <DialogHeader>
               <DialogTitle>Create New Admin</DialogTitle>
               <DialogDescription>
-                Add a new administrator to the system. They will receive an email with login instructions.
+                Add a new administrator to the system. They will receive an email with login
+                instructions.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -165,7 +182,7 @@ export default function AdminManagement() {
               <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateAdmin} disabled={!newAdmin.name || !newAdmin.email}>
+              <Button onClick={_handleCreateAdmin} disabled={!newAdmin.name || !newAdmin.email}>
                 Create Admin
               </Button>
             </DialogFooter>
@@ -176,7 +193,9 @@ export default function AdminManagement() {
       <Card>
         <CardHeader>
           <CardTitle>Admin Users</CardTitle>
-          <CardDescription>Manage administrator accounts and their access to the system.</CardDescription>
+          <CardDescription>
+            Manage administrator accounts and their access to the system.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {loadingAdmins ? (
@@ -211,22 +230,34 @@ export default function AdminManagement() {
                       <TableCell>{admin.email}</TableCell>
                       <TableCell>
                         {admin.isActive ? (
-                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          <Badge
+                            variant="outline"
+                            className="bg-green-50 text-green-700 border-green-200"
+                          >
                             Active
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                          <Badge
+                            variant="outline"
+                            className="bg-red-50 text-red-700 border-red-200"
+                          >
                             Inactive
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell>{format(admin.createdAt, "MMM d, yyyy")}</TableCell>
-                      <TableCell>{admin.lastLogin ? format(admin.lastLogin, "MMM d, yyyy") : "Never"}</TableCell>
+                      <TableCell>{format(admin.createdAt, 'MMM d, yyyy')}</TableCell>
+                      <TableCell>
+                        {admin.lastLogin ? format(admin.lastLogin, 'MMM d, yyyy') : 'Never'}
+                      </TableCell>
                       <TableCell className="text-right">
                         {admin.isActive ? (
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm" onClick={() => setAdminToDeactivate(admin)}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setAdminToDeactivate(admin)}
+                              >
                                 Deactivate
                               </Button>
                             </AlertDialogTrigger>
@@ -234,20 +265,28 @@ export default function AdminManagement() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Deactivate Admin</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to deactivate {admin.name}? They will no longer be able to
-                                  access the system.
+                                  Are you sure you want to deactivate {admin.name}? They will no
+                                  longer be able to access the system.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel onClick={() => setAdminToDeactivate(null)}>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDeactivateAdmin}>Deactivate</AlertDialogAction>
+                                <AlertDialogCancel onClick={() => setAdminToDeactivate(null)}>
+                                  Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction onClick={_handleDeactivateAdmin}>
+                                  Deactivate
+                                </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
                         ) : (
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm" onClick={() => setAdminToReactivate(admin)}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setAdminToReactivate(admin)}
+                              >
                                 Reactivate
                               </Button>
                             </AlertDialogTrigger>
@@ -255,13 +294,17 @@ export default function AdminManagement() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Reactivate Admin</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to reactivate {admin.name}? They will regain access to the
-                                  system.
+                                  Are you sure you want to reactivate {admin.name}? They will regain
+                                  access to the system.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel onClick={() => setAdminToReactivate(null)}>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleReactivateAdmin}>Reactivate</AlertDialogAction>
+                                <AlertDialogCancel onClick={() => setAdminToReactivate(null)}>
+                                  Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction onClick={_handleReactivateAdmin}>
+                                  Reactivate
+                                </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
@@ -276,6 +319,5 @@ export default function AdminManagement() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-

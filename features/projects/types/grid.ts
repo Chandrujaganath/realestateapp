@@ -1,7 +1,7 @@
 /**
  * Type of cell in the project grid
  */
-export type CellType = "plot" | "road" | "empty";
+export type CellType = 'plot' | 'road' | 'empty';
 
 /**
  * Direction of a road
@@ -16,7 +16,15 @@ export type CellStatus = 'available' | 'reserved' | 'sold' | 'pending';
 /**
  * Status of a plot
  */
-export type PlotStatus = 'available' | 'reserved' | 'sold' | 'pending' | 'booked' | 'unavailable' | 'under_development' | 'completed';
+export type PlotStatus =
+  | 'available'
+  | 'reserved'
+  | 'sold'
+  | 'pending'
+  | 'booked'
+  | 'unavailable'
+  | 'under_development'
+  | 'completed';
 
 /**
  * Cell in a project grid
@@ -30,10 +38,10 @@ export interface GridCell {
   price?: number;
   size?: string;
   metadata?: Record<string, any>;
-  
+
   // Road specific properties
   roadDirection?: RoadDirection;
-  
+
   // Plot specific properties
   plotId?: string;
   plotNumber?: string;
@@ -82,4 +90,4 @@ export interface GridData {
   rows: number;
   cols: number;
   cells: GridCell[];
-} 
+}

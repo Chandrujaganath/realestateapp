@@ -1,46 +1,46 @@
-"use client"
+'use client';
 
-import { createContext, useContext, useEffect, type ReactNode } from "react"
-import { usePathname, useSearchParams } from "next/navigation"
-import { useAnalytics } from "@/lib/analytics"
-import { useAuth } from '@/hooks/use-auth'
+import { usePathname, useSearchParams } from 'next/navigation';
+import { createContext, useContext, useEffect, type ReactNode } from 'react';
+
+import { useAuth } from '@/hooks/use-auth';
+import { useAnalytics } from '@/lib/analytics';
 
 // Create context
-const AnalyticsContext = createContext<ReturnType<typeof useAnalytics> | undefined>(undefined)
+const AnalyticsContext = createContext<ReturnType<typeof useAnalytics> | undefined>(undefined);
 
 // Provider component
 export function AnalyticsProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth()
-  const analytics = useAnalytics(user?.uid)
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const { user } = useAuth();
+  const analytics = useAnalytics(user?.uid);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // Track page views
   useEffect(() => {
     if (pathname) {
       // Get page name from pathname
-      const pageName = pathname.split("/").filter(Boolean).join("/")
-      analytics.trackPageView(pageName || "home")
+      const _pageName = pathname.split('/').filter(Boolean).join('/');
+      analytics.trackPageView(pageName || 'home');
     }
-  }, [pathname, analytics])
+  }, [pathname, analytics]);
 
   // Track search params changes (for UTM tracking, etc.)
   useEffect(() => {
     if (searchParams && searchParams.toString()) {
-      const params = Object.fromEntries(searchParams.entries())
-      analytics.track("url_params_change", params)
+      const _params = Object.fromEntries(searchParams.entries());
+      analytics.track('url_params_change', params);
     }
-  }, [searchParams, analytics])
+  }, [searchParams, analytics]);
 
-  return <AnalyticsContext.Provider value={analytics}>{children}</AnalyticsContext.Provider>
+  return <AnalyticsContext.Provider value={analytics}>{children}</AnalyticsContext.Provider>;
 }
 
 // Hook to use analytics in components
 export function usePageAnalytics() {
-  const context = useContext(AnalyticsContext)
+  const context = useContext(AnalyticsContext);
   if (context === undefined) {
-    throw new Error("usePageAnalytics must be used within an AnalyticsProvider")
+    throw new Error('usePageAnalytics must be used within an AnalyticsProvider');
   }
-  return context
+  return context;
 }
-

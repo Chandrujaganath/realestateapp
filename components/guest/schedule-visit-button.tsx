@@ -1,81 +1,92 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Calendar, CalendarPlus } from "lucide-react"
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle 
-} from "@/components/ui/dialog"
-import { 
-  Form, 
-  FormControl, 
-  FormDescription, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-import { addDoc, collection } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { useAuth } from "@/hooks/use-auth"
+import { zodResolver } from '@hookform/resolvers/zod';
+import { addDoc, collection } from 'firebase/firestore';
+import { Calendar, CalendarPlus } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
+import { db } from '@/lib/firebase';
 
 interface ScheduleVisitButtonProps {
-  projectId: string
-  selectedPlot?: string
-  variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive"
+  projectId: string;
+  selectedPlot?: string;
+  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
 }
 
 const visitFormSchema = z.object({
-  name: z.string().min(3, { message: "Name must be at least 3 characters" }),
-  phone: z.string().min(10, { message: "Please enter a valid phone number" }),
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  preferredDate: z.string().min(1, { message: "Please select a preferred date" }),
-  preferredTime: z.string().min(1, { message: "Please select a preferred time" }),
+  name: z.string().min(3, { message: 'Name must be at least 3 characters' }),
+  phone: z.string().min(10, { message: 'Please enter a valid phone number' }),
+  email: z.string().email({ message: 'Please enter a valid email address' }),
+  preferredDate: z.string().min(1, { message: 'Please select a preferred date' }),
+  preferredTime: z.string().min(1, { message: 'Please select a preferred time' }),
   message: z.string().optional(),
-})
+});
 
-export function ScheduleVisitButton({ projectId, selectedPlot, variant = "outline" }: ScheduleVisitButtonProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const { toast } = useToast()
-  const { user } = useAuth()
+export function ScheduleVisitButton({
+  projectId,
+  selectedPlot,
+  variant = 'outline',
+}: ScheduleVisitButtonProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const { user } = useAuth();
 
   const form = useForm<z.infer<typeof visitFormSchema>>({
     resolver: zodResolver(visitFormSchema),
     defaultValues: {
-      name: user?.displayName || "",
-      email: user?.email || "",
-      phone: "",
-      preferredDate: "",
-      preferredTime: "",
-      message: selectedPlot ? `I'm interested in plot ${selectedPlot}` : "",
+      name: user?.displayName || '',
+      email: user?.email || '',
+      phone: '',
+      preferredDate: '',
+      preferredTime: '',
+      message: selectedPlot ? `I'm interested in plot ${selectedPlot}` : '',
     },
-  })
+  });
 
   // Get tomorrow's date in YYYY-MM-DD format for min date
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const tomorrowFormatted = tomorrow.toISOString().split('T')[0]
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const _tomorrowFormatted = tomorrow.toISOString().split('T')[0];
 
   // Get date 30 days from now for max date
-  const maxDate = new Date()
-  maxDate.setDate(maxDate.getDate() + 30)
-  const maxDateFormatted = maxDate.toISOString().split('T')[0]
+  const maxDate = new Date();
+  maxDate.setDate(maxDate.getDate() + 30);
+  const _maxDateFormatted = maxDate.toISOString().split('T')[0];
 
   const onSubmit = async (data: z.infer<typeof visitFormSchema>) => {
     try {
-      await addDoc(collection(db, "visitRequests"), {
+      await addDoc(collection(db, 'visitRequests'), {
         projectId,
         plotNumber: selectedPlot,
         name: data.name,
@@ -84,35 +95,31 @@ export function ScheduleVisitButton({ projectId, selectedPlot, variant = "outlin
         preferredDate: data.preferredDate,
         preferredTime: data.preferredTime,
         message: data.message,
-        status: "pending",
+        status: 'pending',
         createdAt: new Date(),
         userId: user?.uid || null,
-      })
+      });
 
       toast({
-        title: "Visit scheduled!",
+        title: 'Visit scheduled!',
         description: "We'll contact you to confirm your visit.",
-      })
-      
-      setIsDialogOpen(false)
-      form.reset()
+      });
+
+      setIsDialogOpen(false);
+      form.reset();
     } catch (error) {
-      console.error("Error scheduling visit:", error)
+      console.error('Error scheduling visit:', error);
       toast({
-        title: "Error",
-        description: "Failed to schedule your visit. Please try again.",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Failed to schedule your visit. Please try again.',
+        variant: 'destructive',
+      });
     }
-  }
+  };
 
   return (
     <>
-      <Button 
-        variant={variant} 
-        onClick={() => setIsDialogOpen(true)}
-        className="whitespace-nowrap"
-      >
+      <Button variant={variant} onClick={() => setIsDialogOpen(true)} className="whitespace-nowrap">
         <Calendar className="mr-2 h-4 w-4" />
         Schedule Visit
       </Button>
@@ -122,9 +129,9 @@ export function ScheduleVisitButton({ projectId, selectedPlot, variant = "outlin
           <DialogHeader>
             <DialogTitle>Schedule a Visit</DialogTitle>
             <DialogDescription>
-              {selectedPlot 
-                ? `Schedule a visit to see plot ${selectedPlot} in person.` 
-                : "Schedule a visit to see this project in person."}
+              {selectedPlot
+                ? `Schedule a visit to see plot ${selectedPlot} in person.`
+                : 'Schedule a visit to see this project in person.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -182,16 +189,14 @@ export function ScheduleVisitButton({ projectId, selectedPlot, variant = "outlin
                     <FormItem>
                       <FormLabel>Preferred Date</FormLabel>
                       <FormControl>
-                        <Input 
-                          {...field} 
-                          type="date" 
-                          min={tomorrowFormatted} 
-                          max={maxDateFormatted} 
+                        <Input
+                          {...field}
+                          type="date"
+                          min={tomorrowFormatted}
+                          max={maxDateFormatted}
                         />
                       </FormControl>
-                      <FormDescription>
-                        Select a date within the next 30 days
-                      </FormDescription>
+                      <FormDescription>Select a date within the next 30 days</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -203,10 +208,7 @@ export function ScheduleVisitButton({ projectId, selectedPlot, variant = "outlin
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Preferred Time</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select time" />
@@ -239,11 +241,7 @@ export function ScheduleVisitButton({ projectId, selectedPlot, variant = "outlin
               />
 
               <DialogFooter className="pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsDialogOpen(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
                 <Button type="submit">
@@ -256,5 +254,5 @@ export function ScheduleVisitButton({ projectId, selectedPlot, variant = "outlin
         </DialogContent>
       </Dialog>
     </>
-  )
-} 
+  );
+}

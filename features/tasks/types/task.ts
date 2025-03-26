@@ -1,31 +1,31 @@
-import { BaseEntity } from "@/types/common";
+import { BaseEntity } from '@/types/common';
 
 /**
  * Task status types
  */
-export type TaskStatus = 
-  | "pending" 
-  | "in_progress" 
-  | "completed" 
-  | "cancelled" 
-  | "on_hold"
-  | "blocked";
+export type TaskStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled'
+  | 'on_hold'
+  | 'blocked';
 
 /**
  * Task priority levels
  */
-export type TaskPriority = "low" | "medium" | "high" | "urgent";
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 
 /**
  * Task history entry types
  */
-export type TaskHistoryAction = 
-  | "created" 
-  | "status_updated" 
-  | "comment_added" 
-  | "assigned" 
-  | "priority_updated"
-  | "due_date_updated";
+export type TaskHistoryAction =
+  | 'created'
+  | 'status_updated'
+  | 'comment_added'
+  | 'assigned'
+  | 'priority_updated'
+  | 'due_date_updated';
 
 /**
  * Task history entry
@@ -113,4 +113,4 @@ export interface TaskStatistics {
   byStatus: Record<string, number>;
   byProject: Record<string, number>;
   byAssignee: Record<string, number>;
-} 
+}

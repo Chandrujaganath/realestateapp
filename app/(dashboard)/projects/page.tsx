@@ -1,18 +1,19 @@
-"use client";
+'use client';
 
-import { useProjects } from "@/features/projects/hooks/use-projects";
-import { ProjectGrid } from "@/features/projects/components/project-grid";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import Link from "next/link";
-import { useAuth } from "@/hooks/use-auth";
+import { Plus } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
+import { ProjectGrid } from '@/features/projects/components/project-grid';
+import { useProjects } from '@/features/projects/hooks/use-projects';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function ProjectsPage() {
   const { user } = useAuth();
   const { projects, loading, error } = useProjects();
-  
-  const showAddButton = user?.role === "admin" || user?.role === "superadmin";
-  
+
+  const _showAddButton = user?.role === 'admin' || user?.role === 'superadmin';
+
   // Error state
   if (error) {
     return (
@@ -25,7 +26,7 @@ export default function ProjectsPage() {
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -33,7 +34,7 @@ export default function ProjectsPage() {
           <h1 className="text-3xl font-bold">Projects</h1>
           <p className="text-muted-foreground">Browse and explore real estate projects</p>
         </div>
-        
+
         {showAddButton && (
           <Link href="/projects/create">
             <Button>
@@ -43,9 +44,9 @@ export default function ProjectsPage() {
           </Link>
         )}
       </div>
-      
+
       {/* Project grid */}
-      <ProjectGrid projects={projects} loading={loading} />
+      <ProjectGrid projects={projects as any} loading={loading} />
     </div>
   );
-} 
+}

@@ -1,155 +1,164 @@
-"use client"
+'use client';
 
-import { useState, useRef, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Camera, Check, X, RefreshCw } from "lucide-react"
-import { httpsCallable } from "firebase/functions"
-import { functions } from "@/lib/firebase"
-import { toast } from "@/hooks/use-toast"
+import React from 'react';
+import { httpsCallable } from 'firebase/functions';
+import { Camera, Check, X, RefreshCw } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from '@/hooks/use-toast';
+import { functions } from '@/lib/firebase';
 
 export function QRCodeScanner() {
-  const [scanning, setScanning] = useState(false)
-  const [scanResult, setScanResult] = useState<any>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [scanType, setScanType] = useState<"entry" | "exit">("entry")
-  const [loading, setLoading] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const scanIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [scanType, setScanType] = useState<'entry' | 'exit'>('entry');
+  const [loading, setLoading] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scanIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Import QR code scanner library dynamically
   useEffect(() => {
     if (scanning) {
-      import("jsqr")
+      import('jsqr')
         .then((jsQR) => {
-          startScanner(jsQR.default)
+          startScanner(jsQR.default);
         })
         .catch((err) => {
-          console.error("Failed to load jsQR:", err)
-          setError("Failed to load QR scanner")
-          setScanning(false)
-        })
+          console.error('Failed to load jsQR:', err);
+          setError('Failed to load QR scanner');
+          setScanning(false);
+        });
     } else {
       if (scanIntervalRef.current) {
-        clearInterval(scanIntervalRef.current)
-        scanIntervalRef.current = null
+        clearInterval(scanIntervalRef.current);
+        scanIntervalRef.current = null;
       }
 
       // Stop camera stream
       if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream
-        stream.getTracks().forEach((track) => track.stop())
-        videoRef.current.srcObject = null
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach((track) => track.stop());
+        videoRef.current.srcObject = null;
       }
     }
 
     return () => {
       if (scanIntervalRef.current) {
-        clearInterval(scanIntervalRef.current)
+        clearInterval(scanIntervalRef.current);
       }
 
       // Clean up camera stream
       if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream
-        stream.getTracks().forEach((track) => track.stop())
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach((track) => track.stop());
       }
-    }
-  }, [scanning])
+    };
+  }, [scanning]);
 
-  const startScanner = async (jsQR: any) => {
+  const _startScanner = async (jsQR: any) => {
     try {
-      const constraints = {
+      const _constraints = {
         video: {
-          facingMode: "environment",
+          facingMode: 'environment',
         },
-      }
+      };
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
       if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        videoRef.current.play()
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
       }
 
       scanIntervalRef.current = setInterval(() => {
         if (videoRef.current && canvasRef.current) {
-          const canvas = canvasRef.current
-          const video = videoRef.current
+          const canvas = canvasRef.current;
+          const video = videoRef.current;
 
           if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            const ctx = canvas.getContext("2d")
-            if (!ctx) return
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
 
-            canvas.height = video.videoHeight
-            canvas.width = video.videoWidth
+            canvas.height = video.videoHeight;
+            canvas.width = video.videoWidth;
 
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
             const code = jsQR(imageData.data, imageData.width, imageData.height, {
-              inversionAttempts: "dontInvert",
-            })
+              inversionAttempts: 'dontInvert',
+            });
 
             if (code) {
               // QR code detected
-              clearInterval(scanIntervalRef.current!)
-              scanIntervalRef.current = null
-              setScanning(false)
+              clearInterval(scanIntervalRef.current!);
+              scanIntervalRef.current = null;
+              setScanning(false);
 
               try {
                 // Try to parse the QR data
-                const qrData = code.data
-                verifyQRCode(qrData)
+                const qrData = code.data;
+                verifyQRCode(qrData);
               } catch (err) {
-                console.error("Invalid QR code format:", err)
-                setError("Invalid QR code format")
+                console.error('Invalid QR code format:', err);
+                setError('Invalid QR code format');
               }
             }
           }
         }
-      }, 100)
+      }, 100);
     } catch (err) {
-      console.error("Error accessing camera:", err)
-      setError("Could not access camera. Please check permissions.")
-      setScanning(false)
+      console.error('Error accessing camera:', err);
+      setError('Could not access camera. Please check permissions.');
+      setScanning(false);
     }
-  }
+  };
 
-  const verifyQRCode = async (qrData: string) => {
+  const _verifyQRCode = async (qrData: string) => {
     try {
-      setLoading(true)
+      setLoading(true);
 
       // Call the Cloud Function to verify the QR code
-      const verifyQRCodeFn = httpsCallable(functions, "verifyQRCode")
+      const _verifyQRCodeFn = httpsCallable(functions, 'verifyQRCode');
 
-      const result = await verifyQRCodeFn({
+      const _result = await verifyQRCodeFn({
         qrData,
         scanType,
-        gateId: "manual-scan",
-      })
+        gateId: 'manual-scan',
+      });
 
-      setScanResult(result.data)
+      setScanResult(result.data);
 
       toast({
-        title: "Success",
-        description: `${scanType === "entry" ? "Entry" : "Exit"} recorded successfully`,
-        variant: "default",
-      })
+        title: 'Success',
+        description: `${scanType === 'entry' ? 'Entry' : 'Exit'} recorded successfully`,
+        variant: 'default',
+      });
     } catch (err: any) {
-      console.error("Error verifying QR code:", err)
-      setError(err.message || "Failed to verify QR code")
+      console.error('Error verifying QR code:', err);
+      setError(err.message || 'Failed to verify QR code');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const resetScanner = () => {
-    setScanResult(null)
-    setError(null)
-  }
+  const _resetScanner = () => {
+    setScanResult(null);
+    setError(null);
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -158,7 +167,11 @@ export function QRCodeScanner() {
         <CardDescription>Scan visitor QR codes for entry and exit</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="entry" value={scanType} onValueChange={(value) => setScanType(value as "entry" | "exit")}>
+        <Tabs
+          defaultValue="entry"
+          value={scanType}
+          onValueChange={(value) => setScanType(value as 'entry' | 'exit')}
+        >
           <TabsList className="grid grid-cols-2 mb-4">
             <TabsTrigger value="entry">Entry</TabsTrigger>
             <TabsTrigger value="exit">Exit</TabsTrigger>
@@ -197,7 +210,11 @@ export function QRCodeScanner() {
         <div className="relative">
           {scanning ? (
             <>
-              <video ref={videoRef} className="w-full h-64 bg-black rounded-lg object-cover" playsInline />
+              <video
+                ref={videoRef}
+                className="w-full h-64 bg-black rounded-lg object-cover"
+                playsInline
+              />
               <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full hidden" />
               <div className="absolute inset-0 border-2 border-dashed border-primary/50 rounded-lg pointer-events-none" />
             </>
@@ -237,6 +254,5 @@ export function QRCodeScanner() {
         )}
       </CardFooter>
     </Card>
-  )
+  );
 }
-

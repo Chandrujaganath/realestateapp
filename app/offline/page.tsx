@@ -1,8 +1,9 @@
-"use client"
+'use client';
 
-import { Button } from "@/components/ui/button"
-import { WifiOff } from "lucide-react"
-import Link from "next/link"
+import { WifiOff } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
 
 export default function OfflinePage() {
   return (
@@ -10,7 +11,8 @@ export default function OfflinePage() {
       <WifiOff className="h-16 w-16 text-gray-400 mb-6" />
       <h1 className="text-3xl font-bold mb-2">You're offline</h1>
       <p className="text-gray-600 mb-6 text-center max-w-md">
-        It looks like you've lost your internet connection. Some features may be limited until you reconnect.
+        It looks like you've lost your internet connection. Some features may be limited until you
+        reconnect.
       </p>
       <div className="space-y-4">
         <Button asChild>
@@ -21,6 +23,5 @@ export default function OfflinePage() {
         </Button>
       </div>
     </div>
-  )
+  );
 }
-

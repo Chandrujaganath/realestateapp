@@ -1,37 +1,22 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from "@/hooks/useAuth"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { 
   Calendar,
-  Search, 
-  Clock, 
-  User, 
+  Search,
+  Clock,
+  User,
   CheckCircle,
   XCircle,
   Download,
-  CalendarRange
-} from "lucide-react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  CalendarRange,
+} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { DateRange } from 'react-day-picker';
+
+import { DatePickerWithRange } from '@/components/date-picker';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -40,236 +25,266 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { DatePickerWithRange } from "@/components/date-picker"
-import { DateRange } from "react-day-picker"
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/useAuth';
 
-type LeaveRequestStatus = "pending" | "approved" | "rejected"
-type LeaveRequestType = "vacation" | "medical" | "sick" | "personal"
+type LeaveRequestStatus = 'pending' | 'approved' | 'rejected';
+type LeaveRequestType = 'vacation' | 'medical' | 'sick' | 'personal';
 
 interface LeaveRequest {
-  id: string
-  managerId: string
-  managerName: string
-  requestDate: string
-  startDate: string
-  endDate: string
-  reason: string
-  status: LeaveRequestStatus
-  type: LeaveRequestType
-  details?: string
-  approvedAt?: string
-  rejectedAt?: string
-  rejectionReason?: string
+  id: string;
+  managerId: string;
+  managerName: string;
+  requestDate: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  status: LeaveRequestStatus;
+  type: LeaveRequestType;
+  details?: string;
+  approvedAt?: string;
+  rejectedAt?: string;
+  rejectionReason?: string;
 }
 
 export default function LeaveRequestsPage() {
-  const { getAllLeaveRequests, approveLeaveRequest, rejectLeaveRequest } = useAuth()
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([])
-  const [filteredRequests, setFilteredRequests] = useState<LeaveRequest[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<LeaveRequestStatus | "all">("pending")
-  const [loading, setLoading] = useState(true)
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
-  const [rejectionReason, setRejectionReason] = useState("")
-  const [processingAction, setProcessingAction] = useState(false)
+  const { getAllLeaveRequests, approveLeaveRequest, rejectLeaveRequest } = useAuth();
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<LeaveRequest[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<LeaveRequestStatus | 'all'>('pending');
+  const [loading, setLoading] = useState(true);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [processingAction, setProcessingAction] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
-  })
+  });
 
   useEffect(() => {
-    const fetchRequests = async () => {
+    const _fetchRequests = async () => {
       try {
         if (getAllLeaveRequests) {
-          const data = await getAllLeaveRequests()
+          const _data = await getAllLeaveRequests();
           // Type assertion to ensure data matches our LeaveRequest interface
-          const typedData = data as unknown as LeaveRequest[]
-          setLeaveRequests(typedData || [])
-          setFilteredRequests(typedData.filter(req => req.status === statusFilter) || [])
+          const typedData = data as unknown as LeaveRequest[];
+          setLeaveRequests(typedData || []);
+          setFilteredRequests(typedData.filter((req) => req.status === statusFilter) || []);
         }
       } catch (error) {
-        console.error("Failed to fetch leave requests:", error)
+        console.error('Failed to fetch leave requests:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchRequests()
-  }, [getAllLeaveRequests])
+    fetchRequests();
+  }, [getAllLeaveRequests]);
 
   useEffect(() => {
-    let filtered = leaveRequests
+    let filtered = leaveRequests;
 
     // Filter by status
-    if (statusFilter !== "all") {
-      filtered = filtered.filter(request => request.status === statusFilter)
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((request) => request.status === statusFilter);
     }
 
     // Filter by date range
     if (dateRange.from && dateRange.to) {
-      filtered = filtered.filter(request => {
-        const requestDate = new Date(request.requestDate)
-        return requestDate >= dateRange.from! && requestDate <= dateRange.to!
-      })
+      filtered = filtered.filter((request) => {
+        const requestDate = new Date(request.requestDate);
+        return requestDate >= dateRange.from! && requestDate <= dateRange.to!;
+      });
     }
 
     // Filter by search query
-    if (searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(request => 
-        (request.managerName && request.managerName.toLowerCase().includes(query)) ||
-        (request.reason && request.reason.toLowerCase().includes(query))
-      )
+    if (searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (request) =>
+          (request.managerName && request.managerName.toLowerCase().includes(query)) ||
+          (request.reason && request.reason.toLowerCase().includes(query))
+      );
     }
 
-    setFilteredRequests(filtered)
-  }, [searchQuery, statusFilter, dateRange, leaveRequests])
+    setFilteredRequests(filtered);
+  }, [searchQuery, statusFilter, dateRange, leaveRequests]);
 
-  const handleApproveRequest = async (id: string) => {
-    setProcessingAction(true)
+  const _handleApproveRequest = async (id: string) => {
+    setProcessingAction(true);
     try {
       if (approveLeaveRequest) {
-        await approveLeaveRequest(id)
-        
+        await approveLeaveRequest(id);
+
         // Update local state
-        setLeaveRequests(prev => 
-          prev.map(req => 
-            req.id === id ? { ...req, status: "approved" } : req
-          )
-        )
+        setLeaveRequests((prev) =>
+          prev.map((req) => (req.id === id ? { ...req, status: 'approved' } : req))
+        );
       }
     } catch (error) {
-      console.error("Failed to approve leave request:", error)
+      console.error('Failed to approve leave request:', error);
     } finally {
-      setProcessingAction(false)
+      setProcessingAction(false);
     }
-  }
+  };
 
-  const handleRejectRequest = async () => {
-    if (!selectedRequestId) return
+  const _handleRejectRequest = async () => {
+    if (!selectedRequestId) return;
 
-    setProcessingAction(true)
+    setProcessingAction(true);
     try {
       if (rejectLeaveRequest) {
-        await rejectLeaveRequest(selectedRequestId, rejectionReason)
-        
+        await rejectLeaveRequest(selectedRequestId, rejectionReason);
+
         // Update local state
-        setLeaveRequests(prev => 
-          prev.map(req => 
-            req.id === selectedRequestId ? { ...req, status: "rejected", rejectionReason } : req
+        setLeaveRequests((prev) =>
+          prev.map((req) =>
+            req.id === selectedRequestId ? { ...req, status: 'rejected', rejectionReason } : req
           )
-        )
+        );
 
         // Reset state
-        setSelectedRequestId(null)
-        setRejectionReason("")
+        setSelectedRequestId(null);
+        setRejectionReason('');
       }
     } catch (error) {
-      console.error("Failed to reject leave request:", error)
+      console.error('Failed to reject leave request:', error);
     } finally {
-      setProcessingAction(false)
+      setProcessingAction(false);
     }
-  }
+  };
 
   if (loading) {
-    return <LeaveRequestsSkeleton />
+    return <LeaveRequestsSkeleton />;
   }
 
   // Mock data for demonstration
-  const mockRequests = filteredRequests.length > 0 ? filteredRequests : [
-    {
-      id: "1",
-      managerId: "1",
-      managerName: "John Smith",
-      requestDate: "2023-06-01",
-      startDate: "2023-06-15",
-      endDate: "2023-06-18",
-      reason: "Family vacation",
-      status: "pending" as const,
-      type: "vacation" as const,
-      details: "Annual family trip",
-    },
-    {
-      id: "2",
-      managerId: "2",
-      managerName: "Emily Johnson",
-      requestDate: "2023-06-02",
-      startDate: "2023-06-10",
-      endDate: "2023-06-11",
-      reason: "Personal appointment",
-      status: "pending" as const,
-      type: "personal" as const,
-      details: "Doctor's appointment",
-    },
-    {
-      id: "3",
-      managerId: "4",
-      managerName: "Sarah Wilson",
-      requestDate: "2023-05-20",
-      startDate: "2023-06-05",
-      endDate: "2023-06-09",
-      reason: "Medical leave",
-      status: "approved" as const,
-      type: "medical" as const,
-      details: "Surgery recovery",
-      approvedAt: "2023-05-21",
-    },
-    {
-      id: "4",
-      managerId: "1",
-      managerName: "John Smith",
-      requestDate: "2023-05-15",
-      startDate: "2023-05-30",
-      endDate: "2023-05-30",
-      reason: "Sick day",
-      status: "rejected" as const,
-      type: "sick" as const,
-      details: "Not feeling well",
-      rejectionReason: "Short staffed on this day, please reschedule",
-      rejectedAt: "2023-05-16",
-    },
-  ]
+  const _mockRequests =
+    filteredRequests.length > 0
+      ? filteredRequests
+      : [
+          {
+            id: '1',
+            managerId: '1',
+            managerName: 'John Smith',
+            requestDate: '2023-06-01',
+            startDate: '2023-06-15',
+            endDate: '2023-06-18',
+            reason: 'Family vacation',
+            status: 'pending' as const,
+            type: 'vacation' as const,
+            details: 'Annual family trip',
+          },
+          {
+            id: '2',
+            managerId: '2',
+            managerName: 'Emily Johnson',
+            requestDate: '2023-06-02',
+            startDate: '2023-06-10',
+            endDate: '2023-06-11',
+            reason: 'Personal appointment',
+            status: 'pending' as const,
+            type: 'personal' as const,
+            details: "Doctor's appointment",
+          },
+          {
+            id: '3',
+            managerId: '4',
+            managerName: 'Sarah Wilson',
+            requestDate: '2023-05-20',
+            startDate: '2023-06-05',
+            endDate: '2023-06-09',
+            reason: 'Medical leave',
+            status: 'approved' as const,
+            type: 'medical' as const,
+            details: 'Surgery recovery',
+            approvedAt: '2023-05-21',
+          },
+          {
+            id: '4',
+            managerId: '1',
+            managerName: 'John Smith',
+            requestDate: '2023-05-15',
+            startDate: '2023-05-30',
+            endDate: '2023-05-30',
+            reason: 'Sick day',
+            status: 'rejected' as const,
+            type: 'sick' as const,
+            details: 'Not feeling well',
+            rejectionReason: 'Short staffed on this day, please reschedule',
+            rejectedAt: '2023-05-16',
+          },
+        ];
 
-  const getStatusBadge = (status: LeaveRequestStatus) => {
+  const _getStatusBadge = (status: LeaveRequestStatus) => {
     switch (status) {
-      case "pending":
-        return <Badge variant="outline" className="flex items-center gap-1"><Clock className="h-3 w-3" /> Pending</Badge>
-      case "approved":
-        return <Badge variant="default" className="flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Approved</Badge>
-      case "rejected":
-        return <Badge variant="destructive" className="flex items-center gap-1"><XCircle className="h-3 w-3" /> Rejected</Badge>
+      case 'pending':
+        return (
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Clock className="h-3 w-3" /> Pending
+          </Badge>
+        );
+      case 'approved':
+        return (
+          <Badge variant="default" className="flex items-center gap-1">
+            <CheckCircle className="h-3 w-3" /> Approved
+          </Badge>
+        );
+      case 'rejected':
+        return (
+          <Badge variant="destructive" className="flex items-center gap-1">
+            <XCircle className="h-3 w-3" /> Rejected
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>;
     }
-  }
+  };
 
-  const getLeaveTypeBadge = (type: LeaveRequestType) => {
+  const _getLeaveTypeBadge = (type: LeaveRequestType) => {
     switch (type) {
-      case "vacation":
-        return <Badge variant="secondary">Vacation</Badge>
-      case "medical":
-        return <Badge variant="destructive">Medical</Badge>
-      case "sick":
-        return <Badge variant="outline">Sick</Badge>
-      case "personal":
-        return <Badge variant="default">Personal</Badge>
+      case 'vacation':
+        return <Badge variant="secondary">Vacation</Badge>;
+      case 'medical':
+        return <Badge variant="destructive">Medical</Badge>;
+      case 'sick':
+        return <Badge variant="outline">Sick</Badge>;
+      case 'personal':
+        return <Badge variant="default">Personal</Badge>;
       default:
-        return <Badge variant="outline">{type}</Badge>
+        return <Badge variant="outline">{type}</Badge>;
     }
-  }
+  };
 
-  const handleStatusChange = (value: string) => {
-    setStatusFilter(value as LeaveRequestStatus | "all")
-  }
+  const _handleStatusChange = (value: string) => {
+    setStatusFilter(value as LeaveRequestStatus | 'all');
+  };
 
-  const handleDateChange = (date: DateRange | undefined) => {
+  const _handleDateChange = (date: DateRange | undefined) => {
     if (date) {
-      setDateRange(date)
+      setDateRange(date);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -281,9 +296,7 @@ export default function LeaveRequestsPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Requests
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{leaveRequests.length}</div>
@@ -291,37 +304,31 @@ export default function LeaveRequestsPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pending
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {leaveRequests.filter(req => req.status === "pending").length}
+              {leaveRequests.filter((req) => req.status === 'pending').length}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Approved
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Approved</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {leaveRequests.filter(req => req.status === "approved").length}
+              {leaveRequests.filter((req) => req.status === 'approved').length}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Rejected
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Rejected</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {leaveRequests.filter(req => req.status === "rejected").length}
+              {leaveRequests.filter((req) => req.status === 'rejected').length}
             </div>
           </CardContent>
         </Card>
@@ -335,10 +342,7 @@ export default function LeaveRequestsPage() {
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4 items-end mb-6">
             <div className="grid w-full md:w-64">
-              <Select 
-                value={statusFilter} 
-                onValueChange={handleStatusChange}
-              >
+              <Select value={statusFilter} onValueChange={handleStatusChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
@@ -397,30 +401,31 @@ export default function LeaveRequestsPage() {
                             <span> to {request.endDate}</span>
                           )}
                         </div>
-                        <div className="mt-1">
-                          {getLeaveTypeBadge(request.type)}
-                        </div>
+                        <div className="mt-1">{getLeaveTypeBadge(request.type)}</div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="max-w-xs">
-                        <p className="truncate" title={request.reason}>{request.reason}</p>
+                        <p className="truncate" title={request.reason}>
+                          {request.reason}
+                        </p>
                         {request.details && (
-                          <p className="text-xs text-muted-foreground truncate" title={request.details}>
+                          <p
+                            className="text-xs text-muted-foreground truncate"
+                            title={request.details}
+                          >
                             {request.details}
                           </p>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      {getStatusBadge(request.status)}
-                    </TableCell>
+                    <TableCell>{getStatusBadge(request.status)}</TableCell>
                     <TableCell className="text-right">
-                      {request.status === "pending" && (
+                      {request.status === 'pending' && (
                         <div className="flex justify-end gap-2">
-                          <Button 
-                            variant="default" 
-                            size="sm" 
+                          <Button
+                            variant="default"
+                            size="sm"
                             onClick={() => handleApproveRequest(request.id)}
                             disabled={processingAction}
                           >
@@ -429,8 +434,8 @@ export default function LeaveRequestsPage() {
                           </Button>
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button 
-                                variant="destructive" 
+                              <Button
+                                variant="destructive"
                                 size="sm"
                                 onClick={() => setSelectedRequestId(request.id)}
                                 disabled={processingAction}
@@ -443,8 +448,8 @@ export default function LeaveRequestsPage() {
                               <DialogHeader>
                                 <DialogTitle>Reject Leave Request</DialogTitle>
                                 <DialogDescription>
-                                  Please provide a reason for rejecting this leave request.
-                                  This will be communicated to the manager.
+                                  Please provide a reason for rejecting this leave request. This
+                                  will be communicated to the manager.
                                 </DialogDescription>
                               </DialogHeader>
                               <div className="space-y-4 py-4">
@@ -459,17 +464,17 @@ export default function LeaveRequestsPage() {
                                 </div>
                               </div>
                               <DialogFooter>
-                                <Button 
-                                  variant="outline" 
+                                <Button
+                                  variant="outline"
                                   onClick={() => {
-                                    setSelectedRequestId(null)
-                                    setRejectionReason("")
+                                    setSelectedRequestId(null);
+                                    setRejectionReason('');
                                   }}
                                 >
                                   Cancel
                                 </Button>
-                                <Button 
-                                  variant="destructive" 
+                                <Button
+                                  variant="destructive"
                                   onClick={handleRejectRequest}
                                   disabled={!rejectionReason || processingAction}
                                 >
@@ -480,7 +485,7 @@ export default function LeaveRequestsPage() {
                           </Dialog>
                         </div>
                       )}
-                      {request.status !== "pending" && (
+                      {request.status !== 'pending' && (
                         <Button variant="outline" size="sm">
                           <Calendar className="mr-1 h-3 w-3" />
                           View Details
@@ -495,7 +500,7 @@ export default function LeaveRequestsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 function LeaveRequestsSkeleton() {
@@ -559,5 +564,5 @@ function LeaveRequestsSkeleton() {
         </CardContent>
       </Card>
     </div>
-  )
-} 
+  );
+}

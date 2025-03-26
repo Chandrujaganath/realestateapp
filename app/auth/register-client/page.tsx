@@ -1,54 +1,54 @@
-"use client"
+'use client';
 
-import type React from "react"
+import { UserPlus } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import type React from 'react';
+import { useState } from 'react';
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { useAuth } from '@/hooks/use-auth'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import AuthLayout from "@/components/layout/auth-layout"
-import { UserPlus } from "lucide-react"
+import AuthLayout from '@/components/layout/auth-layout';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function ClientRegisterPage() {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [phone, setPhone] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const { signUpAsClient } = useAuth()
-  const router = useRouter()
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { signUpAsClient } = useAuth();
+  const _router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+  const _handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
 
     if (!name || !email || !phone) {
-      setError("Please fill in all required fields")
-      return
+      setError('Please fill in all required fields');
+      return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      return
+      setError('Passwords do not match');
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      await signUpAsClient(email, password, name, phone)
+      await signUpAsClient(email, password, name, phone);
       // Redirect will be handled by middleware based on user role
     } catch (err: any) {
-      setError(err.message || "Failed to create client account")
+      setError(err.message || 'Failed to create client account');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <AuthLayout>
@@ -139,13 +139,12 @@ export default function ClientRegisterPage() {
         </form>
 
         <div className="text-center text-sm">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <Link href="/auth/login" className="text-primary hover:underline">
             Sign in
           </Link>
         </div>
       </div>
     </AuthLayout>
-  )
+  );
 }
-

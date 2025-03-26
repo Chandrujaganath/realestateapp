@@ -1,95 +1,94 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
+import { useEffect, useState } from 'react';
 
 // Custom hook for lazy loading components
 export function useLazyComponent<T>(importFunc: () => Promise<{ default: T }>) {
-  const [Component, setComponent] = useState<T | null>(null)
+  const [Component, setComponent] = useState<T | null>(null);
 
   useEffect(() => {
-    let isMounted = true
+    let isMounted = true;
 
-    importFunc().then((module) => {
+    importFunc().then((_module) => {
       if (isMounted) {
-        setComponent(module.default)
+        setComponent(module.default);
       }
-    })
+    });
 
     return () => {
-      isMounted = false
-    }
-  }, [importFunc])
+      isMounted = false;
+    };
+  }, [importFunc]);
 
-  return Component
+  return Component;
 }
 
 // Function to optimize Firestore queries with pagination
 export function createPaginatedQuery<T>(
   fetchFunction: (lastDoc: any, limit: number) => Promise<{ data: T[]; lastDoc: any }>,
-  initialLimit = 10,
+  initialLimit = 10
 ) {
   return function usePaginatedData() {
-    const [data, setData] = useState<T[]>([])
-    const [lastDoc, setLastDoc] = useState<any>(null)
-    const [loading, setLoading] = useState(false)
-    const [hasMore, setHasMore] = useState(true)
+    const [data, setData] = useState<T[]>([]);
+    const [lastDoc, setLastDoc] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
 
     const loadInitialData = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        const result = await fetchFunction(null, initialLimit)
-        setData(result.data)
-        setLastDoc(result.lastDoc)
-        setHasMore(result.data.length === initialLimit)
+        const result = await fetchFunction(null, initialLimit);
+        setData(result.data);
+        setLastDoc(result.lastDoc);
+        setHasMore(result.data.length === initialLimit);
       } catch (error) {
-        console.error("Error loading data:", error)
+        console.error('Error loading data:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
     const loadMore = async () => {
-      if (!hasMore || loading) return
+      if (!hasMore || loading) return;
 
-      setLoading(true)
+      setLoading(true);
       try {
-        const result = await fetchFunction(lastDoc, initialLimit)
-        setData((prev) => [...prev, ...result.data])
-        setLastDoc(result.lastDoc)
-        setHasMore(result.data.length === initialLimit)
+        const result = await fetchFunction(lastDoc, initialLimit);
+        setData((_prev) => [...prev, ...result.data]);
+        setLastDoc(result.lastDoc);
+        setHasMore(result.data.length === initialLimit);
       } catch (error) {
-        console.error("Error loading more data:", error)
+        console.error('Error loading more data:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    return { data, loading, hasMore, loadMore, loadInitialData }
-  }
+    return { data, loading, hasMore, loadMore, loadInitialData };
+  };
 }
 
 // Function to implement client-side caching
 export function createCachedFetch(ttlMs: number = 5 * 60 * 1000) {
-  const cache = new Map<string, { data: any; timestamp: number }>()
+  const cache = new Map<string, { data: any; timestamp: number }>();
 
   return async function cachedFetch<T>(url: string, options?: RequestInit): Promise<T> {
-    const cacheKey = `${url}-${JSON.stringify(options)}`
-    const now = Date.now()
+    const cacheKey = `${url}-${JSON.stringify(options)}`;
+    const now = Date.now();
 
     // Check if we have a valid cached response
-    const cachedResponse = cache.get(cacheKey)
+    const cachedResponse = cache.get(cacheKey);
     if (cachedResponse && now - cachedResponse.timestamp < ttlMs) {
-      return cachedResponse.data
+      return cachedResponse.data;
     }
 
     // If not cached or expired, fetch new data
-    const response = await fetch(url, options)
-    const data = await response.json()
+    const _response = await fetch(url, options);
+    const data = await response.json();
 
     // Cache the new response
-    cache.set(cacheKey, { data, timestamp: now })
+    cache.set(cacheKey, { data, timestamp: now });
 
-    return data
-  }
+    return data;
+  };
 }
-

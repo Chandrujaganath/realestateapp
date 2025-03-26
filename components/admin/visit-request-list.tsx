@@ -13,4 +13,3 @@
 // The rest of the original code would go here.  Since it was omitted, I cannot
 // include it.  This response only addresses the specific problem of the undeclared
 // variables.
-

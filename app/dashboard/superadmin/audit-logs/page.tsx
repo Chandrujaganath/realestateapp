@@ -1,49 +1,63 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import { useSuperAdmin } from "@/contexts/super-admin-context"
-import { useAuth } from "@/contexts/auth-context"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowLeft, Search, Download } from "lucide-react"
-import Link from "next/link"
-import { format } from "date-fns"
+import { format } from 'date-fns';
+import { ArrowLeft, Search, Download } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useAuth } from '@/contexts/auth-context';
+import { useSuperAdmin } from '@/contexts/super-admin-context';
 
 export default function AuditLogsPage() {
-  const { user } = useAuth()
-  const { auditLogs, loadingAuditLogs, getAuditLogs } = useSuperAdmin()
+  const { user } = useAuth();
+  const { auditLogs, loadingAuditLogs, getAuditLogs } = useSuperAdmin();
 
   const [filters, setFilters] = useState({
-    actionType: "",
-    performedBy: "",
-    resourceType: "",
+    actionType: '',
+    performedBy: '',
+    resourceType: '',
     dateRange: {
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
       end: new Date(),
     },
-  })
+  });
 
   useEffect(() => {
-    if (user && user.role === "SuperAdmin") {
-      getAuditLogs(filters)
+    if (user && user.role === 'SuperAdmin') {
+      getAuditLogs(filters);
     }
-  }, [user])
+  }, [user]);
 
-  const handleSearch = () => {
-    getAuditLogs(filters)
-  }
+  const _handleSearch = () => {
+    getAuditLogs(filters);
+  };
 
-  const handleExport = () => {
+  const _handleExport = () => {
     // Implementation for exporting logs to CSV
-    alert("Export functionality would be implemented here")
-  }
+    alert('Export functionality would be implemented here');
+  };
 
-  if (!user || user.role !== "SuperAdmin") {
+  if (!user || user.role !== 'SuperAdmin') {
     return (
       <div className="flex items-center justify-center h-screen">
         <Card className="w-[350px]">
@@ -58,7 +72,7 @@ export default function AuditLogsPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -75,7 +89,9 @@ export default function AuditLogsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Search & Filter</CardTitle>
-          <CardDescription>Find specific actions or filter by user, type, or date range.</CardDescription>
+          <CardDescription>
+            Find specific actions or filter by user, type, or date range.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -126,7 +142,7 @@ export default function AuditLogsPage() {
               <Input
                 id="startDate"
                 type="date"
-                value={format(filters.dateRange.start, "yyyy-MM-dd")}
+                value={format(filters.dateRange.start, 'yyyy-MM-dd')}
                 onChange={(e) =>
                   setFilters({
                     ...filters,
@@ -144,7 +160,7 @@ export default function AuditLogsPage() {
               <Input
                 id="endDate"
                 type="date"
-                value={format(filters.dateRange.end, "yyyy-MM-dd")}
+                value={format(filters.dateRange.end, 'yyyy-MM-dd')}
                 onChange={(e) =>
                   setFilters({
                     ...filters,
@@ -204,7 +220,7 @@ export default function AuditLogsPage() {
                 ) : (
                   auditLogs.map((log) => (
                     <TableRow key={log.id}>
-                      <TableCell>{format(log.timestamp, "MMM d, yyyy HH:mm:ss")}</TableCell>
+                      <TableCell>{format(log.timestamp, 'MMM d, yyyy HH:mm:ss')}</TableCell>
                       <TableCell>
                         {log.performedBy.name}
                         <div className="text-xs text-muted-foreground">{log.performedBy.role}</div>
@@ -213,7 +229,9 @@ export default function AuditLogsPage() {
                       <TableCell>
                         {log.targetResource.type}
                         {log.targetResource.name && (
-                          <div className="text-xs text-muted-foreground">{log.targetResource.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {log.targetResource.name}
+                          </div>
                         )}
                       </TableCell>
                       <TableCell>
@@ -230,6 +248,5 @@ export default function AuditLogsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-

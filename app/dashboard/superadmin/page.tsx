@@ -1,36 +1,37 @@
-"use client"
+'use client';
 
-import { useEffect } from "react"
-import { useSuperAdmin } from "@/contexts/super-admin-context"
-import { useAuth } from "@/hooks/use-auth"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Calendar, Users, Building, Map, Activity } from "lucide-react"
-import Link from "next/link"
-import { formatDistanceToNow } from "date-fns"
-import { UserAnnouncements } from "@/components/announcements/user-announcements"
-import { ImportantAnnouncementBanner } from "@/components/announcements/important-announcement-banner"
+import { formatDistanceToNow } from 'date-fns';
+import { Calendar, Users, Building, Map, Activity } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect } from 'react';
+
+import { ImportantAnnouncementBanner } from '@/components/announcements/important-announcement-banner';
+import { UserAnnouncements } from '@/components/announcements/user-announcements';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useSuperAdmin } from '@/contexts/super-admin-context';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function SuperAdminDashboard() {
-  const { user } = useAuth()
-  const { dashboardStats, loadingDashboardStats, getDashboardStats } = useSuperAdmin()
+  const { user } = useAuth();
+  const { dashboardStats, loadingDashboardStats, getDashboardStats } = useSuperAdmin();
 
   useEffect(() => {
-    console.log("SuperAdminDashboard - Current user:", user);
-    console.log("SuperAdminDashboard - User role:", user?.role);
-    
-    const fetchDashboardData = async () => {
+    console.log('SuperAdminDashboard - Current user:', user);
+    console.log('SuperAdminDashboard - User role:', user?.role);
+
+    const _fetchDashboardData = async () => {
       try {
-        if (user && user.role?.toLowerCase() === "superadmin") {
-          console.log("SuperAdminDashboard - User is superadmin, fetching dashboard stats");
+        if (user && user.role?.toLowerCase() === 'superadmin') {
+          console.log('SuperAdminDashboard - User is superadmin, fetching dashboard stats');
           await getDashboardStats();
         } else {
-          console.log("SuperAdminDashboard - User is not superadmin or not authenticated");
+          console.log('SuperAdminDashboard - User is not superadmin or not authenticated');
         }
       } catch (error) {
-        console.error("Error fetching dashboard stats:", error);
+        console.error('Error fetching dashboard stats:', error);
       }
     };
 
@@ -38,17 +39,15 @@ export default function SuperAdminDashboard() {
     if (user) {
       fetchDashboardData();
     }
-    
+
     // Include getDashboardStats in the dependency array, but wrap it in useCallback in the SuperAdminProvider
   }, [user, getDashboardStats]);
 
-  const isSuperAdmin = user && (
-    user.role?.toLowerCase() === "superadmin" || 
-    user.role === "SuperAdmin"
-  );
+  const _isSuperAdmin =
+    user && (user.role?.toLowerCase() === 'superadmin' || user.role === 'SuperAdmin');
 
   if (!user) {
-    console.log("SuperAdminDashboard - No user found, showing unauthorized screen");
+    console.log('SuperAdminDashboard - No user found, showing unauthorized screen');
     return (
       <div className="flex items-center justify-center h-screen">
         <Card className="w-[350px]">
@@ -63,18 +62,19 @@ export default function SuperAdminDashboard() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
-  
+
   if (!isSuperAdmin) {
-    console.log("SuperAdminDashboard - User role is not superadmin:", user.role);
+    console.log('SuperAdminDashboard - User role is not superadmin:', user.role);
     return (
       <div className="flex items-center justify-center h-screen">
         <Card className="w-[350px]">
           <CardHeader>
             <CardTitle>Unauthorized Access</CardTitle>
             <CardDescription>
-              You need superadmin privileges to access this page. Current role: {user.role || "No role assigned"}
+              You need superadmin privileges to access this page. Current role:{' '}
+              {user.role || 'No role assigned'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -84,13 +84,13 @@ export default function SuperAdminDashboard() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
     <div className="container mx-auto p-4 space-y-6">
       <ImportantAnnouncementBanner />
-      
+
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Super Admin Dashboard</h1>
         <div className="flex space-x-2">
@@ -144,7 +144,9 @@ export default function SuperAdminDashboard() {
                 <Map className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{dashboardStats?.projectStats.activePlots || 0}</div>
+                <div className="text-2xl font-bold">
+                  {dashboardStats?.projectStats.activePlots || 0}
+                </div>
                 <p className="text-xs text-muted-foreground">Ready for sale</p>
               </CardContent>
             </Card>
@@ -154,7 +156,9 @@ export default function SuperAdminDashboard() {
                 <Calendar className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{dashboardStats?.projectStats.pendingVisits || 0}</div>
+                <div className="text-2xl font-bold">
+                  {dashboardStats?.projectStats.pendingVisits || 0}
+                </div>
                 <p className="text-xs text-muted-foreground">Awaiting approval</p>
               </CardContent>
             </Card>
@@ -182,12 +186,14 @@ export default function SuperAdminDashboard() {
                   <div className="h-full flex items-center justify-center">
                     {/* Placeholder for chart - in a real app, use a chart library */}
                     <div className="grid grid-cols-2 gap-4 w-full">
-                      {Object.entries(dashboardStats?.userCounts.byRole || {}).map(([role, count]) => (
-                        <div key={role} className="flex items-center justify-between">
-                          <span>{role}</span>
-                          <span className="font-bold">{count}</span>
-                        </div>
-                      ))}
+                      {Object.entries(dashboardStats?.userCounts.byRole || {}).map(
+                        ([role, count]) => (
+                          <div key={role} className="flex items-center justify-between">
+                            <span>{role}</span>
+                            <span className="font-bold">{count}</span>
+                          </div>
+                        )
+                      )}
                     </div>
                   </div>
                 )}
@@ -207,11 +213,15 @@ export default function SuperAdminDashboard() {
                     <div className="grid grid-cols-2 gap-4 w-full">
                       <div className="flex items-center justify-between">
                         <span>Available</span>
-                        <span className="font-bold">{dashboardStats?.projectStats.activePlots || 0}</span>
+                        <span className="font-bold">
+                          {dashboardStats?.projectStats.activePlots || 0}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span>Sold</span>
-                        <span className="font-bold">{dashboardStats?.projectStats.soldPlots || 0}</span>
+                        <span className="font-bold">
+                          {dashboardStats?.projectStats.soldPlots || 0}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -273,9 +283,11 @@ export default function SuperAdminDashboard() {
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {activity.actionType} on {activity.targetResource.type}
-                          {activity.targetResource.name ? ` "${activity.targetResource.name}"` : ""}
+                          {activity.targetResource.name ? ` "${activity.targetResource.name}"` : ''}
                         </p>
-                        <p className="text-xs text-muted-foreground">{formatDistanceToNow(activity.timestamp)} ago</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(activity.timestamp)} ago
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -291,6 +303,5 @@ export default function SuperAdminDashboard() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
-

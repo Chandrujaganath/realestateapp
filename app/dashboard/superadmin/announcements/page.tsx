@@ -1,14 +1,13 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import { useSuperAdmin } from "@/contexts/super-admin-context"
-import { useAuth } from "@/contexts/auth-context"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { format, addDays } from 'date-fns';
+import { ArrowLeft, Plus, Edit, Trash, Megaphone } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -17,132 +16,147 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowLeft, Plus, Edit, Trash, Megaphone } from "lucide-react"
-import Link from "next/link"
-import { format, addDays } from "date-fns"
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/contexts/auth-context';
+import { useSuperAdmin } from '@/contexts/super-admin-context';
 
 // This would typically be in your types file
 interface Announcement {
-  id: string
-  title: string
-  content: string
-  priority: "low" | "medium" | "high"
-  targetRoles: string[]
-  startDate: Date
-  endDate: Date
+  id: string;
+  title: string;
+  content: string;
+  priority: 'low' | 'medium' | 'high';
+  targetRoles: string[];
+  startDate: Date;
+  endDate: Date;
   createdBy: {
-    id: string
-    name: string
-    role: string
-  }
-  createdAt: Date
-  isGlobal: boolean
+    id: string;
+    name: string;
+    role: string;
+  };
+  createdAt: Date;
+  isGlobal: boolean;
 }
 
 export default function GlobalAnnouncementsPage() {
-  const { user } = useAuth()
-  const { settings } = useSuperAdmin()
+  const { user } = useAuth();
+  const { settings } = useSuperAdmin();
 
   // In a real app, you'd have these in your context
-  const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [loadingAnnouncements, setLoadingAnnouncements] = useState(true)
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
 
   const [newAnnouncement, setNewAnnouncement] = useState({
-    title: "",
-    content: "",
-    priority: "medium" as "low" | "medium" | "high",
-    targetRoles: ["Guest", "Client", "Manager", "Admin", "SuperAdmin"],
+    title: '',
+    content: '',
+    priority: 'medium' as 'low' | 'medium' | 'high',
+    targetRoles: ['Guest', 'Client', 'Manager', 'Admin', 'SuperAdmin'],
     startDate: new Date(),
     endDate: addDays(new Date(), settings?.announcementDefaults?.duration || 7),
     isGlobal: true,
-  })
+  });
 
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   // Simulate fetching announcements
   useEffect(() => {
-    if (user && user.role === "SuperAdmin") {
+    if (user && user.role === 'SuperAdmin') {
       // Simulate API call
       setTimeout(() => {
         setAnnouncements([
           {
-            id: "1",
-            title: "System Maintenance",
-            content: "The system will be down for maintenance on Saturday from 2-4 AM.",
-            priority: "high",
-            targetRoles: ["Guest", "Client", "Manager", "Admin", "SuperAdmin"],
+            id: '1',
+            title: 'System Maintenance',
+            content: 'The system will be down for maintenance on Saturday from 2-4 AM.',
+            priority: 'high',
+            targetRoles: ['Guest', 'Client', 'Manager', 'Admin', 'SuperAdmin'],
             startDate: new Date(),
             endDate: addDays(new Date(), 7),
             createdBy: {
-              id: "123",
-              name: "System Admin",
-              role: "SuperAdmin",
+              id: '123',
+              name: 'System Admin',
+              role: 'SuperAdmin',
             },
             createdAt: new Date(),
             isGlobal: true,
           },
           {
-            id: "2",
-            title: "New Feature: Enhanced Reporting",
-            content: "We have added new reporting capabilities for managers and admins.",
-            priority: "medium",
-            targetRoles: ["Manager", "Admin"],
+            id: '2',
+            title: 'New Feature: Enhanced Reporting',
+            content: 'We have added new reporting capabilities for managers and admins.',
+            priority: 'medium',
+            targetRoles: ['Manager', 'Admin'],
             startDate: new Date(),
             endDate: addDays(new Date(), 14),
             createdBy: {
-              id: "123",
-              name: "System Admin",
-              role: "SuperAdmin",
+              id: '123',
+              name: 'System Admin',
+              role: 'SuperAdmin',
             },
             createdAt: new Date(),
             isGlobal: true,
           },
-        ])
-        setLoadingAnnouncements(false)
-      }, 1000)
+        ]);
+        setLoadingAnnouncements(false);
+      }, 1000);
     }
-  }, [user])
+  }, [user]);
 
-  const handleCreateAnnouncement = () => {
+  const _handleCreateAnnouncement = () => {
     // In a real app, you'd call an API or context method
-    const newId = Math.random().toString(36).substring(2, 9)
+    const _newId = Math.random().toString(36).substring(2, 9);
 
     const announcement: Announcement = {
       id: newId,
       ...newAnnouncement,
       createdBy: {
-        id: user?.uid || "",
-        name: user?.displayName || "",
-        role: "SuperAdmin",
+        id: user?.uid || '',
+        name: user?.displayName || '',
+        role: 'SuperAdmin',
       },
       createdAt: new Date(),
-    }
+    };
 
-    setAnnouncements([announcement, ...announcements])
-    setCreateDialogOpen(false)
+    setAnnouncements([announcement, ...announcements]);
+    setCreateDialogOpen(false);
 
     // Reset form
     setNewAnnouncement({
-      title: "",
-      content: "",
-      priority: "medium",
-      targetRoles: ["Guest", "Client", "Manager", "Admin", "SuperAdmin"],
+      title: '',
+      content: '',
+      priority: 'medium',
+      targetRoles: ['Guest', 'Client', 'Manager', 'Admin', 'SuperAdmin'],
       startDate: new Date(),
       endDate: addDays(new Date(), settings?.announcementDefaults?.duration || 7),
       isGlobal: true,
-    })
-  }
+    });
+  };
 
-  const handleDeleteAnnouncement = (id: string) => {
+  const _handleDeleteAnnouncement = (id: string) => {
     // In a real app, you'd call an API or context method
-    setAnnouncements(announcements.filter((a) => a.id !== id))
-  }
+    setAnnouncements(announcements.filter((_a) => a.id !== id));
+  };
 
-  if (!user || user.role !== "SuperAdmin") {
+  if (!user || user.role !== 'SuperAdmin') {
     return (
       <div className="flex items-center justify-center h-screen">
         <Card className="w-[350px]">
@@ -157,7 +171,7 @@ export default function GlobalAnnouncementsPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -181,7 +195,9 @@ export default function GlobalAnnouncementsPage() {
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Create Global Announcement</DialogTitle>
-              <DialogDescription>Create a new announcement that will be visible to selected roles.</DialogDescription>
+              <DialogDescription>
+                Create a new announcement that will be visible to selected roles.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -189,7 +205,12 @@ export default function GlobalAnnouncementsPage() {
                 <Input
                   id="title"
                   value={newAnnouncement.title}
-                  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
+                  onChange={(e) =>
+                    setNewAnnouncement({
+                      ...newAnnouncement,
+                      title: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -198,7 +219,12 @@ export default function GlobalAnnouncementsPage() {
                   id="content"
                   rows={4}
                   value={newAnnouncement.content}
-                  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, content: e.target.value })}
+                  onChange={(e) =>
+                    setNewAnnouncement({
+                      ...newAnnouncement,
+                      content: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -208,7 +234,7 @@ export default function GlobalAnnouncementsPage() {
                   onValueChange={(value) =>
                     setNewAnnouncement({
                       ...newAnnouncement,
-                      priority: value as "low" | "medium" | "high",
+                      priority: value as 'low' | 'medium' | 'high',
                     })
                   }
                 >
@@ -228,7 +254,7 @@ export default function GlobalAnnouncementsPage() {
                   <Input
                     id="startDate"
                     type="date"
-                    value={format(newAnnouncement.startDate, "yyyy-MM-dd")}
+                    value={format(newAnnouncement.startDate, 'yyyy-MM-dd')}
                     onChange={(e) =>
                       setNewAnnouncement({
                         ...newAnnouncement,
@@ -242,7 +268,7 @@ export default function GlobalAnnouncementsPage() {
                   <Input
                     id="endDate"
                     type="date"
-                    value={format(newAnnouncement.endDate, "yyyy-MM-dd")}
+                    value={format(newAnnouncement.endDate, 'yyyy-MM-dd')}
                     onChange={(e) =>
                       setNewAnnouncement({
                         ...newAnnouncement,
@@ -255,7 +281,7 @@ export default function GlobalAnnouncementsPage() {
               <div className="space-y-2">
                 <Label>Target Roles</Label>
                 <div className="grid grid-cols-2 gap-2">
-                  {["Guest", "Client", "Manager", "Admin", "SuperAdmin"].map((role) => (
+                  {['Guest', 'Client', 'Manager', 'Admin', 'SuperAdmin'].map((role) => (
                     <div key={role} className="flex items-center space-x-2">
                       <input
                         type="checkbox"
@@ -266,12 +292,12 @@ export default function GlobalAnnouncementsPage() {
                             setNewAnnouncement({
                               ...newAnnouncement,
                               targetRoles: [...newAnnouncement.targetRoles, role],
-                            })
+                            });
                           } else {
                             setNewAnnouncement({
                               ...newAnnouncement,
-                              targetRoles: newAnnouncement.targetRoles.filter((r) => r !== role),
-                            })
+                              targetRoles: newAnnouncement.targetRoles.filter((_r) => r !== role),
+                            });
                           }
                         }}
                       />
@@ -285,7 +311,10 @@ export default function GlobalAnnouncementsPage() {
               <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateAnnouncement} disabled={!newAnnouncement.title || !newAnnouncement.content}>
+              <Button
+                onClick={handleCreateAnnouncement}
+                disabled={!newAnnouncement.title || !newAnnouncement.content}
+              >
                 Create Announcement
               </Button>
             </DialogFooter>
@@ -337,14 +366,15 @@ export default function GlobalAnnouncementsPage() {
                         <Badge
                           variant="outline"
                           className={
-                            announcement.priority === "high"
-                              ? "bg-red-50 text-red-700 border-red-200"
-                              : announcement.priority === "medium"
-                                ? "bg-yellow-50 text-yellow-700 border-yellow-200"
-                                : "bg-green-50 text-green-700 border-green-200"
+                            announcement.priority === 'high'
+                              ? 'bg-red-50 text-red-700 border-red-200'
+                              : announcement.priority === 'medium'
+                                ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                                : 'bg-green-50 text-green-700 border-green-200'
                           }
                         >
-                          {announcement.priority.charAt(0).toUpperCase() + announcement.priority.slice(1)}
+                          {announcement.priority.charAt(0).toUpperCase() +
+                            announcement.priority.slice(1)}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -358,14 +388,15 @@ export default function GlobalAnnouncementsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          {format(announcement.startDate, "MMM d")} - {format(announcement.endDate, "MMM d, yyyy")}
+                          {format(announcement.startDate, 'MMM d')} -{' '}
+                          {format(announcement.endDate, 'MMM d, yyyy')}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
                           {announcement.createdBy.name}
                           <div className="text-xs text-muted-foreground">
-                            {format(announcement.createdAt, "MMM d, yyyy")}
+                            {format(announcement.createdAt, 'MMM d, yyyy')}
                           </div>
                         </div>
                       </TableCell>
@@ -374,7 +405,11 @@ export default function GlobalAnnouncementsPage() {
                           <Button variant="ghost" size="icon">
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteAnnouncement(announcement.id)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteAnnouncement(announcement.id)}
+                          >
                             <Trash className="h-4 w-4" />
                           </Button>
                         </div>
@@ -388,6 +423,5 @@ export default function GlobalAnnouncementsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-

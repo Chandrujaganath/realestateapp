@@ -1,36 +1,37 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from "@/hooks/useAuth"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-import { PieChart, Pie, Cell } from "recharts"
-import { LineChart, Line } from "recharts"
+import { useState, useEffect } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line } from 'recharts';
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function AnalyticsPage() {
-  const { getSystemAnalytics } = useAuth()
-  const [analytics, setAnalytics] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { getSystemAnalytics } = useAuth();
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
+    const _fetchAnalytics = async () => {
       try {
-        const data = await getSystemAnalytics()
-        setAnalytics(data)
+        const data = await getSystemAnalytics();
+        setAnalytics(data);
       } catch (error) {
-        console.error("Failed to fetch analytics:", error)
+        console.error('Failed to fetch analytics:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchAnalytics()
-  }, [getSystemAnalytics])
+    fetchAnalytics();
+  }, [getSystemAnalytics]);
 
   if (loading) {
-    return <AnalyticsSkeleton />
+    return <AnalyticsSkeleton />;
   }
 
   // Mock data for demonstration
@@ -40,35 +41,33 @@ export default function AnalyticsPage() {
     visitsThisWeek: 78,
     plotsSold: 56,
     userTypes: [
-      { name: "Clients", value: 684 },
-      { name: "Guests", value: 423 },
-      { name: "Managers", value: 138 },
+      { name: 'Clients', value: 684 },
+      { name: 'Guests', value: 423 },
+      { name: 'Managers', value: 138 },
     ],
     visitTrends: [
-      { month: "Jan", visits: 34 },
-      { month: "Feb", visits: 45 },
-      { month: "Mar", visits: 58 },
-      { month: "Apr", visits: 42 },
-      { month: "May", visits: 53 },
-      { month: "Jun", visits: 67 },
+      { month: 'Jan', visits: 34 },
+      { month: 'Feb', visits: 45 },
+      { month: 'Mar', visits: 58 },
+      { month: 'Apr', visits: 42 },
+      { month: 'May', visits: 53 },
+      { month: 'Jun', visits: 67 },
     ],
     projectActivity: [
-      { project: "Project A", views: 245, inquiries: 34 },
-      { project: "Project B", views: 187, inquiries: 28 },
-      { project: "Project C", views: 320, inquiries: 42 },
-      { project: "Project D", views: 198, inquiries: 21 },
+      { project: 'Project A', views: 245, inquiries: 34 },
+      { project: 'Project B', views: 187, inquiries: 28 },
+      { project: 'Project C', views: 320, inquiries: 42 },
+      { project: 'Project D', views: 198, inquiries: 21 },
     ],
-  }
+  };
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">System Analytics</h1>
-        <p className="text-muted-foreground">
-          Monitor system performance and user activities
-        </p>
+        <p className="text-muted-foreground">Monitor system performance and user activities</p>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
@@ -83,9 +82,7 @@ export default function AnalyticsPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Users
-                </CardTitle>
+                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -104,16 +101,12 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{mockAnalytics.totalUsers}</div>
-                <p className="text-xs text-muted-foreground">
-                  +12% from last month
-                </p>
+                <p className="text-xs text-muted-foreground">+12% from last month</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Active Projects
-                </CardTitle>
+                <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -130,16 +123,12 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{mockAnalytics.activeProjects}</div>
-                <p className="text-xs text-muted-foreground">
-                  +2 new this month
-                </p>
+                <p className="text-xs text-muted-foreground">+2 new this month</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Visits This Week
-                </CardTitle>
+                <CardTitle className="text-sm font-medium">Visits This Week</CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -156,16 +145,12 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{mockAnalytics.visitsThisWeek}</div>
-                <p className="text-xs text-muted-foreground">
-                  +18% from last week
-                </p>
+                <p className="text-xs text-muted-foreground">+18% from last week</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Plot Sales
-                </CardTitle>
+                <CardTitle className="text-sm font-medium">Plot Sales</CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -183,9 +168,7 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{mockAnalytics.plotsSold}</div>
-                <p className="text-xs text-muted-foreground">
-                  +7 from last month
-                </p>
+                <p className="text-xs text-muted-foreground">+7 from last month</p>
               </CardContent>
             </Card>
           </div>
@@ -194,9 +177,7 @@ export default function AnalyticsPage() {
             <Card className="col-span-4">
               <CardHeader>
                 <CardTitle>Visit Trends</CardTitle>
-                <CardDescription>
-                  Property visit requests over the last 6 months
-                </CardDescription>
+                <CardDescription>Property visit requests over the last 6 months</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -213,9 +194,7 @@ export default function AnalyticsPage() {
             <Card className="col-span-3">
               <CardHeader>
                 <CardTitle>User Distribution</CardTitle>
-                <CardDescription>
-                  Breakdown of user types
-                </CardDescription>
+                <CardDescription>Breakdown of user types</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -231,7 +210,7 @@ export default function AnalyticsPage() {
                       nameKey="name"
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     >
-                      {mockAnalytics.userTypes.map((entry, index) => (
+                      {mockAnalytics.userTypes.map((_entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -253,12 +232,12 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart
                   data={[
-                    { month: "Jan", users: 65 },
-                    { month: "Feb", users: 82 },
-                    { month: "Mar", users: 73 },
-                    { month: "Apr", users: 98 },
-                    { month: "May", users: 112 },
-                    { month: "Jun", users: 87 },
+                    { month: 'Jan', users: 65 },
+                    { month: 'Feb', users: 82 },
+                    { month: 'Mar', users: 73 },
+                    { month: 'Apr', users: 98 },
+                    { month: 'May', users: 112 },
+                    { month: 'Jun', users: 87 },
                   ]}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
@@ -283,10 +262,10 @@ export default function AnalyticsPage() {
                 <PieChart>
                   <Pie
                     data={[
-                      { name: "Pending", value: 34 },
-                      { name: "Approved", value: 45 },
-                      { name: "Completed", value: 28 },
-                      { name: "Cancelled", value: 12 },
+                      { name: 'Pending', value: 34 },
+                      { name: 'Approved', value: 45 },
+                      { name: 'Completed', value: 28 },
+                      { name: 'Cancelled', value: 12 },
                     ]}
                     cx="50%"
                     cy="50%"
@@ -297,7 +276,7 @@ export default function AnalyticsPage() {
                     nameKey="name"
                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   >
-                    {mockAnalytics.userTypes.map((entry, index) => (
+                    {mockAnalytics.userTypes.map((_entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -330,7 +309,7 @@ export default function AnalyticsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
 function AnalyticsSkeleton() {
@@ -340,9 +319,9 @@ function AnalyticsSkeleton() {
         <Skeleton className="h-10 w-[250px] mb-2" />
         <Skeleton className="h-4 w-[350px]" />
       </div>
-      
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {Array.from({ length: 4 }).map((_, _i) => (
           <Card key={i}>
             <CardHeader className="pb-2">
               <Skeleton className="h-4 w-[120px]" />
@@ -354,7 +333,7 @@ function AnalyticsSkeleton() {
           </Card>
         ))}
       </div>
-      
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>
@@ -376,6 +355,5 @@ function AnalyticsSkeleton() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-

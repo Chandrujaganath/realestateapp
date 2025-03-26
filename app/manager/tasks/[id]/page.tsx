@@ -1,9 +1,5 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import {
   Calendar,
   Building2,
@@ -18,11 +14,13 @@ import {
   Mail,
   MessageSquare,
   MapIcon,
-} from "lucide-react"
-import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
-import type { Task } from "@/context/auth-context"
-import { Textarea } from "@/components/ui/textarea"
+} from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -30,211 +28,232 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/use-auth';
+
+interface Task {
+  id: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'rejected';
+  type: 'visit_request' | 'sell_request' | 'client_query' | 'guest_assistance';
+  priority: 'low' | 'medium' | 'high';
+  description: string;
+  projectName: string;
+  projectId: string;
+  plotId?: string;
+  plotNumber?: string;
+  createdAt: Date;
+  dueDate?: Date;
+  requestorName: string;
+  requestorRole: string;
+  managerFeedback?: string;
+}
 
 export default function TaskDetailPage({ params }: { params: { id: string } }) {
-  const { getManagerTasks, updateTaskStatus } = useAuth()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const action = searchParams.get("action")
+  const { getManagerTasks, updateTaskStatus } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const action = searchParams?.get('action') ?? '';
 
-  const [task, setTask] = useState<Task | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [feedback, setFeedback] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showCompleteDialog, setShowCompleteDialog] = useState(false)
-  const [showRejectDialog, setShowRejectDialog] = useState(false)
+  const [task, setTask] = useState<Task | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [feedback, setFeedback] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
 
   useEffect(() => {
-    const fetchTask = async () => {
+    const _fetchTask = async () => {
       try {
-        const tasks = await getManagerTasks()
-        const foundTask = tasks.find((t) => t.id === params.id)
+        const _tasks = await getManagerTasks();
+        const foundTask = _tasks.find((_t) => _t.id === params.id);
 
         if (foundTask) {
-          setTask(foundTask)
+          setTask(foundTask);
 
           // If action=start is in the URL, automatically start the task
-          if (action === "start" && foundTask.status === "pending") {
-            handleStartTask()
+          if (action === 'start' && foundTask.status === 'pending') {
+            handleStartTask();
           }
         }
       } catch (error) {
-        console.error("Error fetching task:", error)
+        console.error('Error fetching task:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchTask()
-  }, [getManagerTasks, params.id, action])
+    _fetchTask();
+  }, [getManagerTasks, params.id, action]);
 
   const handleStartTask = async () => {
-    if (!task) return
+    if (!task) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      await updateTaskStatus(task.id, "in_progress")
+      await updateTaskStatus(task.id, 'in_progress');
 
       // Update local state
       setTask({
         ...task,
-        status: "in_progress",
-      })
+        status: 'in_progress',
+      });
 
       // Remove action from URL
-      router.replace(`/manager/tasks/${task.id}`)
+      router.replace(`/manager/tasks/${task.id}`);
     } catch (error) {
-      console.error("Error starting task:", error)
+      console.error('Error starting task:', error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  const handleCompleteTask = async () => {
-    if (!task) return
+  const _handleCompleteTask = async () => {
+    if (!task) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      await updateTaskStatus(task.id, "completed", feedback)
+      await updateTaskStatus(task.id, 'completed', feedback);
 
       // Update local state
       setTask({
         ...task,
-        status: "completed",
-        completedAt: new Date(),
+        status: 'completed',
         managerFeedback: feedback,
-      })
+      });
 
       // Close dialog
-      setShowCompleteDialog(false)
+      setShowCompleteDialog(false);
 
       // Clear feedback
-      setFeedback("")
+      setFeedback('');
     } catch (error) {
-      console.error("Error completing task:", error)
+      console.error('Error completing task:', error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  const handleRejectTask = async () => {
-    if (!task) return
+  const _handleRejectTask = async () => {
+    if (!task) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      await updateTaskStatus(task.id, "rejected", feedback)
+      await updateTaskStatus(task.id, 'rejected', feedback);
 
       // Update local state
       setTask({
         ...task,
-        status: "rejected",
+        status: 'rejected',
         managerFeedback: feedback,
-      })
+      });
 
       // Close dialog
-      setShowRejectDialog(false)
+      setShowRejectDialog(false);
 
       // Clear feedback
-      setFeedback("")
+      setFeedback('');
     } catch (error) {
-      console.error("Error rejecting task:", error)
+      console.error('Error rejecting task:', error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  const getTaskTypeIcon = (type: Task["type"]) => {
+  const _getTaskTypeIcon = (type: Task['type']) => {
     switch (type) {
-      case "visit_request":
-        return <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-      case "sell_request":
-        return <Building2 className="h-5 w-5 text-green-600 dark:text-green-400" />
-      case "client_query":
-        return <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-      case "guest_assistance":
-        return <Users className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+      case 'visit_request':
+        return <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />;
+      case 'sell_request':
+        return <Building2 className="h-5 w-5 text-green-600 dark:text-green-400" />;
+      case 'client_query':
+        return <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />;
+      case 'guest_assistance':
+        return <Users className="h-5 w-5 text-amber-600 dark:text-amber-400" />;
       default:
-        return <AlertCircle className="h-5 w-5 text-muted-foreground" />
+        return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
     }
-  }
+  };
 
-  const getTaskStatusBadge = (status: Task["status"]) => {
+  const _getTaskStatusBadge = (status: Task['status']) => {
     switch (status) {
-      case "pending":
+      case 'pending':
         return (
           <span className="flex items-center gap-1 text-sm px-2 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
             <AlertCircle className="h-4 w-4" />
             Pending
           </span>
-        )
-      case "in_progress":
+        );
+      case 'in_progress':
         return (
           <span className="flex items-center gap-1 text-sm px-2 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
             <Clock className="h-4 w-4" />
             In Progress
           </span>
-        )
-      case "completed":
+        );
+      case 'completed':
         return (
           <span className="flex items-center gap-1 text-sm px-2 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
             <CheckCircle className="h-4 w-4" />
             Completed
           </span>
-        )
-      case "rejected":
+        );
+      case 'rejected':
         return (
           <span className="flex items-center gap-1 text-sm px-2 py-1 rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
             <AlertCircle className="h-4 w-4" />
             Rejected
           </span>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  const getTaskPriorityBadge = (priority: Task["priority"]) => {
+  const _getTaskPriorityBadge = (priority: Task['priority']) => {
     switch (priority) {
-      case "low":
+      case 'low':
         return (
           <span className="text-sm px-2 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
             Low Priority
           </span>
-        )
-      case "medium":
+        );
+      case 'medium':
         return (
           <span className="text-sm px-2 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
             Medium Priority
           </span>
-        )
-      case "high":
+        );
+      case 'high':
         return (
           <span className="text-sm px-2 py-1 rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
             High Priority
           </span>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   if (!task) {
     return (
       <div className="space-y-8">
         <div>
-          <Link href="/manager/tasks" className="flex items-center text-muted-foreground hover:text-foreground mb-2">
+          <Link
+            href="/manager/tasks"
+            className="flex items-center text-muted-foreground hover:text-foreground mb-2"
+          >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Tasks
           </Link>
@@ -248,35 +267,38 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/manager/tasks" className="flex items-center text-muted-foreground hover:text-foreground mb-2">
+        <Link
+          href="/manager/tasks"
+          className="flex items-center text-muted-foreground hover:text-foreground mb-2"
+        >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back to Tasks
         </Link>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">
-              {task.type === "visit_request"
-                ? "Visit Request"
-                : task.type === "sell_request"
-                  ? "Sell Request"
-                  : task.type === "client_query"
-                    ? "Client Query"
-                    : "Guest Assistance"}
+              {task.type === 'visit_request'
+                ? 'Visit Request'
+                : task.type === 'sell_request'
+                  ? 'Sell Request'
+                  : task.type === 'client_query'
+                    ? 'Client Query'
+                    : 'Guest Assistance'}
             </h1>
             <div className="flex flex-wrap gap-2">
-              {getTaskStatusBadge(task.status)}
-              {getTaskPriorityBadge(task.priority)}
+              {_getTaskStatusBadge(task.status)}
+              {_getTaskPriorityBadge(task.priority)}
             </div>
           </div>
 
           <div className="flex gap-2">
-            {task.status === "pending" && (
+            {task.status === 'pending' && (
               <Button onClick={handleStartTask} disabled={isSubmitting}>
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
@@ -292,9 +314,13 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
               </Button>
             )}
 
-            {task.status === "in_progress" && (
+            {task.status === 'in_progress' && (
               <>
-                <Button variant="outline" className="glass-button" onClick={() => setShowRejectDialog(true)}>
+                <Button
+                  variant="outline"
+                  className="glass-button"
+                  onClick={() => setShowRejectDialog(true)}
+                >
                   Reject Task
                 </Button>
 
@@ -358,15 +384,19 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
 
           {/* Action Buttons for Mobile */}
           <div className="md:hidden">
-            {task.status === "pending" && (
+            {task.status === 'pending' && (
               <Button className="w-full" onClick={handleStartTask} disabled={isSubmitting}>
-                {isSubmitting ? "Starting..." : "Start Task"}
+                {isSubmitting ? 'Starting...' : 'Start Task'}
               </Button>
             )}
 
-            {task.status === "in_progress" && (
+            {task.status === 'in_progress' && (
               <div className="flex gap-2">
-                <Button variant="outline" className="w-full glass-button" onClick={() => setShowRejectDialog(true)}>
+                <Button
+                  variant="outline"
+                  className="w-full glass-button"
+                  onClick={() => setShowRejectDialog(true)}
+                >
                   Reject Task
                 </Button>
 
@@ -451,7 +481,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
                 </Link>
               )}
 
-              {task.type === "visit_request" && (
+              {task.type === 'visit_request' && (
                 <Link href="/manager/visit-requests">
                   <Button variant="outline" className="w-full glass-button justify-start">
                     <Calendar className="mr-2 h-4 w-4" />
@@ -460,7 +490,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
                 </Link>
               )}
 
-              {task.type === "sell_request" && (
+              {task.type === 'sell_request' && (
                 <Link href="/manager/sell-requests">
                   <Button variant="outline" className="w-full glass-button justify-start">
                     <Building2 className="mr-2 h-4 w-4" />
@@ -478,7 +508,9 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Complete Task</DialogTitle>
-            <DialogDescription>Add your feedback before marking this task as completed.</DialogDescription>
+            <DialogDescription>
+              Add your feedback before marking this task as completed.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -498,8 +530,8 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
             <Button variant="outline" onClick={() => setShowCompleteDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCompleteTask} disabled={isSubmitting}>
-              {isSubmitting ? "Completing..." : "Complete Task"}
+            <Button onClick={_handleCompleteTask} disabled={isSubmitting}>
+              {isSubmitting ? 'Completing...' : 'Complete Task'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -531,13 +563,16 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
             <Button variant="outline" onClick={() => setShowRejectDialog(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleRejectTask} disabled={isSubmitting || !feedback}>
-              {isSubmitting ? "Rejecting..." : "Reject Task"}
+            <Button
+              variant="destructive"
+              onClick={_handleRejectTask}
+              disabled={isSubmitting || !feedback}
+            >
+              {isSubmitting ? 'Rejecting...' : 'Reject Task'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
-

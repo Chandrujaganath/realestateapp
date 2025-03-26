@@ -1,10 +1,40 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from "@/hooks/useAuth"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import {
+  Search,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Shield,
+  Eye,
+  Edit,
+  Trash2,
+  Download,
+  UserPlus,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -12,206 +42,181 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { 
-  Search, 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  Shield, 
-  Eye,
-  Edit,
-  Trash2,
-  Download,
-  UserPlus
-} from "lucide-react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import Link from "next/link"
+} from '@/components/ui/table';
+import { useAuth } from '@/hooks/useAuth';
 
 // Define user interface
 interface UserType {
-  id: string
-  displayName: string
-  email: string
-  phone: string
-  city: string
-  role: string
-  status: string
-  registeredOn: string
+  id: string;
+  displayName: string;
+  email: string;
+  phone: string;
+  city: string;
+  role: string;
+  status: string;
+  registeredOn: string;
 }
 
 export default function UsersPage() {
-  const { user, getAllUsers } = useAuth()
-  const [users, setUsers] = useState<UserType[]>([])
-  const [filteredUsers, setFilteredUsers] = useState<UserType[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [userType, setUserType] = useState("all")
-  const [loading, setLoading] = useState(true)
+  const { user, getAllUsers } = useAuth();
+  const [users, setUsers] = useState<UserType[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserType[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [userType, setUserType] = useState('all');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const _fetchUsers = async () => {
       try {
         if (getAllUsers) {
-          const data = await getAllUsers()
-          setUsers(data || [])
-          setFilteredUsers(data || [])
+          const data = await getAllUsers();
+          setUsers(data || []);
+          setFilteredUsers(data || []);
         }
       } catch (error) {
-        console.error("Failed to fetch users:", error)
+        console.error('Failed to fetch users:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchUsers()
-  }, [getAllUsers])
+    fetchUsers();
+  }, [getAllUsers]);
 
   useEffect(() => {
-    let filtered = users
+    let filtered = users;
 
     // Filter by user type
-    if (userType !== "all") {
-      filtered = filtered.filter(user => user.role === userType)
+    if (userType !== 'all') {
+      filtered = filtered.filter((user) => user.role === userType);
     }
 
     // Filter by search query
-    if (searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(user => 
-        (user.displayName && user.displayName.toLowerCase().includes(query)) ||
-        (user.email && user.email.toLowerCase().includes(query)) ||
-        (user.phone && user.phone.toLowerCase().includes(query)) ||
-        (user.city && user.city.toLowerCase().includes(query))
-      )
+    if (searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (user) =>
+          (user.displayName && user.displayName.toLowerCase().includes(query)) ||
+          (user.email && user.email.toLowerCase().includes(query)) ||
+          (user.phone && user.phone.toLowerCase().includes(query)) ||
+          (user.city && user.city.toLowerCase().includes(query))
+      );
     }
 
-    setFilteredUsers(filtered)
-  }, [searchQuery, userType, users])
+    setFilteredUsers(filtered);
+  }, [searchQuery, userType, users]);
 
   if (loading) {
-    return <UsersSkeleton />
+    return <UsersSkeleton />;
   }
 
   // Mock data for demonstration
-  const mockUsers: UserType[] = filteredUsers.length > 0 ? filteredUsers : [
-    {
-      id: "1",
-      displayName: "John Smith",
-      email: "john.smith@example.com",
-      phone: "+1 234 567 8901",
-      city: "New York",
-      role: "manager",
-      status: "active",
-      registeredOn: "2023-01-15",
-    },
-    {
-      id: "2",
-      displayName: "Emily Johnson",
-      email: "emily.johnson@example.com",
-      phone: "+1 345 678 9012",
-      city: "Los Angeles",
-      role: "manager",
-      status: "active",
-      registeredOn: "2023-02-22",
-    },
-    {
-      id: "3",
-      displayName: "Michael Brown",
-      email: "michael.brown@example.com",
-      phone: "+1 456 789 0123",
-      city: "Chicago",
-      role: "client",
-      status: "active",
-      registeredOn: "2022-11-10",
-    },
-    {
-      id: "4",
-      displayName: "Sarah Wilson",
-      email: "sarah.wilson@example.com",
-      phone: "+1 567 890 1234",
-      city: "Houston",
-      role: "manager",
-      status: "active",
-      registeredOn: "2023-03-05",
-    },
-    {
-      id: "5",
-      displayName: "David Lee",
-      email: "david.lee@example.com",
-      phone: "+1 678 901 2345",
-      city: "San Francisco",
-      role: "guest",
-      status: "active",
-      registeredOn: "2023-04-18",
-    },
-    {
-      id: "6",
-      displayName: "Jennifer Garcia",
-      email: "jennifer.garcia@example.com",
-      phone: "+1 789 012 3456",
-      city: "Miami",
-      role: "client",
-      status: "inactive",
-      registeredOn: "2022-12-03",
-    },
-    {
-      id: "7",
-      displayName: "Robert Martinez",
-      email: "robert.martinez@example.com",
-      phone: "+1 890 123 4567",
-      city: "Dallas",
-      role: "client",
-      status: "active",
-      registeredOn: "2023-02-14",
-    },
-    {
-      id: "8",
-      displayName: "Lisa Anderson",
-      email: "lisa.anderson@example.com",
-      phone: "+1 901 234 5678",
-      city: "Seattle",
-      role: "guest",
-      status: "active",
-      registeredOn: "2023-05-20",
-    },
-  ]
+  const mockUsers: UserType[] =
+    filteredUsers.length > 0
+      ? filteredUsers
+      : [
+          {
+            id: '1',
+            displayName: 'John Smith',
+            email: 'john.smith@example.com',
+            phone: '+1 234 567 8901',
+            city: 'New York',
+            role: 'manager',
+            status: 'active',
+            registeredOn: '2023-01-15',
+          },
+          {
+            id: '2',
+            displayName: 'Emily Johnson',
+            email: 'emily.johnson@example.com',
+            phone: '+1 345 678 9012',
+            city: 'Los Angeles',
+            role: 'manager',
+            status: 'active',
+            registeredOn: '2023-02-22',
+          },
+          {
+            id: '3',
+            displayName: 'Michael Brown',
+            email: 'michael.brown@example.com',
+            phone: '+1 456 789 0123',
+            city: 'Chicago',
+            role: 'client',
+            status: 'active',
+            registeredOn: '2022-11-10',
+          },
+          {
+            id: '4',
+            displayName: 'Sarah Wilson',
+            email: 'sarah.wilson@example.com',
+            phone: '+1 567 890 1234',
+            city: 'Houston',
+            role: 'manager',
+            status: 'active',
+            registeredOn: '2023-03-05',
+          },
+          {
+            id: '5',
+            displayName: 'David Lee',
+            email: 'david.lee@example.com',
+            phone: '+1 678 901 2345',
+            city: 'San Francisco',
+            role: 'guest',
+            status: 'active',
+            registeredOn: '2023-04-18',
+          },
+          {
+            id: '6',
+            displayName: 'Jennifer Garcia',
+            email: 'jennifer.garcia@example.com',
+            phone: '+1 789 012 3456',
+            city: 'Miami',
+            role: 'client',
+            status: 'inactive',
+            registeredOn: '2022-12-03',
+          },
+          {
+            id: '7',
+            displayName: 'Robert Martinez',
+            email: 'robert.martinez@example.com',
+            phone: '+1 890 123 4567',
+            city: 'Dallas',
+            role: 'client',
+            status: 'active',
+            registeredOn: '2023-02-14',
+          },
+          {
+            id: '8',
+            displayName: 'Lisa Anderson',
+            email: 'lisa.anderson@example.com',
+            phone: '+1 901 234 5678',
+            city: 'Seattle',
+            role: 'guest',
+            status: 'active',
+            registeredOn: '2023-05-20',
+          },
+        ];
 
   // Calculate user stats
-  const totalUsers = mockUsers.length
-  const clientUsers = mockUsers.filter(user => user.role === "client").length
-  const managerUsers = mockUsers.filter(user => user.role === "manager").length
-  const guestUsers = mockUsers.filter(user => user.role === "guest").length
+  const totalUsers = mockUsers.length;
+  const clientUsers = mockUsers.filter((user) => user.role === 'client').length;
+  const managerUsers = mockUsers.filter((user) => user.role === 'manager').length;
+  const guestUsers = mockUsers.filter((user) => user.role === 'guest').length;
 
-  const getRoleBadgeVariant = (role: string) => {
+  const _getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case "admin":
-        return "destructive"
-      case "manager":
-        return "default"
-      case "client":
-        return "secondary"
-      case "guest":
-        return "outline"
+      case 'admin':
+        return 'destructive';
+      case 'manager':
+        return 'default';
+      case 'client':
+        return 'secondary';
+      case 'guest':
+        return 'outline';
       default:
-        return "outline"
+        return 'outline';
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -231,9 +236,7 @@ export default function UsersPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Users
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalUsers}</div>
@@ -241,9 +244,7 @@ export default function UsersPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Clients
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Clients</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{clientUsers}</div>
@@ -254,9 +255,7 @@ export default function UsersPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Managers
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Managers</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{managerUsers}</div>
@@ -267,9 +266,7 @@ export default function UsersPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Guests
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Guests</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{guestUsers}</div>
@@ -288,10 +285,7 @@ export default function UsersPage() {
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4 items-end mb-6">
             <div className="grid w-full md:w-64">
-              <Select 
-                value={userType} 
-                onValueChange={setUserType}
-              >
+              <Select value={userType} onValueChange={setUserType}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select user type" />
                 </SelectTrigger>
@@ -310,7 +304,7 @@ export default function UsersPage() {
                 placeholder="Search users..."
                 className="pl-8"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(_e) => setSearchQuery(e.target.value)}
               />
             </div>
             <Button variant="outline" className="ml-auto">
@@ -416,7 +410,7 @@ export default function UsersPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 function UsersSkeleton() {
@@ -485,5 +479,5 @@ function UsersSkeleton() {
         </CardContent>
       </Card>
     </div>
-  )
-} 
+  );
+}

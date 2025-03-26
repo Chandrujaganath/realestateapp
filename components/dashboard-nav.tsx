@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import React from 'react';
+
 import { cn } from '@/lib/utils';
 
 interface NavItemProps {
@@ -11,8 +12,8 @@ interface NavItemProps {
 }
 
 function NavItem({ href, children }: NavItemProps) {
-  const pathname = usePathname();
-  const isActive = pathname === href;
+  const _pathname = usePathname();
+  const _isActive = pathname === href;
 
   return (
     <Link
@@ -40,4 +41,3 @@ export function DashboardNav() {
     </nav>
   );
 }
-

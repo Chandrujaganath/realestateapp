@@ -1,20 +1,14 @@
-import { BaseEntity } from "@/types/common";
+import { BaseEntity } from '@/types/common';
 
 /**
  * User roles
  */
-export type UserRole = 
-  | "user" 
-  | "client" 
-  | "guest" 
-  | "admin" 
-  | "superadmin" 
-  | "manager";
+export type UserRole = 'user' | 'client' | 'guest' | 'admin' | 'superadmin' | 'manager';
 
 /**
  * Account status options
  */
-export type AccountStatus = "active" | "pending" | "suspended" | "inactive";
+export type AccountStatus = 'active' | 'pending' | 'suspended' | 'inactive';
 
 /**
  * User model
@@ -29,7 +23,7 @@ export interface User {
   createdAt: Date;
   metadata: Record<string, any>;
   disabled: boolean;
-  accountStatus?: string; 
+  accountStatus?: string;
   updatedAt: Date;
 }
 
@@ -37,7 +31,7 @@ export interface User {
  * Client user with additional client-specific fields
  */
 export interface ClientUser extends User {
-  role: "client";
+  role: 'client';
   ownedPlots?: string[];
   permanentQrCodeUrl?: string | null;
   city?: string;
@@ -47,7 +41,7 @@ export interface ClientUser extends User {
  * Manager user with additional manager-specific fields
  */
 export interface ManagerUser extends User {
-  role: "manager";
+  role: 'manager';
   assignedProjects?: string[];
   lastTaskAssignedAt?: Date;
   isOnLeave?: boolean;
@@ -66,7 +60,7 @@ export interface ManagerUser extends User {
  * Guest user with additional guest-specific fields
  */
 export interface GuestUser extends User {
-  role: "guest";
+  role: 'guest';
   expiryDate?: Date | null;
   invitedBy?: string;
   visitPurpose?: string;
@@ -76,7 +70,7 @@ export interface GuestUser extends User {
  * Admin user
  */
 export interface AdminUser extends User {
-  role: "admin" | "superadmin";
+  role: 'admin' | 'superadmin';
   permissions?: string[];
   lastActionAt?: Date;
 }
@@ -115,7 +109,7 @@ export interface LeaveRequest extends BaseEntity {
   startDate: Date;
   endDate: Date;
   reason: string;
-  status: "pending" | "approved" | "rejected";
+  status: 'pending' | 'approved' | 'rejected';
   approvedAt?: Date;
   approvedBy?: string;
   rejectedAt?: Date;
@@ -137,4 +131,4 @@ export interface AttendanceRecord extends BaseEntity {
     longitude: number;
   };
   notes?: string;
-} 
+}

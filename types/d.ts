@@ -1,9 +1,9 @@
-import { Firestore } from "firebase/firestore";
-import { Auth } from "firebase/auth";
-import { Functions } from "firebase/functions";
-import { FirebaseStorage } from "firebase/storage";
-import { Messaging } from "firebase/messaging";
-import { FirebaseApp } from "firebase/app";
+import { FirebaseApp } from 'firebase/app';
+import { Auth } from 'firebase/auth';
+import { Firestore } from 'firebase/firestore';
+import { Functions } from 'firebase/functions';
+import { Messaging } from 'firebase/messaging';
+import { FirebaseStorage } from 'firebase/storage';
 
 // Global type declarations for Firebase
 declare global {
@@ -13,16 +13,16 @@ declare global {
 }
 
 // Declare module augmentation for the Firebase lib exports
-declare module "@/lib/firebase" {
+declare module '@/lib/firebase' {
   namespace FirebaseLib {
-    const app: FirebaseApp | undefined;
-    const auth: Auth | undefined;
-    const db: Firestore | undefined;
-    const storage: FirebaseStorage | undefined;
-    const functions: Functions | undefined;
-    const messaging: Messaging | null;
-    const usingDummyImplementation: boolean;
+    interface Exports {
+      app: FirebaseApp | undefined;
+      auth: Auth | undefined;
+      db: Firestore | undefined;
+      storage: FirebaseStorage | undefined;
+      functions: Functions | undefined;
+      messaging: Messaging | null;
+      usingDummyImplementation: boolean;
+    }
   }
-  
-  export = FirebaseLib;
-} 
+}

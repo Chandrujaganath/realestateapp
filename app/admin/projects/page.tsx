@@ -1,32 +1,34 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from "@/hooks/useAuth"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Badge } from "@/components/ui/badge"
-import { 
-  Building2, 
-  Search, 
-  PlusCircle, 
-  MapPin, 
-  Calendar, 
-  Users, 
-  BarChart, 
+import React from 'react';
+import {
+  Building2,
+  Search,
+  PlusCircle,
+  MapPin,
+  Calendar,
+  Users,
+  BarChart,
   Eye,
   Edit,
-  Trash2
-} from "lucide-react"
-import Link from "next/link"
+  Trash2,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Project {
   id: string;
   name: string;
   location: string;
-  status: "active" | "pending" | "inactive";
+  status: 'active' | 'pending' | 'inactive';
   totalPlots: number;
   soldPlots: number;
   startDate: string;
@@ -35,132 +37,135 @@ interface Project {
 }
 
 export default function ProjectsPage() {
-  const { getProjects } = useAuth()
-  const [projects, setProjects] = useState<Project[]>([])
-  const [filteredProjects, setFilteredProjects] = useState<Project[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState<"all" | "active" | "pending" | "inactive">("all")
-  const [loading, setLoading] = useState(true)
+  const { getProjects } = useAuth();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'all' | 'active' | 'pending' | 'inactive'>('all');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const _fetchProjects = async () => {
       try {
         if (getProjects) {
-          const data = await getProjects()
-          setProjects(data || [])
-          setFilteredProjects(data || [])
+          const data = await getProjects();
+          setProjects(data || []);
+          setFilteredProjects(data || []);
         }
       } catch (error) {
-        console.error("Failed to fetch projects:", error)
+        console.error('Failed to fetch projects:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProjects()
-  }, [getProjects])
+    fetchProjects();
+  }, [getProjects]);
 
   useEffect(() => {
-    if (searchQuery.trim() === "") {
-      if (activeTab === "all") {
-        setFilteredProjects(projects)
+    if (searchQuery.trim() === '') {
+      if (activeTab === 'all') {
+        setFilteredProjects(projects);
       } else {
-        setFilteredProjects(projects.filter(project => project.status === activeTab))
+        setFilteredProjects(projects.filter((project) => project.status === activeTab));
       }
     } else {
-      const query = searchQuery.toLowerCase()
-      const filtered = projects.filter(
-        project => 
-          (activeTab === "all" || project.status === activeTab) &&
-          (project.name.toLowerCase().includes(query) || 
-          project.location.toLowerCase().includes(query))
-      )
-      setFilteredProjects(filtered)
+      const query = searchQuery.toLowerCase();
+      const _filtered = projects.filter(
+        (project) =>
+          (activeTab === 'all' || project.status === activeTab) &&
+          (project.name.toLowerCase().includes(query) ||
+            project.location.toLowerCase().includes(query))
+      );
+      setFilteredProjects(filtered);
     }
-  }, [searchQuery, projects, activeTab])
+  }, [searchQuery, projects, activeTab]);
 
-  const handleTabChange = (value: "all" | "active" | "pending" | "inactive") => {
-    setActiveTab(value)
-    setSearchQuery("")
-  }
+  const _handleTabChange = (value: 'all' | 'active' | 'pending' | 'inactive') => {
+    setActiveTab(value);
+    setSearchQuery('');
+  };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }
+  const _handleSearch = (_e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
 
   if (loading) {
-    return <ProjectsSkeleton />
+    return <ProjectsSkeleton />;
   }
 
   // Mock data for demonstration
-  const mockProjects = filteredProjects.length > 0 ? filteredProjects : [
-    {
-      id: "1",
-      name: "Sunrise Gardens",
-      location: "East Valley, CA",
-      status: "active",
-      totalPlots: 120,
-      soldPlots: 78,
-      startDate: "2023-01-10",
-      managerId: "1",
-      managerName: "John Smith",
-    },
-    {
-      id: "2",
-      name: "Metropolitan Heights",
-      location: "Downtown, NY",
-      status: "active",
-      totalPlots: 85,
-      soldPlots: 52,
-      startDate: "2023-02-15",
-      managerId: "1",
-      managerName: "John Smith",
-    },
-    {
-      id: "3",
-      name: "Urban Square",
-      location: "Central District, WA",
-      status: "active",
-      totalPlots: 64,
-      soldPlots: 30,
-      startDate: "2023-03-22",
-      managerId: "2",
-      managerName: "Emily Johnson",
-    },
-    {
-      id: "4",
-      name: "Lakeside Villas",
-      location: "Lake County, FL",
-      status: "active",
-      totalPlots: 45,
-      soldPlots: 20,
-      startDate: "2023-04-05",
-      managerId: "4",
-      managerName: "Sarah Wilson",
-    },
-    {
-      id: "5",
-      name: "The Highlands",
-      location: "Mountain View, CO",
-      status: "inactive",
-      totalPlots: 35,
-      soldPlots: 35,
-      startDate: "2022-08-12",
-      managerId: "4",
-      managerName: "Sarah Wilson",
-    },
-    {
-      id: "6",
-      name: "Coastal Residences",
-      location: "Beachside, FL",
-      status: "pending",
-      totalPlots: 92,
-      soldPlots: 0,
-      startDate: "2023-09-01",
-      managerId: null,
-      managerName: null,
-    },
-  ]
+  const _mockProjects =
+    filteredProjects.length > 0
+      ? filteredProjects
+      : [
+          {
+            id: '1',
+            name: 'Sunrise Gardens',
+            location: 'East Valley, CA',
+            status: 'active',
+            totalPlots: 120,
+            soldPlots: 78,
+            startDate: '2023-01-10',
+            managerId: '1',
+            managerName: 'John Smith',
+          },
+          {
+            id: '2',
+            name: 'Metropolitan Heights',
+            location: 'Downtown, NY',
+            status: 'active',
+            totalPlots: 85,
+            soldPlots: 52,
+            startDate: '2023-02-15',
+            managerId: '1',
+            managerName: 'John Smith',
+          },
+          {
+            id: '3',
+            name: 'Urban Square',
+            location: 'Central District, WA',
+            status: 'active',
+            totalPlots: 64,
+            soldPlots: 30,
+            startDate: '2023-03-22',
+            managerId: '2',
+            managerName: 'Emily Johnson',
+          },
+          {
+            id: '4',
+            name: 'Lakeside Villas',
+            location: 'Lake County, FL',
+            status: 'active',
+            totalPlots: 45,
+            soldPlots: 20,
+            startDate: '2023-04-05',
+            managerId: '4',
+            managerName: 'Sarah Wilson',
+          },
+          {
+            id: '5',
+            name: 'The Highlands',
+            location: 'Mountain View, CO',
+            status: 'inactive',
+            totalPlots: 35,
+            soldPlots: 35,
+            startDate: '2022-08-12',
+            managerId: '4',
+            managerName: 'Sarah Wilson',
+          },
+          {
+            id: '6',
+            name: 'Coastal Residences',
+            location: 'Beachside, FL',
+            status: 'pending',
+            totalPlots: 92,
+            soldPlots: 0,
+            startDate: '2023-09-01',
+            managerId: null,
+            managerName: null,
+          },
+        ];
 
   return (
     <div className="space-y-6">
@@ -176,9 +181,14 @@ export default function ProjectsPage() {
           </Button>
         </Link>
       </div>
-
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <Tabs defaultValue="all" className="w-full md:w-auto" onValueChange={handleTabChange}>
+        <Tabs
+          defaultValue="all"
+          className="w-full md:w-auto"
+          onValueChange={(value: string) =>
+            handleTabChange(value as 'all' | 'active' | 'pending' | 'inactive')
+          }
+        >
           <TabsList>
             <TabsTrigger value="all">All Projects</TabsTrigger>
             <TabsTrigger value="active">Active</TabsTrigger>
@@ -211,13 +221,13 @@ export default function ProjectsPage() {
                       {project.location}
                     </div>
                   </div>
-                  <Badge 
+                  <Badge
                     variant={
-                      project.status === "active" 
-                        ? "default" 
-                        : project.status === "pending" 
-                          ? "secondary" 
-                          : "outline"
+                      project.status === 'active'
+                        ? 'default'
+                        : project.status === 'pending'
+                          ? 'secondary'
+                          : 'outline'
                     }
                   >
                     {project.status}
@@ -233,9 +243,11 @@ export default function ProjectsPage() {
                         {project.soldPlots}/{project.totalPlots}
                       </div>
                       <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary rounded-full" 
-                          style={{ width: `${(project.soldPlots / project.totalPlots) * 100}%` }}
+                        <div
+                          className="h-full bg-primary rounded-full"
+                          style={{
+                            width: `${(project.soldPlots / project.totalPlots) * 100}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -253,7 +265,7 @@ export default function ProjectsPage() {
                     <div className="flex items-center">
                       <Users className="mr-1 h-3 w-3 text-muted-foreground" />
                       <span className="text-sm font-medium">
-                        {project.managerName || "Not assigned"}
+                        {project.managerName || 'Not assigned'}
                       </span>
                     </div>
                   </div>
@@ -277,7 +289,7 @@ export default function ProjectsPage() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 function ProjectsSkeleton() {
@@ -299,7 +311,7 @@ function ProjectsSkeleton() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {Array(6)
           .fill(0)
-          .map((_, i) => (
+          .map((_, _i) => (
             <Card key={i} className="h-full">
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
@@ -340,6 +352,5 @@ function ProjectsSkeleton() {
           ))}
       </div>
     </div>
-  )
+  );
 }
-

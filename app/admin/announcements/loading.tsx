@@ -1,6 +1,7 @@
-import React from "react"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import React from 'react';
+
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Loading() {
   return (
@@ -14,7 +15,7 @@ export default function Loading() {
           <Skeleton className="h-10 w-[150px]" />
         </div>
       </div>
-      
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 3 }).map((_, i) => (
           <Card key={i}>
@@ -28,7 +29,7 @@ export default function Loading() {
           </Card>
         ))}
       </div>
-      
+
       <Card>
         <CardHeader>
           <Skeleton className="h-6 w-[170px] mb-2" />
@@ -43,7 +44,7 @@ export default function Loading() {
               <Skeleton className="h-10 w-[180px]" />
             </div>
           </div>
-          
+
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <Card key={i} className="overflow-hidden">
@@ -69,6 +70,5 @@ export default function Loading() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-

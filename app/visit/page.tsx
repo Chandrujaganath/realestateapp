@@ -1,59 +1,64 @@
-"use client"
+'use client';
 
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Calendar, Clock, MapPin, Building2, Users, CheckCircle } from "lucide-react"
-import Link from "next/link"
+import { Calendar, Clock, MapPin, Building2, Users, CheckCircle } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function VisitPage() {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   // Placeholder visits data
   const visits = [
     {
       id: 1,
       projectId: 1,
-      projectName: "Sunrise Gardens",
-      location: "East Suburb, City",
-      date: "March 25, 2025",
-      time: "10:00 AM",
-      status: "confirmed",
-      clientName: user?.role === "client" ? undefined : "John Doe",
+      projectName: 'Sunrise Gardens',
+      location: 'East Suburb, City',
+      date: 'March 25, 2025',
+      time: '10:00 AM',
+      status: 'confirmed',
+      clientName: user?.role === 'client' ? undefined : 'John Doe',
     },
     {
       id: 2,
       projectId: 2,
-      projectName: "Metropolitan Heights",
-      location: "Downtown, City",
-      date: "April 2, 2025",
-      time: "2:30 PM",
-      status: "pending",
-      clientName: user?.role === "client" ? undefined : "Jane Smith",
+      projectName: 'Metropolitan Heights',
+      location: 'Downtown, City',
+      date: 'April 2, 2025',
+      time: '2:30 PM',
+      status: 'pending',
+      clientName: user?.role === 'client' ? undefined : 'Jane Smith',
     },
     {
       id: 3,
       projectId: 3,
-      projectName: "Riverside Villas",
-      location: "Riverside District, City",
-      date: "April 10, 2025",
-      time: "11:15 AM",
-      status: "confirmed",
-      clientName: user?.role === "client" ? undefined : "Robert Johnson",
+      projectName: 'Riverside Villas',
+      location: 'Riverside District, City',
+      date: 'April 10, 2025',
+      time: '11:15 AM',
+      status: 'confirmed',
+      clientName: user?.role === 'client' ? undefined : 'Robert Johnson',
     },
-  ]
+  ];
 
-  const isAdmin = user?.role === "admin" || user?.role === "superadmin"
-  const isManager = user?.role === "manager"
-  const isClient = user?.role === "client"
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+  const isManager = user?.role === 'manager';
+  const isClient = user?.role === 'client';
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">{isClient ? "My Site Visits" : "Visit Schedule"}</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            {isClient ? 'My Site Visits' : 'Visit Schedule'}
+          </h1>
           <p className="text-muted-foreground">
-            {isClient ? "Schedule and manage your property site visits" : "Manage client visits to project sites"}
+            {isClient
+              ? 'Schedule and manage your property site visits'
+              : 'Manage client visits to project sites'}
           </p>
         </div>
 
@@ -91,7 +96,7 @@ export default function VisitPage() {
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-1">
-                  {visit.status === "confirmed" ? (
+                  {visit.status === 'confirmed' ? (
                     <>
                       <CheckCircle className="h-4 w-4 text-green-500" />
                       <span className="text-sm font-medium text-green-500">Confirmed</span>
@@ -156,6 +161,5 @@ export default function VisitPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
-

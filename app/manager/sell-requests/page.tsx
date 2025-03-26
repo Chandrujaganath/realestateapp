@@ -1,13 +1,11 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Search, DollarSign, User, Clock, CheckCircle, AlertCircle } from "lucide-react"
-import Link from "next/link"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ArrowLeft, Search, DollarSign, User, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -15,227 +13,239 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/use-auth';
 
 // Mock sell request type
 interface SellRequest {
-  id: string
-  clientId: string
-  clientName: string
-  plotId: string
-  plotNumber: string
-  projectId: string
-  projectName: string
-  reason: string
-  status: "open" | "under_review" | "negotiation" | "finalized" | "cancelled"
-  createdAt: Date
-  updatedAt?: Date
-  managerNotes?: string
+  id: string;
+  clientId: string;
+  clientName: string;
+  plotId: string;
+  plotNumber: string;
+  projectId: string;
+  projectName: string;
+  reason: string;
+  status: 'open' | 'under_review' | 'negotiation' | 'finalized' | 'cancelled';
+  createdAt: Date;
+  updatedAt?: Date;
+  managerNotes?: string;
 }
 
 export default function SellRequestsPage() {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
-  const [sellRequests, setSellRequests] = useState<SellRequest[]>([])
-  const [filteredRequests, setFilteredRequests] = useState<SellRequest[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [selectedRequest, setSelectedRequest] = useState<SellRequest | null>(null)
-  const [showUpdateDialog, setShowUpdateDialog] = useState(false)
-  const [newStatus, setNewStatus] = useState<SellRequest["status"]>("open")
-  const [managerNotes, setManagerNotes] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [sellRequests, setSellRequests] = useState<SellRequest[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<SellRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedRequest, setSelectedRequest] = useState<SellRequest | null>(null);
+  const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+  const [newStatus, setNewStatus] = useState<SellRequest['status']>('open');
+  const [managerNotes, setManagerNotes] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const fetchSellRequests = async () => {
+    const _fetchSellRequests = async () => {
       try {
         // In a real implementation, fetch sell requests from Firestore
         // For now, we'll use mock data
         const mockRequests: SellRequest[] = [
           {
-            id: "sell-1",
-            clientId: "client-1",
-            clientName: "John Doe",
-            plotId: "plot-101",
-            plotNumber: "101",
-            projectId: "project-1",
-            projectName: "Sunrise Gardens",
-            reason: "Relocating to another city for work",
-            status: "open",
+            id: 'sell-1',
+            clientId: 'client-1',
+            clientName: 'John Doe',
+            plotId: 'plot-101',
+            plotNumber: '101',
+            projectId: 'project-1',
+            projectName: 'Sunrise Gardens',
+            reason: 'Relocating to another city for work',
+            status: 'open',
             createdAt: new Date(2025, 2, 15), // March 15, 2025
           },
           {
-            id: "sell-2",
-            clientId: "client-2",
-            clientName: "Jane Smith",
-            plotId: "plot-205",
-            plotNumber: "205",
-            projectId: "project-2",
-            projectName: "Metropolitan Heights",
-            reason: "Upgrading to a larger property",
-            status: "under_review",
+            id: 'sell-2',
+            clientId: 'client-2',
+            clientName: 'Jane Smith',
+            plotId: 'plot-205',
+            plotNumber: '205',
+            projectId: 'project-2',
+            projectName: 'Metropolitan Heights',
+            reason: 'Upgrading to a larger property',
+            status: 'under_review',
             createdAt: new Date(2025, 2, 10), // March 10, 2025
             updatedAt: new Date(2025, 2, 12), // March 12, 2025
-            managerNotes: "Reviewing property details and market value",
+            managerNotes: 'Reviewing property details and market value',
           },
           {
-            id: "sell-3",
-            clientId: "client-3",
-            clientName: "Robert Johnson",
-            plotId: "plot-310",
-            plotNumber: "310",
-            projectId: "project-1",
-            projectName: "Sunrise Gardens",
-            reason: "Financial reasons",
-            status: "negotiation",
+            id: 'sell-3',
+            clientId: 'client-3',
+            clientName: 'Robert Johnson',
+            plotId: 'plot-310',
+            plotNumber: '310',
+            projectId: 'project-1',
+            projectName: 'Sunrise Gardens',
+            reason: 'Financial reasons',
+            status: 'negotiation',
             createdAt: new Date(2025, 2, 5), // March 5, 2025
             updatedAt: new Date(2025, 2, 8), // March 8, 2025
-            managerNotes: "Discussing pricing with potential buyers",
+            managerNotes: 'Discussing pricing with potential buyers',
           },
           {
-            id: "sell-4",
-            clientId: "client-4",
-            clientName: "Emily Davis",
-            plotId: "plot-412",
-            plotNumber: "412",
-            projectId: "project-3",
-            projectName: "Riverside Villas",
-            reason: "Moving abroad",
-            status: "finalized",
+            id: 'sell-4',
+            clientId: 'client-4',
+            clientName: 'Emily Davis',
+            plotId: 'plot-412',
+            plotNumber: '412',
+            projectId: 'project-3',
+            projectName: 'Riverside Villas',
+            reason: 'Moving abroad',
+            status: 'finalized',
             createdAt: new Date(2025, 1, 20), // February 20, 2025
             updatedAt: new Date(2025, 2, 1), // March 1, 2025
-            managerNotes: "Sale finalized with buyer. Paperwork in process.",
+            managerNotes: 'Sale finalized with buyer. Paperwork in process.',
           },
-        ]
+        ];
 
-        setSellRequests(mockRequests)
-        setFilteredRequests(mockRequests)
+        setSellRequests(mockRequests);
+        setFilteredRequests(mockRequests);
       } catch (error) {
-        console.error("Error fetching sell requests:", error)
+        console.error('Error fetching sell requests:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchSellRequests()
-  }, [])
+    _fetchSellRequests();
+  }, []);
 
   useEffect(() => {
     // Apply filters whenever they change
-    let result = sellRequests
+    let result = sellRequests;
 
     // Status filter
-    if (statusFilter !== "all") {
-      result = result.filter((request) => request.status === statusFilter)
+    if (statusFilter !== 'all') {
+      result = result.filter((request) => request.status === statusFilter);
     }
 
     // Search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       result = result.filter(
         (request) =>
           request.clientName.toLowerCase().includes(query) ||
           request.projectName.toLowerCase().includes(query) ||
           request.plotNumber.toLowerCase().includes(query) ||
-          request.reason.toLowerCase().includes(query),
-      )
+          request.reason.toLowerCase().includes(query)
+      );
     }
 
-    setFilteredRequests(result)
-  }, [sellRequests, statusFilter, searchQuery])
+    setFilteredRequests(result);
+  }, [sellRequests, statusFilter, searchQuery]);
 
-  const handleUpdateStatus = async () => {
-    if (!selectedRequest || !newStatus) return
+  const _handleUpdateStatus = async () => {
+    if (!selectedRequest || !newStatus) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       // In a real implementation, update the sell request status in Firestore
       // For now, we'll just update the local state
-      const updatedRequests = sellRequests.map((request) => {
+      const _updatedRequests = sellRequests.map((request) => {
         if (request.id === selectedRequest.id) {
           return {
             ...request,
             status: newStatus,
             updatedAt: new Date(),
             managerNotes: managerNotes || request.managerNotes,
-          }
+          };
         }
-        return request
-      })
+        return request;
+      });
 
-      setSellRequests(updatedRequests)
+      setSellRequests(_updatedRequests);
 
       // Close dialog
-      setShowUpdateDialog(false)
+      setShowUpdateDialog(false);
 
       // Reset form
-      setSelectedRequest(null)
-      setNewStatus("open")
-      setManagerNotes("")
+      setSelectedRequest(null);
+      setNewStatus('open');
+      setManagerNotes('');
     } catch (error) {
-      console.error("Error updating sell request status:", error)
+      console.error('Error updating sell request status:', error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  const getStatusBadge = (status: SellRequest["status"]) => {
+  const _getStatusBadge = (status: SellRequest['status']) => {
     switch (status) {
-      case "open":
+      case 'open':
         return (
           <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
             <AlertCircle className="h-3 w-3" />
             Open
           </span>
-        )
-      case "under_review":
+        );
+      case 'under_review':
         return (
           <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
             <Clock className="h-3 w-3" />
             Under Review
           </span>
-        )
-      case "negotiation":
+        );
+      case 'negotiation':
         return (
           <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
             <DollarSign className="h-3 w-3" />
             Negotiation
           </span>
-        )
-      case "finalized":
+        );
+      case 'finalized':
         return (
           <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
             <CheckCircle className="h-3 w-3" />
             Finalized
           </span>
-        )
-      case "cancelled":
+        );
+      case 'cancelled':
         return (
           <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
             <AlertCircle className="h-3 w-3" />
             Cancelled
           </span>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/dashboard/manager" className="flex items-center text-muted-foreground hover:text-foreground mb-2">
+        <Link
+          href="/dashboard/manager"
+          className="flex items-center text-muted-foreground hover:text-foreground mb-2"
+        >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back to Dashboard
         </Link>
@@ -289,12 +299,14 @@ export default function SellRequestsPage() {
           <Card className="glass-card">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <DollarSign className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground mb-6">No sell requests found matching your filters</p>
+              <p className="text-muted-foreground mb-6">
+                No sell requests found matching your filters
+              </p>
               <Button
                 onClick={() => {
-                  setSearchQuery("")
-                  setStatusFilter("all")
-                  setFilteredRequests(sellRequests)
+                  setSearchQuery('');
+                  setStatusFilter('all');
+                  setFilteredRequests(sellRequests);
                 }}
               >
                 Clear Filters
@@ -311,8 +323,12 @@ export default function SellRequestsPage() {
                       <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
                     </div>
                     <div>
-                      <div className="flex flex-wrap gap-2 mb-1">{getStatusBadge(request.status)}</div>
-                      <h3 className="text-lg font-medium">Sell Request - Plot {request.plotNumber}</h3>
+                      <div className="flex flex-wrap gap-2 mb-1">
+                        {_getStatusBadge(request.status)}
+                      </div>
+                      <h3 className="text-lg font-medium">
+                        Sell Request - Plot {request.plotNumber}
+                      </h3>
                       <p className="text-sm text-muted-foreground">{request.projectName}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <User className="h-3 w-3 text-muted-foreground" />
@@ -336,10 +352,10 @@ export default function SellRequestsPage() {
                       variant="outline"
                       className="glass-button"
                       onClick={() => {
-                        setSelectedRequest(request)
-                        setNewStatus(request.status)
-                        setManagerNotes(request.managerNotes || "")
-                        setShowUpdateDialog(true)
+                        setSelectedRequest(request);
+                        setNewStatus(request.status);
+                        setManagerNotes(request.managerNotes || '');
+                        setShowUpdateDialog(true);
                       }}
                     >
                       Update Status
@@ -368,7 +384,9 @@ export default function SellRequestsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Update Sell Request Status</DialogTitle>
-            <DialogDescription>Update the status and add notes for this sell request.</DialogDescription>
+            <DialogDescription>
+              Update the status and add notes for this sell request.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
@@ -380,8 +398,8 @@ export default function SellRequestsPage() {
                     <span className="font-medium">Client:</span> {selectedRequest.clientName}
                   </p>
                   <p className="text-sm">
-                    <span className="font-medium">Property:</span> {selectedRequest.projectName} - Plot{" "}
-                    {selectedRequest.plotNumber}
+                    <span className="font-medium">Property:</span> {selectedRequest.projectName} -
+                    Plot {selectedRequest.plotNumber}
                   </p>
                   <p className="text-sm">
                     <span className="font-medium">Reason:</span> {selectedRequest.reason}
@@ -422,13 +440,12 @@ export default function SellRequestsPage() {
             <Button variant="outline" onClick={() => setShowUpdateDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleUpdateStatus} disabled={isSubmitting}>
-              {isSubmitting ? "Updating..." : "Update Status"}
+            <Button onClick={_handleUpdateStatus} disabled={isSubmitting}>
+              {isSubmitting ? 'Updating...' : 'Update Status'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
-

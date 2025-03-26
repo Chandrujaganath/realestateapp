@@ -1,31 +1,32 @@
-"use client"
+'use client';
 
-import { useOnlineStatus } from "@/lib/offline"
-import { Wifi, WifiOff } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Wifi, WifiOff } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+import { useOnlineStatus } from '@/lib/offline';
 
 export function OfflineNotification() {
-  const isOnline = useOnlineStatus()
-  const [showOffline, setShowOffline] = useState(false)
-  const [showReconnected, setShowReconnected] = useState(false)
+  const isOnline = useOnlineStatus();
+  const [showOffline, setShowOffline] = useState(false);
+  const [showReconnected, setShowReconnected] = useState(false);
 
   useEffect(() => {
     if (!isOnline) {
-      setShowOffline(true)
-      setShowReconnected(false)
+      setShowOffline(true);
+      setShowReconnected(false);
     } else if (showOffline) {
-      setShowOffline(false)
-      setShowReconnected(true)
+      setShowOffline(false);
+      setShowReconnected(true);
 
-      const timer = setTimeout(() => {
-        setShowReconnected(false)
-      }, 3000)
+      const _timer = setTimeout(() => {
+        setShowReconnected(false);
+      }, 3000);
 
-      return () => clearTimeout(timer)
+      return () => clearTimeout(timer);
     }
-  }, [isOnline, showOffline])
+  }, [isOnline, showOffline]);
 
-  if (!showOffline && !showReconnected) return null
+  if (!showOffline && !showReconnected) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4">
@@ -49,6 +50,5 @@ export function OfflineNotification() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

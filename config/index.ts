@@ -1,16 +1,16 @@
-import { stagingConfig } from "./staging"
-import { productionConfig } from "./production"
+import { productionConfig } from './production';
+import { stagingConfig } from './staging';
 
 // Determine the environment
-const environment = process.env.NEXT_PUBLIC_ENVIRONMENT || "development"
+const _environment = process.env.NEXT_PUBLIC_ENVIRONMENT || 'development';
 
 // Load the appropriate configuration
-export const config = (() => {
+export const _config = (() => {
   switch (environment) {
-    case "production":
-      return productionConfig
-    case "staging":
-      return stagingConfig
+    case 'production':
+      return productionConfig;
+    case 'staging':
+      return stagingConfig;
     default:
       // Development configuration (could be imported from a separate file)
       return {
@@ -26,7 +26,7 @@ export const config = (() => {
         },
 
         // API endpoints
-        apiUrl: process.env.DEV_API_URL || "http://localhost:3000/api",
+        apiUrl: process.env.DEV_API_URL || 'http://localhost:3000/api',
 
         // Feature flags for development
         features: {
@@ -39,7 +39,7 @@ export const config = (() => {
 
         // Logging configuration
         logging: {
-          level: "debug",
+          level: 'debug',
           enableRemoteLogging: false, // Log locally in development
         },
 
@@ -48,10 +48,9 @@ export const config = (() => {
           enableMonitoring: false, // Disable in development
           sampleRate: 1.0,
         },
-      }
+      };
   }
-})()
+})();
 
 // Export individual configuration sections for convenience
-export const { firebase, apiUrl, features, logging, performance } = config
-
+export const { firebase, apiUrl, features, logging, performance } = config;

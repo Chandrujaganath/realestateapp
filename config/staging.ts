@@ -1,4 +1,4 @@
-export const stagingConfig = {
+export const _stagingConfig = {
   // Firebase configuration for staging environment
   firebase: {
     apiKey: process.env.STAGING_FIREBASE_API_KEY,
@@ -11,7 +11,7 @@ export const stagingConfig = {
   },
 
   // API endpoints
-  apiUrl: process.env.STAGING_API_URL || "https://staging-api.realestate-app.com",
+  apiUrl: process.env.STAGING_API_URL || 'https://staging-api.realestate-app.com',
 
   // Feature flags for staging
   features: {
@@ -24,7 +24,7 @@ export const stagingConfig = {
 
   // Logging configuration
   logging: {
-    level: "debug",
+    level: 'debug',
     enableRemoteLogging: true,
   },
 
@@ -33,5 +33,4 @@ export const stagingConfig = {
     enableMonitoring: true,
     sampleRate: 1.0, // 100% of requests are monitored
   },
-}
-
+};

@@ -1,100 +1,91 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useRef, useMemo, memo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { 
-  CellType, 
-  GridCell, 
-  GridData 
-} from "@/features/projects/types/grid"
-import { 
-  Card, 
-  CardContent,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
+import { motion, AnimatePresence } from 'framer-motion';
+import { Home, Plus, Minus, X, Info } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo, memo } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Button } from "@/components/ui/button"
-import { Home, Plus, Minus, X, Info } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+} from '@/components/ui/dialog';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { CellType, GridCell, GridData } from '@/features/projects/types/grid';
 
 interface ProjectGridViewProps {
-  projectId: string
-  gridData: GridData
-  onPlotSelect?: (plotCell: GridCell) => void
+  projectId: string;
+  gridData: GridData;
+  onPlotSelect?: (plotCell: GridCell) => void;
 }
 
 // Memoized plot component for better performance
-const PlotCell = memo(({ 
-  plot, 
-  getPlotColorClass, 
-  getStatusBadge, 
-  onClick 
-}: { 
-  plot: GridCell, 
-  getPlotColorClass: (status?: string) => string,
-  getStatusBadge: (status?: string) => JSX.Element,
-  onClick: (plot: GridCell) => void
-}) => {
-  return (
-    <HoverCard key={plot.id} openDelay={200} closeDelay={100}>
-      <HoverCardTrigger asChild>
-        <motion.div
-          className={`absolute flex items-center justify-center w-12 h-12 border-2 cursor-pointer rounded-sm ${getPlotColorClass(plot.status)}`}
-          style={{
-            left: `${plot.col * 50}px`,
-            top: `${plot.row * 50}px`,
-            zIndex: 10
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onClick(plot)}
-          transition={{ duration: 0.2 }}
-        >
-          <span className="text-xs font-medium">{plot.plotNumber}</span>
-        </motion.div>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-60 z-50">
-        <div className="flex justify-between">
-          <h4 className="font-semibold">{plot.plotNumber}</h4>
-          {getStatusBadge(plot.status)}
-        </div>
-        <div className="mt-2 space-y-1">
-          {plot.size && (
-            <div className="text-sm">
-              <span className="font-medium text-muted-foreground">Size:</span> {plot.size}
-            </div>
-          )}
-          {plot.price && (
-            <div className="text-sm">
-              <span className="font-medium text-muted-foreground">Price:</span> ₹{plot.price.toLocaleString()}
-            </div>
-          )}
-          {plot.notes && (
-            <div className="text-sm mt-1">
-              <span className="font-medium text-muted-foreground">Notes:</span> {plot.notes}
-            </div>
-          )}
-        </div>
-      </HoverCardContent>
-    </HoverCard>
-  );
-});
+const PlotCell = memo(
+  ({
+    plot,
+    getPlotColorClass,
+    getStatusBadge,
+    onClick,
+  }: {
+    plot: GridCell;
+    getPlotColorClass: (status?: string) => string;
+    getStatusBadge: (status?: string) => JSX.Element;
+    onClick: (plot: GridCell) => void;
+  }) => {
+    return (
+      <HoverCard key={plot.id} openDelay={200} closeDelay={100}>
+        <HoverCardTrigger asChild>
+          <motion.div
+            className={`absolute flex items-center justify-center w-12 h-12 border-2 cursor-pointer rounded-sm ${getPlotColorClass(plot.status)}`}
+            style={{
+              left: `${plot.col * 50}px`,
+              top: `${plot.row * 50}px`,
+              zIndex: 10,
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onClick(plot)}
+            transition={{ duration: 0.2 }}
+          >
+            <span className="text-xs font-medium">{plot.plotNumber}</span>
+          </motion.div>
+        </HoverCardTrigger>
+        <HoverCardContent className="w-60 z-50">
+          <div className="flex justify-between">
+            <h4 className="font-semibold">{plot.plotNumber}</h4>
+            {getStatusBadge(plot.status)}
+          </div>
+          <div className="mt-2 space-y-1">
+            {plot.size && (
+              <div className="text-sm">
+                <span className="font-medium text-muted-foreground">Size:</span> {plot.size}
+              </div>
+            )}
+            {plot.price && (
+              <div className="text-sm">
+                <span className="font-medium text-muted-foreground">Price:</span> ₹
+                {plot.price.toLocaleString()}
+              </div>
+            )}
+            {plot.notes && (
+              <div className="text-sm mt-1">
+                <span className="font-medium text-muted-foreground">Notes:</span> {plot.notes}
+              </div>
+            )}
+          </div>
+        </HoverCardContent>
+      </HoverCard>
+    );
+  }
+);
 
-PlotCell.displayName = "PlotCell";
+PlotCell.displayName = 'PlotCell';
 
 // Memoized road component
 const RoadCell = memo(({ road }: { road: GridCell }) => {
@@ -110,87 +101,87 @@ const RoadCell = memo(({ road }: { road: GridCell }) => {
   );
 });
 
-RoadCell.displayName = "RoadCell";
+RoadCell.displayName = 'RoadCell';
 
 // Main component
 export function ProjectGridView({ projectId, gridData, onPlotSelect }: ProjectGridViewProps) {
-  const [selectedPlot, setSelectedPlot] = useState<GridCell | null>(null)
-  const [zoomLevel, setZoomLevel] = useState(1)
-  const [showPlotDetail, setShowPlotDetail] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [selectedPlot, setSelectedPlot] = useState<GridCell | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [showPlotDetail, setShowPlotDetail] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const _containerRef = useRef<HTMLDivElement>(null);
 
   // Extract plots and roads from grid data - memoized to prevent unnecessary recalculations
   const { plots, roads, emptyCells } = useMemo(() => {
     return {
-      plots: gridData.cells.filter(cell => cell.type === "plot"),
-      roads: gridData.cells.filter(cell => cell.type === "road"),
-      emptyCells: gridData.cells.filter(cell => cell.type === "empty")
+      plots: gridData.cells.filter((cell) => cell.type === 'plot'),
+      roads: gridData.cells.filter((cell) => cell.type === 'road'),
+      emptyCells: gridData.cells.filter((cell) => cell.type === 'empty'),
     };
   }, [gridData.cells]);
 
   useEffect(() => {
     // Simulate loading for smoother transitions
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 300)
-    
-    return () => clearTimeout(timer)
-  }, [])
+    const _timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Handle zooming
-  const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 0.2, 2))
-  }
+  const _handleZoomIn = () => {
+    setZoomLevel((prev) => Math.min(prev + 0.2, 2));
+  };
 
-  const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 0.2, 0.5))
-  }
+  const _handleZoomOut = () => {
+    setZoomLevel((prev) => Math.max(prev - 0.2, 0.5));
+  };
 
-  const handleZoomReset = () => {
-    setZoomLevel(1)
-  }
+  const _handleZoomReset = () => {
+    setZoomLevel(1);
+  };
 
   // Handle plot selection
-  const handlePlotClick = (plot: GridCell) => {
-    setSelectedPlot(plot)
-    setShowPlotDetail(true)
+  const _handlePlotClick = (plot: GridCell) => {
+    setSelectedPlot(plot);
+    setShowPlotDetail(true);
     if (onPlotSelect) {
-      onPlotSelect(plot)
+      onPlotSelect(plot);
     }
-  }
+  };
 
   // Get color for a plot based on status
   const getPlotColorClass = (status?: string) => {
     switch (status) {
-      case "available":
-        return "bg-blue-100 border-blue-500 hover:bg-blue-200"
-      case "reserved":
-        return "bg-yellow-100 border-yellow-500 hover:bg-yellow-200"
-      case "sold":
-        return "bg-green-100 border-green-500 hover:bg-green-200"
-      case "pending":
-        return "bg-orange-100 border-orange-500 hover:bg-orange-200"
+      case 'available':
+        return 'bg-blue-100 border-blue-500 hover:bg-blue-200';
+      case 'reserved':
+        return 'bg-yellow-100 border-yellow-500 hover:bg-yellow-200';
+      case 'sold':
+        return 'bg-green-100 border-green-500 hover:bg-green-200';
+      case 'pending':
+        return 'bg-orange-100 border-orange-500 hover:bg-orange-200';
       default:
-        return "bg-blue-100 border-blue-500 hover:bg-blue-200"
+        return 'bg-blue-100 border-blue-500 hover:bg-blue-200';
     }
-  }
+  };
 
   // Get status badge color
   const getStatusBadge = (status?: string) => {
     switch (status) {
-      case "available":
-        return <Badge className="bg-blue-500">Available</Badge>
-      case "reserved":
-        return <Badge className="bg-yellow-500">Reserved</Badge>
-      case "sold":
-        return <Badge className="bg-green-500">Sold</Badge>
-      case "pending":
-        return <Badge className="bg-orange-500">Pending</Badge>
+      case 'available':
+        return <Badge className="bg-blue-500">Available</Badge>;
+      case 'reserved':
+        return <Badge className="bg-yellow-500">Reserved</Badge>;
+      case 'sold':
+        return <Badge className="bg-green-500">Sold</Badge>;
+      case 'pending':
+        return <Badge className="bg-orange-500">Pending</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>
+        return <Badge variant="outline">Unknown</Badge>;
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -199,7 +190,7 @@ export function ProjectGridView({ projectId, gridData, onPlotSelect }: ProjectGr
           <LoadingSpinner />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -222,33 +213,30 @@ export function ProjectGridView({ projectId, gridData, onPlotSelect }: ProjectGr
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[500px] rounded-md border">
-          <div 
-            ref={containerRef} 
-            className="relative w-full h-full p-4 overflow-hidden"
-          >
+          <div ref={containerRef} className="relative w-full h-full p-4 overflow-hidden">
             <motion.div
               className="relative"
-              style={{ 
-                transformOrigin: "center",
+              style={{
+                transformOrigin: 'center',
                 width: `${gridData.cols * 50}px`,
-                height: `${gridData.rows * 50}px`
+                height: `${gridData.rows * 50}px`,
               }}
-              animate={{ 
+              animate={{
                 scale: zoomLevel,
               }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 200, 
-                damping: 30 
+              transition={{
+                type: 'spring',
+                stiffness: 200,
+                damping: 30,
               }}
             >
               {/* Background grid */}
-              <div 
+              <div
                 className="absolute inset-0 grid"
                 style={{ gridTemplateColumns: `repeat(${gridData.cols}, 1fr)` }}
               >
-                {emptyCells.map(cell => (
-                  <div 
+                {emptyCells.map((cell) => (
+                  <div
                     key={cell.id}
                     className="w-12 h-12 border border-gray-100"
                     style={{
@@ -260,15 +248,15 @@ export function ProjectGridView({ projectId, gridData, onPlotSelect }: ProjectGr
               </div>
 
               {/* Roads - non-interactive */}
-              {roads.map(road => (
+              {roads.map((road) => (
                 <RoadCell key={road.id} road={road} />
               ))}
 
               {/* Plots with hover interaction */}
-              {plots.map(plot => (
-                <PlotCell 
-                  key={plot.id} 
-                  plot={plot} 
+              {plots.map((plot) => (
+                <PlotCell
+                  key={plot.id}
+                  plot={plot}
                   getPlotColorClass={getPlotColorClass}
                   getStatusBadge={getStatusBadge}
                   onClick={handlePlotClick}
@@ -310,9 +298,7 @@ export function ProjectGridView({ projectId, gridData, onPlotSelect }: ProjectGr
               <span>Plot Details: {selectedPlot?.plotNumber}</span>
               {selectedPlot && getStatusBadge(selectedPlot.status)}
             </DialogTitle>
-            <DialogDescription>
-              Detailed information about this plot
-            </DialogDescription>
+            <DialogDescription>Detailed information about this plot</DialogDescription>
           </DialogHeader>
 
           {selectedPlot && (
@@ -339,7 +325,7 @@ export function ProjectGridView({ projectId, gridData, onPlotSelect }: ProjectGr
                   </div>
                 )}
               </div>
-              
+
               {selectedPlot.notes && (
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground">Notes</h4>
@@ -357,5 +343,5 @@ export function ProjectGridView({ projectId, gridData, onPlotSelect }: ProjectGr
         </DialogContent>
       </Dialog>
     </Card>
-  )
-} 
+  );
+}

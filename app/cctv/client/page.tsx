@@ -1,46 +1,50 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from '@/contexts/auth-context'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Camera, Building2, Maximize2, ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import type { Plot } from "@/contexts/auth-context"
+import { Camera, Building2, Maximize2, ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/contexts/auth-context';
+import type { Plot } from '@/contexts/auth-context';
 
 export default function ClientCctvPage() {
-  const { user, getUserOwnedPlots } = useAuth()
-  const [ownedPlots, setOwnedPlots] = useState<Plot[]>([])
-  const [loading, setLoading] = useState(true)
+  const { user, getUserOwnedPlots } = useAuth();
+  const [ownedPlots, setOwnedPlots] = useState<Plot[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPlots = async () => {
+    const _fetchPlots = async () => {
       try {
-        const plots = await getUserOwnedPlots()
-        setOwnedPlots(plots)
+        const _plots = await getUserOwnedPlots();
+        setOwnedPlots(plots);
       } catch (error) {
-        console.error("Error fetching plots:", error)
+        console.error('Error fetching plots:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchPlots()
-  }, [getUserOwnedPlots])
+    fetchPlots();
+  }, [getUserOwnedPlots]);
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/dashboard/client" className="flex items-center text-muted-foreground hover:text-foreground mb-2">
+        <Link
+          href="/dashboard/client"
+          className="flex items-center text-muted-foreground hover:text-foreground mb-2"
+        >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back to Dashboard
         </Link>
@@ -52,7 +56,9 @@ export default function ClientCctvPage() {
         <Card className="glass-card">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Camera className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground mb-6">You don't own any properties with CCTV access</p>
+            <p className="text-muted-foreground mb-6">
+              You don't own any properties with CCTV access
+            </p>
             <Link href="/dashboard/client">
               <Button>Return to Dashboard</Button>
             </Link>
@@ -182,7 +188,5 @@ export default function ClientCctvPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-
-

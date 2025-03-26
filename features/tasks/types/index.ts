@@ -2,8 +2,8 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  status: "pending" | "in_progress" | "completed";
-  priority: "low" | "medium" | "high";
+  status: 'pending' | 'in_progress' | 'completed';
+  priority: 'low' | 'medium' | 'high';
   dueDate: Date | null;
   assignedTo?: {
     id: string;
@@ -39,8 +39,8 @@ export interface TaskStatistics {
 }
 
 export interface TaskFilters {
-  status?: Task["status"][];
-  priority?: Task["priority"][];
+  status?: Task['status'][];
+  priority?: Task['priority'][];
   assignedTo?: string;
   project?: string;
   dateRange?: {
@@ -53,9 +53,9 @@ export interface TaskFilters {
 export interface CreateTaskInput {
   title: string;
   description: string;
-  status: Task["status"];
-  priority: Task["priority"];
+  status: Task['status'];
+  priority: Task['priority'];
   dueDate?: Date | null;
   assignedToId?: string;
   projectId?: string;
-} 
+}

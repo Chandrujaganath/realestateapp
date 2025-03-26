@@ -1,19 +1,20 @@
-"use client"
+'use client';
 
-import React from "react"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
-import dynamic from "next/dynamic"
+import dynamic from 'next/dynamic';
+import React from 'react';
+
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/toaster';
 
 // Use dynamic import with client wrapper for Firebase messaging
-const ClientMessagingWrapper = dynamic(() => import("@/components/client-messaging-wrapper"), {
-  ssr: false
-})
+const ClientMessagingWrapper = dynamic(() => import('@/components/client-messaging-wrapper'), {
+  ssr: false,
+});
 
 // Import auth provider with client-only approach
-const ClientAuthWrapper = dynamic(() => import("@/components/client-auth-wrapper"), {
-  ssr: false
-})
+const ClientAuthWrapper = dynamic(() => import('@/components/client-auth-wrapper'), {
+  ssr: false,
+});
 
 export default function LayoutProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -24,5 +25,5 @@ export default function LayoutProviders({ children }: { children: React.ReactNod
       </ClientAuthWrapper>
       <Toaster />
     </ThemeProvider>
-  )
-} 
+  );
+}

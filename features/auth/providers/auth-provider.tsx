@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import React, { createContext, useEffect, useState, useContext } from "react";
-import { useRouter } from "next/navigation";
-import { AuthService } from "@/features/auth/services/auth-service";
-import { User } from "@/features/users/types/user";
-import { CreateUserPayload } from "@/features/users/types/user";
+import { useRouter } from 'next/navigation';
+import React, { createContext, useEffect, useState, useContext } from 'react';
+
+import { AuthService } from '@/features/auth/services/auth-service';
+import { User } from '@/features/users/types/user';
+import { CreateUserPayload } from '@/features/users/types/user';
 
 interface AuthContextType {
   user: User | null;
@@ -21,32 +22,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const _router = useRouter();
   const authService = new AuthService();
 
   useEffect(() => {
     // Subscribe to auth state changes
-    const unsubscribe = authService.onAuthStateChanged(async (firebaseUser) => {
+    const _unsubscribe = authService.onAuthStateChanged(async (_firebaseUser) => {
       setLoading(true);
       try {
-        if (firebaseUser) {
+        if (_firebaseUser) {
           // User is signed in; fetch full user profile
-          const fullUser = await authService.getCurrentUser();
-          setUser(fullUser);
+          const _fullUser = await authService.getCurrentUser();
+          setUser(_fullUser);
         } else {
           // User is signed out
           setUser(null);
         }
       } catch (err) {
-        console.error("Error in auth state change:", err);
-        setError("Authentication error");
+        console.error('Error in auth state change:', err);
+        setError('Authentication error');
       } finally {
         setLoading(false);
       }
     });
 
     // Cleanup subscription on unmount
-    return () => unsubscribe();
+    return () => _unsubscribe();
   }, [authService]);
 
   const signIn = async (email: string, password: string) => {
@@ -56,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       // onAuthStateChanged will update the user state
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to sign in";
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign in';
       setError(errorMessage);
       throw err;
     } finally {
@@ -71,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       // onAuthStateChanged will update the user state
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to sign up";
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign up';
       setError(errorMessage);
       throw err;
     } finally {
@@ -85,9 +86,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await authService.signOut();
       setError(null);
       // onAuthStateChanged will update the user state
-      router.push("/auth/login");
+      _router.push('/auth/login');
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to sign out";
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign out';
       setError(errorMessage);
       throw err;
     } finally {
@@ -95,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const contextValue: AuthContextType = {
+  const _contextValue: AuthContextType = {
     user,
     loading,
     error,
@@ -104,17 +105,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
   };
 
-  return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={_contextValue}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = (): AuthContextType => {
+export const _useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };

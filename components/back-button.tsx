@@ -1,29 +1,26 @@
-"use client"
+'use client';
 
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+import { Button } from '@/components/ui/button';
 
 interface BackButtonProps {
-  href?: string
-  label?: string
-  className?: string
+  href?: string;
+  label?: string;
+  className?: string;
 }
 
-export default function BackButton({ 
-  href, 
-  label = "Back", 
-  className = "" 
-}: BackButtonProps) {
-  const router = useRouter()
+export default function BackButton({ href, label = 'Back', className = '' }: BackButtonProps) {
+  const router = useRouter();
 
-  const handleClick = () => {
+  const _handleClick = () => {
     if (href) {
-      router.push(href)
+      router.push(href);
     } else {
-      router.back()
+      router.back();
     }
-  }
+  };
 
   return (
     <Button
@@ -34,5 +31,5 @@ export default function BackButton({
       <ArrowLeft className="mr-2 h-4 w-4" />
       {label}
     </Button>
-  )
-} 
+  );
+}

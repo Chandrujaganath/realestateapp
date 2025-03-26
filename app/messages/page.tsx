@@ -1,22 +1,23 @@
-"use client"
+'use client';
 
-import React from "react"
-import { useAuth } from "@/hooks/use-auth"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { MessageSquare, User, Send } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { MessageSquare, User, Send } from 'lucide-react';
+import React from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function MessagesPage() {
-  const { user } = useAuth()
-  
+  const { user } = useAuth();
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Messages</h1>
         <p className="text-muted-foreground">Your conversations</p>
       </div>
-      
+
       <Card className="glass-card">
         <CardHeader>
           <CardTitle>Recent Messages</CardTitle>
@@ -34,10 +35,13 @@ export default function MessagesPage() {
                   <h3 className="text-sm font-medium">System Admin</h3>
                   <p className="text-xs text-muted-foreground">5 mins ago</p>
                 </div>
-                <p className="text-sm mt-1">Welcome to the Real Estate Management Platform! Let us know if you need any assistance.</p>
+                <p className="text-sm mt-1">
+                  Welcome to the Real Estate Management Platform! Let us know if you need any
+                  assistance.
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-4 p-4 rounded-lg bg-muted/30">
               <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
                 <User className="h-5 w-5" />
@@ -47,11 +51,13 @@ export default function MessagesPage() {
                   <h3 className="text-sm font-medium">Project Manager</h3>
                   <p className="text-xs text-muted-foreground">Yesterday</p>
                 </div>
-                <p className="text-sm mt-1">Your recent request has been approved. Check your dashboard for more details.</p>
+                <p className="text-sm mt-1">
+                  Your recent request has been approved. Check your dashboard for more details.
+                </p>
               </div>
             </div>
           </div>
-          
+
           <div className="mt-6 flex items-center space-x-2">
             <Input placeholder="Type a message..." className="flex-1" />
             <Button size="icon" className="h-10 w-10">
@@ -60,7 +66,7 @@ export default function MessagesPage() {
           </div>
         </CardContent>
       </Card>
-      
+
       <Card className="glass-card">
         <CardHeader>
           <CardTitle>Contacts</CardTitle>
@@ -96,5 +102,5 @@ export default function MessagesPage() {
         </CardContent>
       </Card>
     </div>
-  )
-} 
+  );
+}

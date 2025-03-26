@@ -1,10 +1,23 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Building2,
+  MapPin,
+  Calendar,
+  Map,
+  Camera,
+  FileText,
+  DollarSign,
+  ArrowLeft,
+  Check,
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+import BackButton from '@/components/back-button';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -13,60 +26,58 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { Building2, MapPin, Calendar, Map, Camera, FileText, DollarSign, ArrowLeft, Check } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import type { Plot } from "@/context/auth-context"
-import BackButton from "@/components/back-button"
+} from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import type { Plot } from '@/context/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function PlotDetailPage({ params }: { params: { id: string } }) {
-  const { user, getUserOwnedPlots, submitSellRequest } = useAuth()
-  const [plot, setPlot] = useState<Plot | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [isOwner, setIsOwner] = useState(false)
-  const [sellReason, setSellReason] = useState("")
-  const [isSellDialogOpen, setIsSellDialogOpen] = useState(false)
-  const [isSubmittingSell, setIsSubmittingSell] = useState(false)
-  const [sellSuccess, setSellSuccess] = useState(false)
+  const { user, getUserOwnedPlots, submitSellRequest } = useAuth();
+  const [plot, setPlot] = useState<Plot | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
+  const [sellReason, setSellReason] = useState('');
+  const [isSellDialogOpen, setIsSellDialogOpen] = useState(false);
+  const [isSubmittingSell, setIsSubmittingSell] = useState(false);
+  const [sellSuccess, setSellSuccess] = useState(false);
 
   useEffect(() => {
-    const fetchPlot = async () => {
+    const _fetchPlot = async () => {
       try {
         // In a real implementation, fetch plot details from Firestore
         // For now, we'll check if it's in the user's owned plots
-        const ownedPlots = await getUserOwnedPlots()
-        const foundPlot = ownedPlots.find((p) => p.id === params.id)
+        const _ownedPlots = await getUserOwnedPlots();
+        const foundPlot = ownedPlots.find((p) => p.id === params.id);
 
         if (foundPlot) {
-          setPlot(foundPlot)
-          setIsOwner(true)
+          setPlot(foundPlot);
+          setIsOwner(true);
         } else {
           // If not found in owned plots, fetch as a regular plot
           // This would be a Firestore query in a real implementation
           setPlot({
             id: params.id,
-            projectId: "project-1",
-            projectName: "Sunrise Gardens",
-            number: "101",
-            status: "available",
-            size: "1200 sq ft",
+            projectId: 'project-1',
+            projectName: 'Sunrise Gardens',
+            number: '101',
+            status: 'available',
+            size: '1200 sq ft',
             price: 750000,
-            location: "East Suburb, City",
-            description: "Corner plot with garden view",
-          })
-          setIsOwner(false)
+            location: 'East Suburb, City',
+            description: 'Corner plot with garden view',
+          });
+          setIsOwner(false);
         }
       } catch (error) {
-        console.error("Error fetching plot:", error)
+        console.error('Error fetching plot:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchPlot()
-  }, [getUserOwnedPlots, params.id])
+    fetchPlot();
+  }, [getUserOwnedPlots, params.id]);
 
   const handleSellRequest = async () => {
     if (!plot || !sellReason || !submitSellRequest) return;
@@ -83,18 +94,18 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
         setSellSuccess(false);
       }, 2000);
     } catch (error) {
-      console.error("Error submitting sell request:", error);
+      console.error('Error submitting sell request:', error);
     } finally {
       setIsSubmittingSell(false);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   if (!plot) {
@@ -112,16 +123,16 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-8">
-      <BackButton 
-        href={isOwner ? "/plot/my-plots" : "/project"} 
-        label={`Back to ${isOwner ? "My Plots" : "Projects"}`} 
+      <BackButton
+        href={isOwner ? '/plot/my-plots' : '/project'}
+        label={`Back to ${isOwner ? 'My Plots' : 'Projects'}`}
       />
-      
+
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold mb-2">
@@ -154,7 +165,8 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
                   <DialogHeader>
                     <DialogTitle>Sell Request</DialogTitle>
                     <DialogDescription>
-                      Submit a request to sell your plot. Our team will contact you to discuss the process.
+                      Submit a request to sell your plot. Our team will contact you to discuss the
+                      process.
                     </DialogDescription>
                   </DialogHeader>
 
@@ -165,7 +177,8 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
                       </div>
                       <h3 className="text-lg font-medium mb-2">Request Submitted!</h3>
                       <p className="text-center text-muted-foreground">
-                        Your sell request has been submitted successfully. Our team will contact you soon.
+                        Your sell request has been submitted successfully. Our team will contact you
+                        soon.
                       </p>
                     </div>
                   ) : (
@@ -183,14 +196,18 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
                         </div>
                       </div>
                       <DialogFooter>
-                        <Button type="submit" onClick={handleSellRequest} disabled={!sellReason || isSubmittingSell}>
+                        <Button
+                          type="submit"
+                          onClick={handleSellRequest}
+                          disabled={!sellReason || isSubmittingSell}
+                        >
                           {isSubmittingSell ? (
                             <span className="flex items-center gap-2">
                               <span className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent"></span>
                               Submitting...
                             </span>
                           ) : (
-                            "Submit Request"
+                            'Submit Request'
                           )}
                         </Button>
                       </DialogFooter>
@@ -200,7 +217,7 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
               </Dialog>
             </>
           ) : (
-            user?.role !== "guest" && (
+            user?.role !== 'guest' && (
               <Link href={`/visit/book?project=${plot.projectId}&plot=${plot.id}`}>
                 <Button>
                   <Calendar className="mr-2 h-4 w-4" />
@@ -269,7 +286,9 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
                 <Building2 className="h-4 w-4 text-primary" />
                 <div>
                   <p className="text-sm font-medium">Status</p>
-                  <p className="text-sm text-muted-foreground capitalize">{plot.status.replace("_", " ")}</p>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {plot.status.replace('_', ' ')}
+                  </p>
                 </div>
               </div>
 
@@ -278,7 +297,9 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
                   <Calendar className="h-4 w-4 text-primary" />
                   <div>
                     <p className="text-sm font-medium">Purchase Date</p>
-                    <p className="text-sm text-muted-foreground">{plot.purchaseDate.toLocaleDateString()}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {plot.purchaseDate.toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
               )}
@@ -316,7 +337,8 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
                     <DialogHeader>
                       <DialogTitle>Sell Request</DialogTitle>
                       <DialogDescription>
-                        Submit a request to sell your plot. Our team will contact you to discuss the process.
+                        Submit a request to sell your plot. Our team will contact you to discuss the
+                        process.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -332,8 +354,12 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
                       </div>
                     </div>
                     <DialogFooter>
-                      <Button type="submit" onClick={handleSellRequest} disabled={!sellReason || isSubmittingSell}>
-                        {isSubmittingSell ? "Submitting..." : "Submit Request"}
+                      <Button
+                        type="submit"
+                        onClick={handleSellRequest}
+                        disabled={!sellReason || isSubmittingSell}
+                      >
+                        {isSubmittingSell ? 'Submitting...' : 'Submit Request'}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -357,7 +383,7 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
               <CardTitle>Plot Overview</CardTitle>
             </CardHeader>
             <CardContent>
-              <p>{plot.description || "No description available."}</p>
+              <p>{plot.description || 'No description available.'}</p>
 
               <div className="mt-6 grid gap-6 md:grid-cols-2">
                 <div>
@@ -419,9 +445,9 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Neighborhood</h3>
                   <p className="text-muted-foreground mb-4">
-                    Located in a peaceful residential area with excellent connectivity to major highways and public
-                    transportation. The neighborhood features tree-lined streets, parks, and a strong sense of
-                    community.
+                    Located in a peaceful residential area with excellent connectivity to major
+                    highways and public transportation. The neighborhood features tree-lined
+                    streets, parks, and a strong sense of community.
                   </p>
 
                   <h3 className="text-lg font-semibold mb-2">Commute Times</h3>
@@ -517,6 +543,5 @@ export default function PlotDetailPage({ params }: { params: { id: string } }) {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
-

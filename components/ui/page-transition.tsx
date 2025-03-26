@@ -1,10 +1,10 @@
-"use client"
+'use client';
 
-import { motion } from "framer-motion"
-import { ReactNode } from "react"
+import { motion } from 'framer-motion';
+import { ReactNode } from 'react';
 
 interface PageTransitionProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function PageTransition({ children }: PageTransitionProps) {
@@ -14,13 +14,13 @@ export function PageTransition({ children }: PageTransitionProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
       transition={{
-        type: "spring",
+        type: 'spring',
         stiffness: 260,
         damping: 20,
-        duration: 0.3
+        duration: 0.3,
       }}
     >
       {children}
     </motion.div>
-  )
-} 
+  );
+}

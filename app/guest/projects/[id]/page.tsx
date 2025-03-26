@@ -1,97 +1,92 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { doc, getDoc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { useToast } from "@/hooks/use-toast"
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { GridCell, GridData } from "@/features/projects/types/grid"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, MapPin, Calendar, Phone } from "lucide-react"
-import { formatDate } from "@/lib/utils"
-import { useRouter } from "next/navigation"
-import { GuestBottomNav } from "@/components/navigation/guest-bottom-nav"
-import { ScheduleVisitButton } from "@/components/guest/schedule-visit-button"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { PageTransition } from "@/components/ui/page-transition"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { ErrorBoundary } from "@/components/error-boundary"
-import { formatFirebaseError } from "@/lib/error-handling"
-import { LazyGridWrapper } from "@/features/projects/components/lazy-grid-wrapper"
+import { doc, getDoc } from 'firebase/firestore';
+import { ArrowLeft, MapPin, Calendar, Phone } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+import { PageTransition } from '@/components/ui/page-transition';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { ScheduleVisitButton } from '@/components/guest/schedule-visit-button';
+import { GuestBottomNav } from '@/components/navigation/guest-bottom-nav';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { LazyGridWrapper } from '@/features/projects/components/lazy-grid-wrapper';
+import { GridCell, GridData } from '@/features/projects/types/grid';
+import { useToast } from '@/hooks/use-toast';
+import { formatFirebaseError } from '@/lib/error-handling';
+import { db } from '@/lib/firebase';
+import { _formatDate } from '@/lib/utils';
 
 export default function GuestProjectPage({ params }: { params: { id: string } }) {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [project, setProject] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [selectedPlot, setSelectedPlot] = useState<GridCell | null>(null)
+  const router = useRouter();
+  const { toast } = useToast();
+  const [project, setProject] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedPlot, setSelectedPlot] = useState<GridCell | null>(null);
 
   useEffect(() => {
-    const fetchProject = async () => {
+    const _fetchProject = async () => {
       try {
-        const docRef = doc(db, "projects", params.id)
-        const docSnap = await getDoc(docRef)
+        const _docRef = doc(db, 'projects', params.id);
+        const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           setProject({
             id: docSnap.id,
             ...docSnap.data(),
-          })
+          });
         } else {
           toast({
-            title: "Project not found",
-            description: "The requested project could not be found.",
-            variant: "destructive",
-          })
-          router.push("/guest/projects")
+            title: 'Project not found',
+            description: 'The requested project could not be found.',
+            variant: 'destructive',
+          });
+          router.push('/guest/projects');
         }
       } catch (error) {
-        console.error("Error fetching project:", error)
-        const errorResponse = formatFirebaseError(error)
+        console.error('Error fetching project:', error);
+        const errorResponse = formatFirebaseError(error);
         toast({
           title: errorResponse.title,
           description: errorResponse.description,
           variant: errorResponse.variant,
-        })
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProject()
-  }, [params.id, router, toast])
+    fetchProject();
+  }, [params.id, router, toast]);
 
-  const handlePlotSelect = (plotCell: GridCell) => {
-    setSelectedPlot(plotCell)
-    
+  const _handlePlotSelect = (plotCell: GridCell) => {
+    setSelectedPlot(plotCell);
+
     // Show toast with plot details
-    if (plotCell.status === "available") {
+    if (plotCell.status === 'available') {
       toast({
         title: `Plot ${plotCell.plotNumber} is available`,
-        description: "You can schedule a visit to view this plot.",
-        variant: "default",
-      })
-    } else if (plotCell.status === "sold") {
+        description: 'You can schedule a visit to view this plot.',
+        variant: 'default',
+      });
+    } else if (plotCell.status === 'sold') {
       toast({
         title: `Plot ${plotCell.plotNumber} is already sold`,
-        description: "Please select an available plot.",
-        variant: "destructive",
-      })
-    } else if (plotCell.status === "reserved") {
+        description: 'Please select an available plot.',
+        variant: 'destructive',
+      });
+    } else if (plotCell.status === 'reserved') {
       toast({
         title: `Plot ${plotCell.plotNumber} is currently reserved`,
-        description: "This plot may become available soon. Please check later.",
-        variant: "default",
-      })
+        description: 'This plot may become available soon. Please check later.',
+        variant: 'default',
+      });
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -100,7 +95,7 @@ export default function GuestProjectPage({ params }: { params: { id: string } })
           <LoadingSpinner size="lg" />
         </div>
       </div>
-    )
+    );
   }
 
   if (!project) {
@@ -112,7 +107,7 @@ export default function GuestProjectPage({ params }: { params: { id: string } })
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -120,7 +115,11 @@ export default function GuestProjectPage({ params }: { params: { id: string } })
       <PageTransition>
         <div className="max-w-screen-xl mx-auto p-4 pb-20">
           <div className="flex items-center mb-6">
-            <Button variant="ghost" onClick={() => router.push("/guest/projects")} className="p-0 h-auto">
+            <Button
+              variant="ghost"
+              onClick={() => router.push('/guest/projects')}
+              className="p-0 h-auto"
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Projects
             </Button>
@@ -134,17 +133,22 @@ export default function GuestProjectPage({ params }: { params: { id: string } })
                   <CardDescription className="flex items-center mt-1">
                     <MapPin className="h-4 w-4 mr-1" />
                     {project.city}
-                    {project.address ? `, ${project.address}` : ""}
+                    {project.address ? `, ${project.address}` : ''}
                   </CardDescription>
                 </div>
-                <ScheduleVisitButton projectId={params.id} selectedPlot={selectedPlot?.plotNumber} />
+                <ScheduleVisitButton
+                  projectId={params.id}
+                  selectedPlot={selectedPlot?.plotNumber}
+                />
               </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="flex flex-col">
                   <span className="text-sm text-muted-foreground">Available Plots</span>
-                  <span>{project.availablePlots || 0} / {project.totalPlots || 0}</span>
+                  <span>
+                    {project.availablePlots || 0} / {project.totalPlots || 0}
+                  </span>
                 </div>
                 {project.visitingHours && (
                   <div className="flex flex-col">
@@ -169,7 +173,8 @@ export default function GuestProjectPage({ params }: { params: { id: string } })
               <Alert className="mb-6">
                 <AlertTitle>Interested in this project?</AlertTitle>
                 <AlertDescription>
-                  Select a plot on the map below to view details, or schedule a visit to see the property in person.
+                  Select a plot on the map below to view details, or schedule a visit to see the
+                  property in person.
                 </AlertDescription>
               </Alert>
 
@@ -177,14 +182,16 @@ export default function GuestProjectPage({ params }: { params: { id: string } })
 
               <div className="mb-6">
                 <h3 className="text-lg font-medium mb-2">About this Project</h3>
-                <p className="text-muted-foreground">{project.description || "No description provided."}</p>
+                <p className="text-muted-foreground">
+                  {project.description || 'No description provided.'}
+                </p>
               </div>
 
               {project.amenities && project.amenities.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-2">Amenities</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {project.amenities.map((amenity: string, index: number) => (
+                    {project.amenities.map((_amenity: string, _index: number) => (
                       <div key={index} className="flex items-center">
                         <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
                         <span className="text-sm">{amenity}</span>
@@ -196,21 +203,21 @@ export default function GuestProjectPage({ params }: { params: { id: string } })
             </CardContent>
           </Card>
 
-          {selectedPlot && selectedPlot.status === "available" && (
+          {selectedPlot && selectedPlot.status === 'available' && (
             <Card className="mb-6 border-primary">
               <CardContent className="p-6">
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-lg font-medium">Plot {selectedPlot.plotNumber}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {selectedPlot.size && `Size: ${selectedPlot.size}`} 
+                      {selectedPlot.size && `Size: ${selectedPlot.size}`}
                       {selectedPlot.price && ` • Price: ₹${selectedPlot.price.toLocaleString()}`}
                     </p>
                     {selectedPlot.notes && <p className="text-sm mt-2">{selectedPlot.notes}</p>}
                   </div>
-                  <ScheduleVisitButton 
-                    projectId={params.id} 
-                    selectedPlot={selectedPlot.plotNumber} 
+                  <ScheduleVisitButton
+                    projectId={params.id}
+                    selectedPlot={selectedPlot.plotNumber}
                     variant="default"
                   />
                 </div>
@@ -219,9 +226,9 @@ export default function GuestProjectPage({ params }: { params: { id: string } })
           )}
 
           {project.gridLayout && (
-            <LazyGridWrapper 
-              projectId={params.id} 
-              gridData={project.gridLayout as GridData} 
+            <LazyGridWrapper
+              projectId={params.id}
+              gridData={project.gridLayout as GridData}
               onPlotSelect={handlePlotSelect}
             />
           )}
@@ -230,5 +237,5 @@ export default function GuestProjectPage({ params }: { params: { id: string } })
         </div>
       </PageTransition>
     </ErrorBoundary>
-  )
-} 
+  );
+}

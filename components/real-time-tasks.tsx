@@ -1,131 +1,132 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import { useAuth } from "@/hooks/use-auth"
-import { collection, onSnapshot, query, where, orderBy, Firestore } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { CheckCircle, Clock, AlertTriangle } from "lucide-react"
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNow } from 'date-fns';
+import { collection, onSnapshot, query, where, orderBy, Firestore } from 'firebase/firestore';
+import { CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/use-auth';
+import { db } from '@/lib/firebase';
 
 interface Task {
-  id: string
-  title: string
-  description: string
-  status: "pending" | "in-progress" | "completed" | "cancelled"
-  priority: "low" | "medium" | "high"
-  createdAt: any
-  dueDate: any
-  assignedTo: string
-  type: string
-  referenceId?: string
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
+  priority: 'low' | 'medium' | 'high';
+  createdAt: any;
+  dueDate: any;
+  assignedTo: string;
+  type: string;
+  referenceId?: string;
 }
 
 export function RealTimeTasks() {
-  const { user } = useAuth()
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState("pending")
+  const { user } = useAuth();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('pending');
 
   useEffect(() => {
-    if (!user?.uid) return
+    if (!user?.uid) return;
 
     // Make sure Firestore is initialized
     if (!db) {
-      console.error("Firestore not initialized");
+      console.error('Firestore not initialized');
       setLoading(false);
       return;
     }
 
     // Set up real-time listener for tasks
-    const tasksQuery = query(
-      collection(db as Firestore, "tasks"), 
-      where("assignedTo", "==", user.uid), 
-      orderBy("createdAt", "desc")
+    const _tasksQuery = query(
+      collection(db as Firestore, 'tasks'),
+      where('assignedTo', '==', user.uid),
+      orderBy('createdAt', 'desc')
     );
 
-    const unsubscribe = onSnapshot(
+    const _unsubscribe = onSnapshot(
       tasksQuery,
-      (snapshot) => {
-        const newTasks = snapshot.docs.map((doc) => ({
+      (_snapshot) => {
+        const _newTasks = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as Task[]
+        })) as Task[];
 
-        setTasks(newTasks)
-        setLoading(false)
+        setTasks(newTasks);
+        setLoading(false);
       },
       (error) => {
-        console.error("Error fetching tasks:", error)
-        setLoading(false)
-      },
-    )
+        console.error('Error fetching tasks:', error);
+        setLoading(false);
+      }
+    );
 
-    return () => unsubscribe()
-  }, [user?.uid])
+    return () => unsubscribe();
+  }, [user?.uid]);
 
   const updateTaskStatus = async (taskId: string, status: string) => {
     try {
-      const response = await fetch("/api/tasks/update-status", {
-        method: "POST",
+      const _response = await fetch('/api/tasks/update-status', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ taskId, status }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to update task status")
+        throw new Error('Failed to update task status');
       }
     } catch (error) {
-      console.error("Error updating task status:", error)
+      console.error('Error updating task status:', error);
     }
-  }
+  };
 
   const filteredTasks = tasks.filter((task) => {
-    if (activeTab === "pending") return task.status === "pending"
-    if (activeTab === "in-progress") return task.status === "in-progress"
-    if (activeTab === "completed") return task.status === "completed"
-    return true
-  })
+    if (activeTab === 'pending') return task.status === 'pending';
+    if (activeTab === 'in-progress') return task.status === 'in-progress';
+    if (activeTab === 'completed') return task.status === 'completed';
+    return true;
+  });
 
-  const getPriorityBadge = (priority: string) => {
+  const _getPriorityBadge = (priority: string) => {
     switch (priority) {
-      case "high":
-        return <Badge variant="destructive">High</Badge>
-      case "medium":
-        return <Badge variant="default">Medium</Badge>
-      case "low":
-        return <Badge variant="outline">Low</Badge>
+      case 'high':
+        return <Badge variant="destructive">High</Badge>;
+      case 'medium':
+        return <Badge variant="default">Medium</Badge>;
+      case 'low':
+        return <Badge variant="outline">Low</Badge>;
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  const getStatusIcon = (status: string) => {
+  const _getStatusIcon = (status: string) => {
     switch (status) {
-      case "completed":
-        return <CheckCircle className="h-5 w-5 text-green-500" />
-      case "in-progress":
-        return <Clock className="h-5 w-5 text-blue-500" />
-      case "pending":
-        return <Clock className="h-5 w-5 text-yellow-500" />
-      case "cancelled":
-        return <AlertTriangle className="h-5 w-5 text-red-500" />
+      case 'completed':
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'in-progress':
+        return <Clock className="h-5 w-5 text-blue-500" />;
+      case 'pending':
+        return <Clock className="h-5 w-5 text-yellow-500" />;
+      case 'cancelled':
+        return <AlertTriangle className="h-5 w-5 text-red-500" />;
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  const isDueDate = (dueDate: any) => {
-    if (!dueDate) return false
-    const now = new Date()
-    const due = dueDate.toDate()
-    return due < now
-  }
+  const _isDueDate = (dueDate: any) => {
+    if (!dueDate) return false;
+    const _now = new Date();
+    const _due = dueDate.toDate();
+    return due < now;
+  };
 
   if (loading) {
     return (
@@ -136,7 +137,7 @@ export function RealTimeTasks() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3].map((_i) => (
               <div key={i} className="p-4 border rounded-lg">
                 <div className="space-y-2">
                   <div className="h-4 bg-gray-200 rounded animate-pulse" />
@@ -148,7 +149,7 @@ export function RealTimeTasks() {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -162,9 +163,9 @@ export function RealTimeTasks() {
           <TabsList className="grid grid-cols-3 mb-4">
             <TabsTrigger value="pending">
               Pending
-              {tasks.filter((t) => t.status === "pending").length > 0 && (
+              {tasks.filter((t) => t.status === 'pending').length > 0 && (
                 <Badge variant="outline" className="ml-2">
-                  {tasks.filter((t) => t.status === "pending").length}
+                  {tasks.filter((t) => t.status === 'pending').length}
                 </Badge>
               )}
             </TabsTrigger>
@@ -192,9 +193,12 @@ export function RealTimeTasks() {
                             {getPriorityBadge(task.priority)}
                             {task.dueDate && (
                               <span
-                                className={`text-xs ${isDueDate(task.dueDate) ? "text-red-500" : "text-muted-foreground"}`}
+                                className={`text-xs ${isDueDate(task.dueDate) ? 'text-red-500' : 'text-muted-foreground'}`}
                               >
-                                Due {formatDistanceToNow(task.dueDate.toDate(), { addSuffix: true })}
+                                Due{' '}
+                                {formatDistanceToNow(task.dueDate.toDate(), {
+                                  addSuffix: true,
+                                })}
                               </span>
                             )}
                           </div>
@@ -202,17 +206,25 @@ export function RealTimeTasks() {
                       </div>
                     </div>
 
-                    {task.status === "pending" && (
+                    {task.status === 'pending' && (
                       <div className="mt-4 flex justify-end gap-2">
-                        <Button size="sm" variant="outline" onClick={() => updateTaskStatus(task.id, "in-progress")}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateTaskStatus(task.id, 'in-progress')}
+                        >
                           Start Task
                         </Button>
                       </div>
                     )}
 
-                    {task.status === "in-progress" && (
+                    {task.status === 'in-progress' && (
                       <div className="mt-4 flex justify-end gap-2">
-                        <Button size="sm" variant="outline" onClick={() => updateTaskStatus(task.id, "completed")}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateTaskStatus(task.id, 'completed')}
+                        >
                           Complete
                         </Button>
                       </div>
@@ -225,6 +237,5 @@ export function RealTimeTasks() {
         </Tabs>
       </CardContent>
     </Card>
-  )
+  );
 }
-

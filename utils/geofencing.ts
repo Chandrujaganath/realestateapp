@@ -1,28 +1,28 @@
 interface GeofencePoint {
-  latitude: number
-  longitude: number
+  latitude: number;
+  longitude: number;
 }
 
 interface GeofenceConfig {
-  center: GeofencePoint
-  radius: number // in meters
+  center: GeofencePoint;
+  radius: number; // in meters
 }
 
 // Mock project geofence configurations
-const projectGeofences: Record<string, GeofenceConfig> = {
-  "project-1": {
+const _projectGeofences: Record<string, GeofenceConfig> = {
+  'project-1': {
     center: { latitude: 37.7749, longitude: -122.4194 }, // Example: San Francisco
     radius: 100, // 100 meters
   },
-  "project-2": {
+  'project-2': {
     center: { latitude: 34.0522, longitude: -118.2437 }, // Example: Los Angeles
     radius: 150, // 150 meters
   },
-  "project-3": {
+  'project-3': {
     center: { latitude: 40.7128, longitude: -74.006 }, // Example: New York
     radius: 120, // 120 meters
   },
-}
+};
 
 /**
  * Calculate the distance between two points using the Haversine formula
@@ -31,17 +31,19 @@ const projectGeofences: Record<string, GeofenceConfig> = {
  * @returns Distance in meters
  */
 export function calculateDistance(point1: GeofencePoint, point2: GeofencePoint): number {
-  const R = 6371e3 // Earth's radius in meters
-  const φ1 = (point1.latitude * Math.PI) / 180
-  const φ2 = (point2.latitude * Math.PI) / 180
-  const Δφ = ((point2.latitude - point1.latitude) * Math.PI) / 180
-  const Δλ = ((point2.longitude - point1.longitude) * Math.PI) / 180
+  const R = 6371e3; // Earth's radius in meters
+  const _φ1 = (point1.latitude * Math.PI) / 180;
+  const _φ2 = (point2.latitude * Math.PI) / 180;
+  const Δφ = ((point2.latitude - point1.latitude) * Math.PI) / 180;
+  const Δλ = ((point2.longitude - point1.longitude) * Math.PI) / 180;
 
-  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  const distance = R * c
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const _c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c;
 
-  return distance
+  return distance;
 }
 
 /**
@@ -50,9 +52,9 @@ export function calculateDistance(point1: GeofencePoint, point2: GeofencePoint):
  * @param geofence Geofence configuration
  * @returns Boolean indicating if the point is within the geofence
  */
-export function isPointInGeofence(point: GeofencePoint, geofence: GeofenceConfig): boolean {
-  const distance = calculateDistance(point, geofence.center)
-  return distance <= geofence.radius
+export function isPointInGeofence(_point: GeofencePoint, geofence: GeofenceConfig): boolean {
+  const distance = calculateDistance(point, geofence.center);
+  return distance <= geofence.radius;
 }
 
 /**
@@ -60,10 +62,10 @@ export function isPointInGeofence(point: GeofencePoint, geofence: GeofenceConfig
  * @returns Promise that resolves to a GeofencePoint
  */
 export function getCurrentPosition(): Promise<GeofencePoint> {
-  return new Promise((resolve, reject) => {
+  return new Promise((_resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error("Geolocation is not supported by this browser."))
-      return
+      reject(new Error('Geolocation is not supported by this browser.'));
+      return;
     }
 
     navigator.geolocation.getCurrentPosition(
@@ -71,14 +73,14 @@ export function getCurrentPosition(): Promise<GeofencePoint> {
         resolve({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-        })
+        });
       },
       (error) => {
-        reject(error)
+        reject(error);
       },
-      { enableHighAccuracy: true },
-    )
-  })
+      { enableHighAccuracy: true }
+    );
+  });
 }
 
 /**
@@ -89,19 +91,19 @@ export function getCurrentPosition(): Promise<GeofencePoint> {
 export async function checkIfInProjectGeofence(projectId: string): Promise<boolean> {
   try {
     // Get the project's geofence configuration
-    const geofence = projectGeofences[projectId]
+    const geofence = projectGeofences[projectId];
     if (!geofence) {
-      throw new Error(`Geofence configuration not found for project ${projectId}`)
+      throw new Error(`Geofence configuration not found for project ${projectId}`);
     }
 
     // Get the current position
-    const currentPosition = await getCurrentPosition()
+    const _currentPosition = await getCurrentPosition();
 
     // Check if the current position is within the geofence
-    return isPointInGeofence(currentPosition, geofence)
+    return isPointInGeofence(currentPosition, geofence);
   } catch (error) {
-    console.error("Error checking geofence:", error)
-    return false
+    console.error('Error checking geofence:', error);
+    return false;
   }
 }
 
@@ -112,6 +114,5 @@ export async function checkIfInProjectGeofence(projectId: string): Promise<boole
  */
 export async function mockGeofenceCheck(projectId: string): Promise<boolean> {
   // For testing purposes, we'll return true for project-1 and false for others
-  return projectId === "project-1"
+  return projectId === 'project-1';
 }
-

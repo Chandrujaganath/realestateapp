@@ -14,7 +14,14 @@ export interface BaseEntity {
 /**
  * Status types for various entities
  */
-export type Status = 'active' | 'inactive' | 'pending' | 'completed' | 'cancelled' | 'rejected' | 'approved';
+export type Status =
+  | 'active'
+  | 'inactive'
+  | 'pending'
+  | 'completed'
+  | 'cancelled'
+  | 'rejected'
+  | 'approved';
 
 /**
  * Common address type
@@ -102,4 +109,4 @@ export interface FileInfo {
   size: number;
   uploadedAt: Date;
   uploadedBy: string;
-} 
+}

@@ -37,6 +37,7 @@ This caused conflicts when both were used in different parts of the application.
 Once all components have been migrated to the new auth system, you should consider:
 
 1. Remove the old auth implementation files:
+
    - `/features/auth/hooks/use-auth.ts`
    - `/features/auth/providers/auth-provider.tsx`
 
@@ -46,4 +47,4 @@ Once all components have been migrated to the new auth system, you should consid
 
 - Use only one authentication system throughout the application
 - Ensure all components requiring auth are wrapped with the same `AuthProvider`
-- Structure your app's directory to prevent duplicate implementations of core functionalities 
+- Structure your app's directory to prevent duplicate implementations of core functionalities

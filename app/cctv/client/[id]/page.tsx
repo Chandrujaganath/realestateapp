@@ -1,69 +1,73 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from '@/contexts/auth-context'
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Volume2, VolumeX, Maximize2 } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import type { Plot } from "@/contexts/auth-context"
+import { ArrowLeft, Volume2, VolumeX, Maximize2 } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/auth-context';
+import type { Plot } from '@/contexts/auth-context';
 
 export default function ClientCctvDetailPage({ params }: { params: { id: string } }) {
-  const { user, getUserOwnedPlots } = useAuth()
-  const [plot, setPlot] = useState<Plot | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [muted, setMuted] = useState(true)
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const { user, getUserOwnedPlots } = useAuth();
+  const [plot, setPlot] = useState<Plot | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [muted, setMuted] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
-    const fetchPlot = async () => {
+    const _fetchPlot = async () => {
       try {
-        const plots = await getUserOwnedPlots()
-        const foundPlot = plots.find((p: Plot) => p.id === params.id)
+        const _plots = await getUserOwnedPlots();
+        const foundPlot = plots.find((p: Plot) => p.id === params.id);
 
         if (foundPlot) {
-          setPlot(foundPlot)
+          setPlot(foundPlot);
         }
       } catch (error) {
-        console.error("Error fetching plot:", error)
+        console.error('Error fetching plot:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchPlot()
-  }, [getUserOwnedPlots, params.id])
+    fetchPlot();
+  }, [getUserOwnedPlots, params.id]);
 
-  const toggleMute = () => {
-    setMuted(!muted)
-  }
+  const _toggleMute = () => {
+    setMuted(!muted);
+  };
 
-  const toggleFullscreen = () => {
+  const _toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch((err) => {
-        console.error(`Error attempting to enable full-screen mode: ${err.message}`)
-      })
-      setIsFullscreen(true)
+      document.documentElement.requestFullscreen().catch((_err) => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+      setIsFullscreen(true);
     } else {
       if (document.exitFullscreen) {
-        document.exitFullscreen()
-        setIsFullscreen(false)
+        document.exitFullscreen();
+        setIsFullscreen(false);
       }
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   if (!plot) {
     return (
       <div className="space-y-8">
-        <Link href="/cctv/client" className="flex items-center text-muted-foreground hover:text-foreground mb-2">
+        <Link
+          href="/cctv/client"
+          className="flex items-center text-muted-foreground hover:text-foreground mb-2"
+        >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back to CCTV Feeds
         </Link>
@@ -77,13 +81,16 @@ export default function ClientCctvDetailPage({ params }: { params: { id: string 
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/cctv/client" className="flex items-center text-muted-foreground hover:text-foreground mb-2">
+        <Link
+          href="/cctv/client"
+          className="flex items-center text-muted-foreground hover:text-foreground mb-2"
+        >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back to CCTV Feeds
         </Link>
@@ -180,6 +187,5 @@ export default function ClientCctvDetailPage({ params }: { params: { id: string 
         </div>
       </div>
     </div>
-  )
+  );
 }
-

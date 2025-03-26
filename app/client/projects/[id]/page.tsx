@@ -1,74 +1,69 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { doc, getDoc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { useToast } from "@/hooks/use-toast"
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { GridCell, GridData } from "@/features/projects/types/grid"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, MapPin, Calendar } from "lucide-react"
-import { formatDate } from "@/lib/utils"
-import { useRouter } from "next/navigation"
-import { ClientBottomNav } from "@/components/navigation/client-bottom-nav"
-import { PageTransition } from "@/components/ui/page-transition"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { ErrorBoundary } from "@/components/error-boundary"
-import { formatFirebaseError } from "@/lib/error-handling"
-import { LazyGridWrapper } from "@/features/projects/components/lazy-grid-wrapper"
+import { doc, getDoc } from 'firebase/firestore';
+import { ArrowLeft, MapPin, Calendar } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+import { ErrorBoundary } from '@/components/error-boundary';
+import { ClientBottomNav } from '@/components/navigation/client-bottom-nav';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { PageTransition } from '@/components/ui/page-transition';
+import { Separator } from '@/components/ui/separator';
+import { LazyGridWrapper } from '@/features/projects/components/lazy-grid-wrapper';
+import { GridCell, GridData } from '@/features/projects/types/grid';
+import { useToast } from '@/hooks/use-toast';
+import { formatFirebaseError } from '@/lib/error-handling';
+import { db } from '@/lib/firebase';
+import { formatDate } from '@/lib/utils';
 
 export default function ClientProjectPage({ params }: { params: { id: string } }) {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [project, setProject] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const router = useRouter();
+  const { toast } = useToast();
+  const [project, setProject] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProject = async () => {
+    const _fetchProject = async () => {
       try {
-        const docRef = doc(db, "projects", params.id)
-        const docSnap = await getDoc(docRef)
+        const _docRef = doc(db, 'projects', params.id);
+        const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           setProject({
             id: docSnap.id,
             ...docSnap.data(),
-          })
+          });
         } else {
           toast({
-            title: "Project not found",
-            description: "The requested project could not be found.",
-            variant: "destructive",
-          })
-          router.push("/client/projects")
+            title: 'Project not found',
+            description: 'The requested project could not be found.',
+            variant: 'destructive',
+          });
+          router.push('/client/projects');
         }
       } catch (error) {
-        console.error("Error fetching project:", error)
-        const errorResponse = formatFirebaseError(error)
+        console.error('Error fetching project:', error);
+        const errorResponse = formatFirebaseError(error);
         toast({
           title: errorResponse.title,
           description: errorResponse.description,
           variant: errorResponse.variant,
-        })
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProject()
-  }, [params.id, router, toast])
+    fetchProject();
+  }, [params.id, router, toast]);
 
-  const handlePlotSelect = (plotCell: GridCell) => {
+  const _handlePlotSelect = (_plotCell: GridCell) => {
     // You can add additional logic here when a plot is clicked
-    console.log("Plot selected:", plotCell)
-  }
+    console.log('Plot selected:', plotCell);
+  };
 
   if (loading) {
     return (
@@ -77,7 +72,7 @@ export default function ClientProjectPage({ params }: { params: { id: string } }
           <LoadingSpinner size="lg" />
         </div>
       </div>
-    )
+    );
   }
 
   if (!project) {
@@ -89,7 +84,7 @@ export default function ClientProjectPage({ params }: { params: { id: string } }
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -97,7 +92,11 @@ export default function ClientProjectPage({ params }: { params: { id: string } }
       <PageTransition>
         <div className="max-w-screen-xl mx-auto p-4 pb-20">
           <div className="flex items-center mb-6">
-            <Button variant="ghost" onClick={() => router.push("/client/projects")} className="p-0 h-auto">
+            <Button
+              variant="ghost"
+              onClick={() => router.push('/client/projects')}
+              className="p-0 h-auto"
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Projects
             </Button>
@@ -111,12 +110,14 @@ export default function ClientProjectPage({ params }: { params: { id: string } }
                   <CardDescription className="flex items-center mt-1">
                     <MapPin className="h-4 w-4 mr-1" />
                     {project.city}
-                    {project.address ? `, ${project.address}` : ""}
+                    {project.address ? `, ${project.address}` : ''}
                   </CardDescription>
                 </div>
                 <div className="flex flex-col items-start md:items-end">
                   <span className="text-sm text-muted-foreground">Available Plots</span>
-                  <span className="text-lg font-medium">{project.availablePlots || 0} / {project.totalPlots || 0}</span>
+                  <span className="text-lg font-medium">
+                    {project.availablePlots || 0} / {project.totalPlots || 0}
+                  </span>
                 </div>
               </div>
             </CardHeader>
@@ -124,7 +125,7 @@ export default function ClientProjectPage({ params }: { params: { id: string } }
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="flex flex-col">
                   <span className="text-sm text-muted-foreground">Last Updated</span>
-                  <span>{project.updatedAt ? formatDate(project.updatedAt.toDate()) : "N/A"}</span>
+                  <span>{project.updatedAt ? formatDate(project.updatedAt.toDate()) : 'N/A'}</span>
                 </div>
                 {project.visitingHours && (
                   <div className="flex flex-col">
@@ -141,14 +142,16 @@ export default function ClientProjectPage({ params }: { params: { id: string } }
 
               <div className="mb-6">
                 <h3 className="text-lg font-medium mb-2">About this Project</h3>
-                <p className="text-muted-foreground">{project.description || "No description provided."}</p>
+                <p className="text-muted-foreground">
+                  {project.description || 'No description provided.'}
+                </p>
               </div>
 
               {project.amenities && project.amenities.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-2">Amenities</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {project.amenities.map((amenity: string, index: number) => (
+                    {project.amenities.map((_amenity: string, _index: number) => (
                       <div key={index} className="flex items-center">
                         <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
                         <span className="text-sm">{amenity}</span>
@@ -161,9 +164,9 @@ export default function ClientProjectPage({ params }: { params: { id: string } }
           </Card>
 
           {project.gridLayout && (
-            <LazyGridWrapper 
-              projectId={params.id} 
-              gridData={project.gridLayout as GridData} 
+            <LazyGridWrapper
+              projectId={params.id}
+              gridData={project.gridLayout as GridData}
               onPlotSelect={handlePlotSelect}
             />
           )}
@@ -172,5 +175,5 @@ export default function ClientProjectPage({ params }: { params: { id: string } }
         </div>
       </PageTransition>
     </ErrorBoundary>
-  )
-} 
+  );
+}

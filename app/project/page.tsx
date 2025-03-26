@@ -1,50 +1,58 @@
-"use client"
+'use client';
 
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Building2, MapPin, Calendar } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+import { Building2, MapPin, Calendar } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function ProjectsPage() {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   // Placeholder projects data
-  const projects = [
+  const _projects = [
     {
       id: 1,
-      name: "Sunrise Gardens",
-      location: "East Suburb, City",
-      description: "Luxury residential complex with modern amenities and green spaces.",
+      name: 'Sunrise Gardens',
+      location: 'East Suburb, City',
+      description: 'Luxury residential complex with modern amenities and green spaces.',
       progress: 75,
-      image: "/placeholder.svg?height=300&width=500",
+      image: '/placeholder.svg?height=300&width=500',
     },
     {
       id: 2,
-      name: "Metropolitan Heights",
-      location: "Downtown, City",
-      description: "High-rise apartments with panoramic city views and premium finishes.",
+      name: 'Metropolitan Heights',
+      location: 'Downtown, City',
+      description: 'High-rise apartments with panoramic city views and premium finishes.',
       progress: 90,
-      image: "/placeholder.svg?height=300&width=500",
+      image: '/placeholder.svg?height=300&width=500',
     },
     {
       id: 3,
-      name: "Riverside Villas",
-      location: "Riverside District, City",
-      description: "Exclusive waterfront villas with private gardens and boat docks.",
+      name: 'Riverside Villas',
+      location: 'Riverside District, City',
+      description: 'Exclusive waterfront villas with private gardens and boat docks.',
       progress: 60,
-      image: "/placeholder.svg?height=300&width=500",
+      image: '/placeholder.svg?height=300&width=500',
     },
     {
       id: 4,
-      name: "Green Valley",
-      location: "North Hills, City",
-      description: "Eco-friendly community with sustainable features and natural surroundings.",
+      name: 'Green Valley',
+      location: 'North Hills, City',
+      description: 'Eco-friendly community with sustainable features and natural surroundings.',
       progress: 40,
-      image: "/placeholder.svg?height=300&width=500",
+      image: '/placeholder.svg?height=300&width=500',
     },
-  ]
+  ];
 
   return (
     <div className="space-y-8">
@@ -57,7 +65,12 @@ export default function ProjectsPage() {
         {projects.map((project) => (
           <Card key={project.id} className="glass-card overflow-hidden">
             <div className="relative h-48">
-              <Image src={project.image || "/placeholder.svg"} alt={project.name} fill className="object-cover" />
+              <Image
+                src={project.image || '/placeholder.svg'}
+                alt={project.name}
+                fill
+                className="object-cover"
+              />
             </div>
             <CardHeader>
               <CardTitle>{project.name}</CardTitle>
@@ -74,7 +87,10 @@ export default function ProjectsPage() {
                   <span className="font-medium">{project.progress}%</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
-                  <div className="bg-primary h-2 rounded-full" style={{ width: `${project.progress}%` }}></div>
+                  <div
+                    className="bg-primary h-2 rounded-full"
+                    style={{ width: `${project.progress}%` }}
+                  ></div>
                 </div>
               </div>
             </CardContent>
@@ -84,7 +100,7 @@ export default function ProjectsPage() {
                   View Details
                 </Button>
               </Link>
-              {user?.role !== "guest" && (
+              {user?.role !== 'guest' && (
                 <Link href={`/visit/book?project=${project.id}`}>
                   <Button>
                     <Calendar className="mr-2 h-4 w-4" />
@@ -97,7 +113,7 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      {(user?.role === "admin" || user?.role === "superadmin" || user?.role === "manager") && (
+      {(user?.role === 'admin' || user?.role === 'superadmin' || user?.role === 'manager') && (
         <div className="flex justify-end">
           <Link href="/project/create">
             <Button>
@@ -108,6 +124,5 @@ export default function ProjectsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

@@ -1,4 +1,4 @@
-export type UserRole = "guest" | "client" | "manager" | "admin" | "superadmin";
+export type UserRole = 'guest' | 'client' | 'manager' | 'admin' | 'superadmin';
 
 export interface UserData {
   uid: string;
@@ -18,4 +18,4 @@ export interface UserData {
   leaveEndDate?: Date | null;
 }
 
-// Export other shared types here 
+// Export other shared types here

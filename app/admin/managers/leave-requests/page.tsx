@@ -1,15 +1,25 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/use-auth";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, query, where, orderBy, Timestamp, doc, updateDoc } from "firebase/firestore";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { formatDistanceToNow } from "date-fns";
-import { AlertCircle, CheckCircle, Clock, XCircle } from "lucide-react";
-import { toast } from "sonner";
+import { formatDistanceToNow } from 'date-fns';
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  Timestamp,
+  doc,
+  updateDoc,
+} from 'firebase/firestore';
+import { AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
+import { db } from '@/lib/firebase';
 
 interface LeaveRequest {
   id: string;
@@ -18,7 +28,7 @@ interface LeaveRequest {
   startDate: Timestamp;
   endDate: Timestamp;
   reason: string;
-  status: "pending" | "approved" | "rejected";
+  status: 'pending' | 'approved' | 'rejected';
   createdAt: Timestamp;
 }
 
@@ -29,55 +39,63 @@ export default function ManagerLeaveRequestsPage() {
 
   useEffect(() => {
     if (!user) return;
-    
-    const fetchLeaveRequests = async () => {
+
+    const _fetchLeaveRequests = async () => {
       try {
         setLoading(true);
-        const leaveRequestsRef = collection(db, "leaveRequests");
-        const q = query(
+        // Check if db is defined before using it
+        if (!db) {
+          throw new Error('Firebase database is not initialized');
+        }
+        const _leaveRequestsRef = collection(db, 'leaveRequests');
+        const _q = query(
           leaveRequestsRef,
-          where("managerId", "==", user.uid),
-          orderBy("createdAt", "desc")
+          where('managerId', '==', user.uid),
+          orderBy('createdAt', 'desc')
         );
-        
-        const querySnapshot = await getDocs(q);
+
+        const _querySnapshot = await getDocs(q);
         const requests: LeaveRequest[] = [];
-        
+
         querySnapshot.forEach((doc) => {
           requests.push({ id: doc.id, ...doc.data() } as LeaveRequest);
         });
-        
+
         setLeaveRequests(requests);
       } catch (error) {
-        console.error("Error fetching leave requests:", error);
-        toast.error("Failed to load leave requests");
+        console.error('Error fetching leave requests:', error);
+        toast.error('Failed to load leave requests');
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchLeaveRequests();
   }, [user]);
 
-  const handleUpdateStatus = async (requestId: string, status: "approved" | "rejected") => {
+  const handleUpdateStatus = async (requestId: string, status: 'approved' | 'rejected') => {
     try {
-      const requestRef = doc(db, "leaveRequests", requestId);
+      // Check if db is defined before using it
+      if (!db) {
+        throw new Error('Firebase database is not initialized');
+      }
+      const _requestRef = doc(db, 'leaveRequests', requestId);
       await updateDoc(requestRef, {
         status,
-        updatedAt: Timestamp.now()
+        updatedAt: Timestamp.now(),
       });
-      
+
       // Update local state
-      setLeaveRequests(prev => 
-        prev.map(request => 
-          request.id === requestId ? { ...request, status } : request
-        )
+      setLeaveRequests((_prev) =>
+        prev.map((request) => (request.id === requestId ? { ...request, status } : request))
       );
-      
-      toast.success(`Leave request ${status === "approved" ? "approved" : "rejected"} successfully`);
+
+      toast.success(
+        `Leave request ${status === 'approved' ? 'approved' : 'rejected'} successfully`
+      );
     } catch (error) {
-      console.error("Error updating leave request:", error);
-      toast.error("Failed to update leave request status");
+      console.error('Error updating leave request:', error);
+      toast.error('Failed to update leave request status');
     }
   };
 
@@ -92,7 +110,7 @@ export default function ManagerLeaveRequestsPage() {
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Leave Requests</h1>
-      
+
       {leaveRequests.length === 0 ? (
         <p className="text-center py-8">No leave requests pending your approval</p>
       ) : (
@@ -105,7 +123,10 @@ export default function ManagerLeaveRequestsPage() {
                   <StatusBadge status={request.status} />
                 </CardTitle>
                 <CardDescription>
-                  Requested {formatDistanceToNow(request.createdAt.toDate(), { addSuffix: true })}
+                  Requested{' '}
+                  {formatDistanceToNow(request.createdAt.toDate(), {
+                    addSuffix: true,
+                  })}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -113,28 +134,29 @@ export default function ManagerLeaveRequestsPage() {
                   <div>
                     <p className="text-sm font-medium">Leave Period:</p>
                     <p>
-                      {request.startDate.toDate().toLocaleDateString()} - {request.endDate.toDate().toLocaleDateString()}
+                      {request.startDate.toDate().toLocaleDateString()} -{' '}
+                      {request.endDate.toDate().toLocaleDateString()}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium">Reason:</p>
                     <p>{request.reason}</p>
                   </div>
-                  
-                  {request.status === "pending" && (
+
+                  {request.status === 'pending' && (
                     <div className="flex gap-2 mt-4">
-                      <Button 
-                        variant="default" 
+                      <Button
+                        variant="default"
                         className="flex-1"
-                        onClick={() => handleUpdateStatus(request.id, "approved")}
+                        onClick={() => handleUpdateStatus(request.id, 'approved')}
                       >
                         <CheckCircle className="mr-2 h-4 w-4" />
                         Approve
                       </Button>
-                      <Button 
-                        variant="destructive" 
+                      <Button
+                        variant="destructive"
                         className="flex-1"
-                        onClick={() => handleUpdateStatus(request.id, "rejected")}
+                        onClick={() => handleUpdateStatus(request.id, 'rejected')}
                       >
                         <XCircle className="mr-2 h-4 w-4" />
                         Reject
@@ -153,13 +175,13 @@ export default function ManagerLeaveRequestsPage() {
 
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
-    case "approved":
+    case 'approved':
       return (
         <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
           <CheckCircle className="mr-1 h-3 w-3" /> Approved
         </Badge>
       );
-    case "rejected":
+    case 'rejected':
       return (
         <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
           <XCircle className="mr-1 h-3 w-3" /> Rejected
@@ -173,4 +195,3 @@ function StatusBadge({ status }: { status: string }) {
       );
   }
 }
-

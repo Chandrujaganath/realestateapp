@@ -1,78 +1,99 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { toast } from "@/hooks/use-toast"
-import { httpsCallable } from "firebase/functions"
-import { functions, db } from "@/lib/firebase"
-import { useRouter } from "next/navigation"
-import { doc, updateDoc, Firestore } from "firebase/firestore"
-import { Functions } from "firebase/functions"
+import { zodResolver } from '@hookform/resolvers/zod';
+import { doc, updateDoc, Firestore } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
+import { Functions } from 'firebase/functions';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
+import { functions, db } from '@/lib/firebase';
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  phone: z.string().min(10, { message: "Please enter a valid phone number" }),
+  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
+  email: z.string().email({ message: 'Please enter a valid email address' }),
+  phone: z.string().min(10, { message: 'Please enter a valid phone number' }),
   message: z.string().optional(),
-})
+});
 
 interface PlotBookingFormProps {
-  plotId: string
-  projectId: string
-  plotName: string
-  projectName: string
+  plotId: string;
+  projectId: string;
+  plotName: string;
+  projectName: string;
 }
 
-export function PlotBookingForm({ plotId, projectId, plotName, projectName }: PlotBookingFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [optimisticState, setOptimisticState] = useState<"idle" | "booked" | "failed">("idle")
-  const router = useRouter()
+export function PlotBookingForm({
+  plotId,
+  projectId,
+  plotName,
+  projectName,
+}: PlotBookingFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [optimisticState, setOptimisticState] = useState<'idle' | 'booked' | 'failed'>('idle');
+  const _router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      message: "",
+      name: '',
+      email: '',
+      phone: '',
+      message: '',
     },
-  })
+  });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
 
       // Optimistically update UI
-      setOptimisticState("booked")
+      setOptimisticState('booked');
 
       // Check if Firestore is initialized
       if (!db) {
-        throw new Error("Firestore is not initialized");
+        throw new Error('Firestore is not initialized');
       }
 
       // Update plot status optimistically in local Firestore cache
-      const plotRef = doc(db as Firestore, `projects/${projectId}/plots/${plotId}`)
+      const plotRef = doc(db as Firestore, `projects/${projectId}/plots/${plotId}`);
       await updateDoc(plotRef, {
-        status: "booked",
+        status: 'booked',
         updatedAt: new Date(),
-      })
+      });
 
       // Check if Functions is initialized
       if (!functions) {
-        throw new Error("Firebase Functions are not initialized");
+        throw new Error('Firebase Functions are not initialized');
       }
 
       // Call the Cloud Function to book the plot
-      const bookPlotFn = httpsCallable(functions as Functions, "bookPlot")
+      const _bookPlotFn = httpsCallable(functions as Functions, 'bookPlot');
 
-      const result = await bookPlotFn({
+      const _result = await bookPlotFn({
         plotId,
         projectId,
         bookingDetails: {
@@ -81,48 +102,48 @@ export function PlotBookingForm({ plotId, projectId, plotName, projectName }: Pl
           clientPhone: values.phone,
           clientMessage: values.message,
         },
-      })
+      });
 
       toast({
-        title: "Success",
-        description: "Plot booked successfully",
-        variant: "default",
-      })
+        title: 'Success',
+        description: 'Plot booked successfully',
+        variant: 'default',
+      });
 
       // Redirect to booking confirmation page
-      router.push(`/bookings/${(result.data as any).bookingId}`)
+      router.push(`/bookings/${(result.data as any).bookingId}`);
     } catch (error: any) {
-      console.error("Error booking plot:", error)
+      console.error('Error booking plot:', error);
 
       // Revert optimistic update
-      setOptimisticState("failed")
+      setOptimisticState('failed');
 
       // Try to revert local Firestore cache
       try {
         if (!db) {
-          throw new Error("Firestore is not initialized");
+          throw new Error('Firestore is not initialized');
         }
-        
-        const plotRef = doc(db as Firestore, `projects/${projectId}/plots/${plotId}`)
+
+        const plotRef = doc(db as Firestore, `projects/${projectId}/plots/${plotId}`);
         await updateDoc(plotRef, {
-          status: "available",
+          status: 'available',
           updatedAt: new Date(),
-        })
+        });
       } catch (revertError) {
-        console.error("Failed to revert optimistic update:", revertError)
+        console.error('Failed to revert optimistic update:', revertError);
       }
 
       toast({
-        title: "Error",
-        description: error.message || "Failed to book plot. Please try again.",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: error.message || 'Failed to book plot. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  if (optimisticState === "booked" && isSubmitting) {
+  if (optimisticState === 'booked' && isSubmitting) {
     return (
       <Card>
         <CardHeader>
@@ -133,20 +154,24 @@ export function PlotBookingForm({ plotId, projectId, plotName, projectName }: Pl
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center py-8">
           <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mb-4" />
-          <p className="text-center text-muted-foreground">Please wait while we process your booking...</p>
+          <p className="text-center text-muted-foreground">
+            Please wait while we process your booking...
+          </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Book Plot {plotName}</CardTitle>
-        <CardDescription>Complete the form below to book this plot in {projectName}</CardDescription>
+        <CardDescription>
+          Complete the form below to book this plot in {projectName}
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        {optimisticState === "failed" && (
+        {optimisticState === 'failed' && (
           <div className="bg-destructive/10 text-destructive p-4 rounded-lg mb-4">
             <p className="font-medium">Booking Failed</p>
             <p className="text-sm">There was an error processing your booking. Please try again.</p>
@@ -215,7 +240,7 @@ export function PlotBookingForm({ plotId, projectId, plotName, projectName }: Pl
             />
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Processing..." : "Book Now"}
+              {isSubmitting ? 'Processing...' : 'Book Now'}
             </Button>
           </form>
         </Form>
@@ -224,6 +249,5 @@ export function PlotBookingForm({ plotId, projectId, plotName, projectName }: Pl
         By booking, you agree to our terms and conditions.
       </CardFooter>
     </Card>
-  )
+  );
 }
-

@@ -1,23 +1,37 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import { useSuperAdmin } from "@/contexts/super-admin-context"
-import { useAuth } from "@/contexts/auth-context"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Save } from "lucide-react"
-import Link from "next/link"
-import type { SystemSettings } from "@/types/super-admin"
-import { format } from "date-fns"
-import { Badge } from "@/components/ui/badge"
+import { format } from 'date-fns';
+import { ArrowLeft, Save } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useAuth } from '@/contexts/auth-context';
+import { useSuperAdmin } from '@/contexts/super-admin-context';
+import type { SystemSettings } from '@/types/super-admin';
 
 export default function SystemSettingsPage() {
-  const { user } = useAuth()
+  const { user } = useAuth();
   const {
     settings,
     loadingSettings,
@@ -29,25 +43,25 @@ export default function SystemSettingsPage() {
     createTemplate,
     updateTemplate,
     deleteTemplate,
-  } = useSuperAdmin()
+  } = useSuperAdmin();
 
   const [formSettings, setFormSettings] = useState<Partial<SystemSettings>>({
     maxBookingsPerDay: 10,
     defaultGeofenceRadius: 100,
     announcementDefaults: {
       duration: 7,
-      priority: "medium",
+      priority: 'medium',
     },
-  })
+  });
 
-  const [isSaving, setIsSaving] = useState(false)
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (user && user.role === "SuperAdmin") {
-      getSettings()
-      getTemplates()
+    if (user && user.role === 'SuperAdmin') {
+      getSettings();
+      getTemplates();
     }
-  }, [user])
+  }, [user]);
 
   useEffect(() => {
     if (settings) {
@@ -55,24 +69,24 @@ export default function SystemSettingsPage() {
         maxBookingsPerDay: settings.maxBookingsPerDay,
         defaultGeofenceRadius: settings.defaultGeofenceRadius,
         announcementDefaults: settings.announcementDefaults,
-      })
+      });
     }
-  }, [settings])
+  }, [settings]);
 
-  const handleSaveSettings = async () => {
-    setIsSaving(true)
+  const _handleSaveSettings = async () => {
+    setIsSaving(true);
     try {
-      await updateSettings(formSettings)
+      await updateSettings(formSettings);
       // Show success message
     } catch (error) {
-      console.error("Error saving settings:", error)
+      console.error('Error saving settings:', error);
       // Show error message
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
-  if (!user || user.role !== "SuperAdmin") {
+  if (!user || user.role !== 'SuperAdmin') {
     return (
       <div className="flex items-center justify-center h-screen">
         <Card className="w-[350px]">
@@ -87,7 +101,7 @@ export default function SystemSettingsPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -111,7 +125,9 @@ export default function SystemSettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>General System Settings</CardTitle>
-              <CardDescription>Configure global settings that affect the entire platform.</CardDescription>
+              <CardDescription>
+                Configure global settings that affect the entire platform.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {loadingSettings ? (
@@ -159,7 +175,9 @@ export default function SystemSettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="announcementDuration">Default Announcement Duration (days)</Label>
+                    <Label htmlFor="announcementDuration">
+                      Default Announcement Duration (days)
+                    </Label>
                     <Input
                       id="announcementDuration"
                       type="number"
@@ -174,7 +192,9 @@ export default function SystemSettingsPage() {
                         })
                       }
                     />
-                    <p className="text-sm text-muted-foreground">How long announcements remain active by default.</p>
+                    <p className="text-sm text-muted-foreground">
+                      How long announcements remain active by default.
+                    </p>
                   </div>
 
                   <div className="space-y-2">
@@ -186,7 +206,7 @@ export default function SystemSettingsPage() {
                           ...formSettings,
                           announcementDefaults: {
                             ...formSettings.announcementDefaults!,
-                            priority: value as "low" | "medium" | "high",
+                            priority: value as 'low' | 'medium' | 'high',
                           },
                         })
                       }
@@ -200,7 +220,9 @@ export default function SystemSettingsPage() {
                         <SelectItem value="high">High</SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-sm text-muted-foreground">The default priority level for new announcements.</p>
+                    <p className="text-sm text-muted-foreground">
+                      The default priority level for new announcements.
+                    </p>
                   </div>
                 </div>
               )}
@@ -208,7 +230,7 @@ export default function SystemSettingsPage() {
             <CardFooter className="flex justify-end">
               <Button onClick={handleSaveSettings} disabled={isSaving || loadingSettings}>
                 <Save className="h-4 w-4 mr-2" />
-                {isSaving ? "Saving..." : "Save Settings"}
+                {isSaving ? 'Saving...' : 'Save Settings'}
               </Button>
             </CardFooter>
           </Card>
@@ -218,7 +240,9 @@ export default function SystemSettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Global Templates</CardTitle>
-              <CardDescription>Manage templates that can be used across all projects.</CardDescription>
+              <CardDescription>
+                Manage templates that can be used across all projects.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {loadingTemplates ? (
@@ -235,7 +259,9 @@ export default function SystemSettingsPage() {
 
                   {templates.length === 0 ? (
                     <div className="text-center py-8">
-                      <p className="text-muted-foreground">No templates found. Create one to get started.</p>
+                      <p className="text-muted-foreground">
+                        No templates found. Create one to get started.
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -248,14 +274,14 @@ export default function SystemSettingsPage() {
                           <CardContent className="pb-2">
                             <div className="flex items-center justify-between">
                               <Badge variant="outline">
-                                {template.type === "plotLayout"
-                                  ? "Plot Layout"
-                                  : template.type === "timeSlots"
-                                    ? "Time Slots"
-                                    : "Manager Tasks"}
+                                {template.type === 'plotLayout'
+                                  ? 'Plot Layout'
+                                  : template.type === 'timeSlots'
+                                    ? 'Time Slots'
+                                    : 'Manager Tasks'}
                               </Badge>
                               <div className="text-sm text-muted-foreground">
-                                Created: {format(template.createdAt, "MMM d, yyyy")}
+                                Created: {format(template.createdAt, 'MMM d, yyyy')}
                               </div>
                             </div>
                           </CardContent>
@@ -278,6 +304,5 @@ export default function SystemSettingsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
-

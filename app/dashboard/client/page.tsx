@@ -1,55 +1,56 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from "@/hooks/use-auth"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Building2, Calendar, QrCode, Camera } from "lucide-react"
-import Link from "next/link"
-import type { Plot } from "@/contexts/auth-context"
-import { UserAnnouncements } from "@/components/announcements/user-announcements"
-import { ImportantAnnouncementBanner } from "@/components/announcements/important-announcement-banner"
+import { Building2, Calendar, QrCode, Camera } from 'lucide-react';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+import { ImportantAnnouncementBanner } from '@/components/announcements/important-announcement-banner';
+import { UserAnnouncements } from '@/components/announcements/user-announcements';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Plot } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function ClientDashboard() {
-  const { user, getUserOwnedPlots } = useAuth()
-  const [ownedPlots, setOwnedPlots] = useState<Plot[]>([])
-  const [loading, setLoading] = useState(true)
+  const { user, getUserOwnedPlots } = useAuth();
+  const [ownedPlots, setOwnedPlots] = useState<Plot[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPlots = async () => {
+    const _fetchPlots = async () => {
       try {
         if (getUserOwnedPlots) {
-          const plots = await getUserOwnedPlots()
-          setOwnedPlots(plots)
+          const _plots = await getUserOwnedPlots();
+          setOwnedPlots(plots);
         } else {
           // Handle the case where the function doesn't exist
-          console.warn("getUserOwnedPlots function is not available")
-          setOwnedPlots([])
+          console.warn('getUserOwnedPlots function is not available');
+          setOwnedPlots([]);
         }
       } catch (error) {
-        console.error("Error fetching plots:", error)
+        console.error('Error fetching plots:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchPlots()
-  }, [getUserOwnedPlots])
+    fetchPlots();
+  }, [getUserOwnedPlots]);
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-8">
       <ImportantAnnouncementBanner />
-      
+
       <div>
-        <h1 className="text-3xl font-bold mb-2">Welcome, {user?.displayName || "Client"}</h1>
+        <h1 className="text-3xl font-bold mb-2">Welcome, {user?.displayName || 'Client'}</h1>
         <p className="text-muted-foreground">Manage your properties and access site features</p>
       </div>
 
@@ -129,7 +130,9 @@ export default function ClientDashboard() {
             <CardDescription>View your property cameras</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{ownedPlots.length > 0 ? ownedPlots.length : "No"} Feeds</p>
+            <p className="text-2xl font-bold">
+              {ownedPlots.length > 0 ? ownedPlots.length : 'No'} Feeds
+            </p>
             <div className="mt-4">
               <Link href="/cctv/client">
                 <Button variant="outline" className="w-full glass-button">
@@ -168,12 +171,12 @@ export default function ClientDashboard() {
                         </div>
                         <span
                           className={`text-xs px-2 py-1 rounded-full ${
-                            plot.status === "completed"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                              : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                            plot.status === 'completed'
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                              : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                           }`}
                         >
-                          {plot.status === "completed" ? "Completed" : "Under Development"}
+                          {plot.status === 'completed' ? 'Completed' : 'Under Development'}
                         </span>
                       </div>
                       <div className="flex gap-2 mt-2">
@@ -248,7 +251,5 @@ export default function ClientDashboard() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-
-

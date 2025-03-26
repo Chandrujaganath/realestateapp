@@ -1,4 +1,4 @@
-export const productionConfig = {
+export const _productionConfig = {
   // Firebase configuration for production environment
   firebase: {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -11,7 +11,7 @@ export const productionConfig = {
   },
 
   // API endpoints
-  apiUrl: process.env.API_URL || "https://api.realestate-app.com",
+  apiUrl: process.env.API_URL || 'https://api.realestate-app.com',
 
   // Feature flags for production
   features: {
@@ -24,7 +24,7 @@ export const productionConfig = {
 
   // Logging configuration
   logging: {
-    level: "error", // Only log errors in production
+    level: 'error', // Only log errors in production
     enableRemoteLogging: true,
   },
 
@@ -33,5 +33,4 @@ export const productionConfig = {
     enableMonitoring: true,
     sampleRate: 0.1, // Only monitor 10% of requests to reduce costs
   },
-}
-
+};

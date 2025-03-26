@@ -1,60 +1,76 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import { useAuth } from "@/hooks/use-auth"
-import { collection, onSnapshot, query, where, orderBy, limit, Firestore } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { Badge } from "@/components/ui/badge"
-import { Bell, Check, Clock } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { toast } from "@/hooks/use-toast"
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNow } from 'date-fns';
+import {
+  collection,
+  onSnapshot,
+  query,
+  where,
+  orderBy,
+  limit,
+  Firestore,
+} from 'firebase/firestore';
+import { Bell, Check, Clock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
+import { toast } from '@/hooks/use-toast';
+import { db } from '@/lib/firebase';
 
 interface Notification {
-  id: string
-  title: string
-  message: string
-  type: string
-  createdAt: any
-  read: boolean
-  referenceId?: string
-  referenceType?: string
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  createdAt: any;
+  read: boolean;
+  referenceId?: string;
+  referenceType?: string;
 }
 
 export function RealTimeNotifications() {
-  const { user } = useAuth()
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [loading, setLoading] = useState(true)
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.uid) return
+    if (!user?.uid) return;
 
     // Make sure Firestore is initialized
     if (!db) {
-      console.error("Firestore not initialized");
+      console.error('Firestore not initialized');
       setLoading(false);
       return;
     }
 
     // Set up real-time listener for notifications
-    const notificationsQuery = query(
-      collection(db as Firestore, "notifications"),
-      where("userId", "==", user.uid),
-      orderBy("createdAt", "desc"),
-      limit(10),
-    )
+    const _notificationsQuery = query(
+      collection(db as Firestore, 'notifications'),
+      where('userId', '==', user.uid),
+      orderBy('createdAt', 'desc'),
+      limit(10)
+    );
 
-    const unsubscribe = onSnapshot(
+    const _unsubscribe = onSnapshot(
       notificationsQuery,
-      (snapshot) => {
+      (_snapshot) => {
         const newNotifications = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as Notification[]
+        })) as Notification[];
 
-        setNotifications(newNotifications)
-        setLoading(false)
+        setNotifications(newNotifications);
+        setLoading(false);
 
         // Show toast for new unread notifications
         const newUnread = newNotifications.filter(
@@ -62,74 +78,74 @@ export function RealTimeNotifications() {
             !notification.read &&
             // Only show toast for notifications created in the last minute
             notification.createdAt &&
-            Date.now() - notification.createdAt.toMillis() < 60000,
-        )
+            Date.now() - notification.createdAt.toMillis() < 60000
+        );
 
         if (newUnread.length > 0) {
           newUnread.forEach((notification) => {
             toast({
               title: notification.title,
               description: notification.message,
-              variant: "default",
-            })
-          })
+              variant: 'default',
+            });
+          });
         }
       },
       (error) => {
-        console.error("Error fetching notifications:", error)
-        setLoading(false)
-      },
-    )
+        console.error('Error fetching notifications:', error);
+        setLoading(false);
+      }
+    );
 
-    return () => unsubscribe()
-  }, [user?.uid])
+    return () => unsubscribe();
+  }, [user?.uid]);
 
-  const markAsRead = async (notificationId: string) => {
+  const _markAsRead = async (notificationId: string) => {
     try {
-      const response = await fetch("/api/notifications/mark-read", {
-        method: "POST",
+      const _response = await fetch('/api/notifications/mark-read', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ notificationId }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to mark notification as read")
+        throw new Error('Failed to mark notification as read');
       }
     } catch (error) {
-      console.error("Error marking notification as read:", error)
+      console.error('Error marking notification as read:', error);
       toast({
-        title: "Error",
-        description: "Failed to mark notification as read",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Failed to mark notification as read',
+        variant: 'destructive',
+      });
     }
-  }
+  };
 
-  const getNotificationIcon = (type: string) => {
+  const _getNotificationIcon = (type: string) => {
     switch (type) {
-      case "task":
-        return <Clock className="h-4 w-4" />
-      case "approval":
-        return <Check className="h-4 w-4" />
+      case 'task':
+        return <Clock className="h-4 w-4" />;
+      case 'approval':
+        return <Check className="h-4 w-4" />;
       default:
-        return <Bell className="h-4 w-4" />
+        return <Bell className="h-4 w-4" />;
     }
-  }
+  };
 
-  const getNotificationColor = (type: string) => {
+  const _getNotificationColor = (type: string) => {
     switch (type) {
-      case "task":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-      case "approval":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-      case "alert":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+      case 'task':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+      case 'approval':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      case 'alert':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -140,7 +156,7 @@ export function RealTimeNotifications() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3].map((_i) => (
               <div key={i} className="flex items-start space-x-4">
                 <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse" />
                 <div className="space-y-2 flex-1">
@@ -152,7 +168,7 @@ export function RealTimeNotifications() {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -179,7 +195,10 @@ export function RealTimeNotifications() {
         ) : (
           <div className="space-y-4">
             {notifications.map((notification) => (
-              <div key={notification.id} className={`p-3 rounded-lg ${!notification.read ? "bg-muted/50" : ""}`}>
+              <div
+                key={notification.id}
+                className={`p-3 rounded-lg ${!notification.read ? 'bg-muted/50' : ''}`}
+              >
                 <div className="flex items-start gap-3">
                   <div className={`p-2 rounded-full ${getNotificationColor(notification.type)}`}>
                     {getNotificationIcon(notification.type)}
@@ -190,11 +209,17 @@ export function RealTimeNotifications() {
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-xs text-muted-foreground">
                         {notification.createdAt
-                          ? formatDistanceToNow(notification.createdAt.toDate(), { addSuffix: true })
-                          : "Just now"}
+                          ? formatDistanceToNow(notification.createdAt.toDate(), {
+                              addSuffix: true,
+                            })
+                          : 'Just now'}
                       </span>
                       {!notification.read && (
-                        <Button variant="ghost" size="sm" onClick={() => markAsRead(notification.id)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => markAsRead(notification.id)}
+                        >
                           Mark as read
                         </Button>
                       )}
@@ -214,6 +239,5 @@ export function RealTimeNotifications() {
         </CardFooter>
       )}
     </Card>
-  )
+  );
 }
-

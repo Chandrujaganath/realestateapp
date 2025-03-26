@@ -1,17 +1,18 @@
-"use client"
+'use client';
 
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Lock, Shield } from "lucide-react"
+import { Lock, Shield } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function SettingsPage() {
-  const { user, signOut } = useAuth()
+  const { user, signOut } = useAuth();
 
-  const isAdmin = user?.role === "admin" || user?.role === "superadmin"
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   return (
     <div className="space-y-8">
@@ -37,13 +38,15 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" defaultValue={user?.displayName || ""} />
+                <Input id="name" defaultValue={user?.displayName || ''} />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
-                <Input id="email" defaultValue={user?.email || ""} disabled />
-                <p className="text-xs text-muted-foreground">Your email address cannot be changed</p>
+                <Input id="email" defaultValue={user?.email || ''} disabled />
+                <p className="text-xs text-muted-foreground">
+                  Your email address cannot be changed
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -114,7 +117,9 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Push Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive notifications on your device</p>
+                    <p className="text-sm text-muted-foreground">
+                      Receive notifications on your device
+                    </p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
@@ -129,7 +134,9 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Project Updates</Label>
-                    <p className="text-sm text-muted-foreground">Receive updates about your projects</p>
+                    <p className="text-sm text-muted-foreground">
+                      Receive updates about your projects
+                    </p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
@@ -144,7 +151,9 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Visit Reminders</Label>
-                    <p className="text-sm text-muted-foreground">Receive reminders about upcoming visits</p>
+                    <p className="text-sm text-muted-foreground">
+                      Receive reminders about upcoming visits
+                    </p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
@@ -183,7 +192,11 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <Label htmlFor="maintenance-mode">Maintenance Mode</Label>
                   <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="maintenance-mode" className="h-4 w-4 rounded border-gray-300" />
+                    <input
+                      type="checkbox"
+                      id="maintenance-mode"
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
                     <Label htmlFor="maintenance-mode" className="text-sm font-normal">
                       Enable maintenance mode
                     </Label>
@@ -215,6 +228,5 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-

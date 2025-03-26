@@ -1,6 +1,6 @@
-import type React from "react"
-import { Building2 } from "lucide-react"
-import Link from "next/link"
+import { Building2 } from 'lucide-react';
+import Link from 'next/link';
+import type React from 'react';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -20,6 +20,5 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         &copy; {new Date().getFullYear()} Real Estate Management System. All rights reserved.
       </footer>
     </div>
-  )
+  );
 }
-

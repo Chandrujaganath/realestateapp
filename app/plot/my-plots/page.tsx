@@ -1,40 +1,41 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Building2, MapPin, Camera } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import type { Plot } from "@/contexts/auth-context"
+import { Building2, MapPin, Camera } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Plot } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function MyPlotsPage() {
-  const { user, getUserOwnedPlots } = useAuth()
-  const [ownedPlots, setOwnedPlots] = useState<Plot[]>([])
-  const [loading, setLoading] = useState(true)
+  const { user, getUserOwnedPlots } = useAuth();
+  const [ownedPlots, setOwnedPlots] = useState<Plot[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPlots = async () => {
+    const _fetchPlots = async () => {
       try {
-        const plots = await getUserOwnedPlots()
-        setOwnedPlots(plots)
+        const _plots = await getUserOwnedPlots();
+        setOwnedPlots(plots);
       } catch (error) {
-        console.error("Error fetching plots:", error)
+        console.error('Error fetching plots:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchPlots()
-  }, [getUserOwnedPlots])
+    fetchPlots();
+  }, [getUserOwnedPlots]);
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -77,12 +78,12 @@ export default function MyPlotsPage() {
                 <div className="absolute top-2 right-2">
                   <span
                     className={`text-xs px-2 py-1 rounded-full ${
-                      plot.status === "completed"
-                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                      plot.status === 'completed'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                     }`}
                   >
-                    {plot.status === "completed" ? "Completed" : "Under Development"}
+                    {plot.status === 'completed' ? 'Completed' : 'Under Development'}
                   </span>
                 </div>
               </div>
@@ -129,7 +130,5 @@ export default function MyPlotsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
-
-

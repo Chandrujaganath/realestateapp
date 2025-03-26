@@ -1,107 +1,122 @@
-"use client"
+'use client';
 
-import type React from "react"
+import { ArrowLeft, Calendar } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import type React from 'react';
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { ArrowLeft, Calendar } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import type { UserRole } from "@/contexts/auth-context"
-import { useToast } from "@/components/ui/use-toast"
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
+import { UserRole } from '@/features/users/types/user';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function CreateAnnouncementPage() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const { createAnnouncement } = useAuth() as unknown as { createAnnouncement: (data: any) => Promise<string> }
-  const [loading, setLoading] = useState(false)
-  const [sendNotification, setSendNotification] = useState(false)
+  const router = useRouter();
+  const { toast } = useToast();
+  const { createAnnouncement } = useAuth() as unknown as {
+    createAnnouncement: (data: any) => Promise<string>;
+  };
+  const [loading, setLoading] = useState(false);
+  const [sendNotification, setSendNotification] = useState(false);
   const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    priority: "medium" as const,
+    title: '',
+    content: '',
+    priority: 'medium' as const,
     targetRoles: [] as UserRole[],
-    expiresAt: "",
-  })
+    expiresAt: '',
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-  const handlePriorityChange = (value: string) => {
-    setFormData((prev) => ({ 
-      ...prev, 
-      priority: value as typeof prev.priority 
-    }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+  const _handlePriorityChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      priority: value as typeof prev.priority,
+    }));
+  };
 
   const handleRoleToggle = (role: UserRole) => {
     setFormData((prev) => {
-      const roles = [...prev.targetRoles]
+      const roles = [...prev.targetRoles];
       if (roles.includes(role)) {
-        return { ...prev, targetRoles: roles.filter((r) => r !== role) }
+        return { ...prev, targetRoles: roles.filter((_r) => r !== role) };
       } else {
-        return { ...prev, targetRoles: [...roles, role] }
+        return { ...prev, targetRoles: [...roles, role] };
       }
-    })
-  }
+    });
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+  const _handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const announcementData = {
+      const _announcementData = {
         ...formData,
         expiresAt: formData.expiresAt ? new Date(formData.expiresAt) : undefined,
-      }
+      };
 
       // Create the announcement
-      const announcementId = await createAnnouncement(announcementData)
-      
+      const announcementId = await createAnnouncement(announcementData);
+
       // Send notification if option is selected
       if (sendNotification && announcementId) {
         try {
-          const response = await fetch('/api/announcements/notify', {
+          const _response = await fetch('/api/announcements/notify', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ announcementId }),
-          })
-          
+          });
+
           if (!response.ok) {
-            console.error('Failed to send notifications')
+            console.error('Failed to send notifications');
           }
         } catch (notificationError) {
-          console.error('Error sending notifications:', notificationError)
+          console.error('Error sending notifications:', notificationError);
         }
       }
 
       toast({
-        title: "Success",
-        description: "Announcement created successfully",
-      })
-      
-      router.push("/admin/announcements")
+        title: 'Success',
+        description: 'Announcement created successfully',
+      });
+
+      router.push('/admin/announcements');
     } catch (error) {
-      console.error("Error creating announcement:", error)
-      
+      console.error('Error creating announcement:', error);
+
       toast({
-        title: "Error",
-        description: "Failed to create announcement",
-        variant: "destructive"
-      })
-      
-      setLoading(false)
+        title: 'Error',
+        description: 'Failed to create announcement',
+        variant: 'destructive',
+      });
+
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -169,7 +184,7 @@ export default function CreateAnnouncementPage() {
                     type="date"
                     value={formData.expiresAt}
                     onChange={handleInputChange}
-                    min={new Date().toISOString().split("T")[0]}
+                    min={new Date().toISOString().split('T')[0]}
                   />
                 </div>
               </div>
@@ -180,8 +195,8 @@ export default function CreateAnnouncementPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="role-guest"
-                      checked={formData.targetRoles.includes("guest")}
-                      onCheckedChange={() => handleRoleToggle("guest")}
+                      checked={formData.targetRoles.includes('guest')}
+                      onCheckedChange={() => handleRoleToggle('guest')}
                     />
                     <Label htmlFor="role-guest" className="cursor-pointer">
                       Guest
@@ -190,8 +205,8 @@ export default function CreateAnnouncementPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="role-client"
-                      checked={formData.targetRoles.includes("client")}
-                      onCheckedChange={() => handleRoleToggle("client")}
+                      checked={formData.targetRoles.includes('client')}
+                      onCheckedChange={() => handleRoleToggle('client')}
                     />
                     <Label htmlFor="role-client" className="cursor-pointer">
                       Client
@@ -200,8 +215,8 @@ export default function CreateAnnouncementPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="role-manager"
-                      checked={formData.targetRoles.includes("manager")}
-                      onCheckedChange={() => handleRoleToggle("manager")}
+                      checked={formData.targetRoles.includes('manager')}
+                      onCheckedChange={() => handleRoleToggle('manager')}
                     />
                     <Label htmlFor="role-manager" className="cursor-pointer">
                       Manager
@@ -210,8 +225,8 @@ export default function CreateAnnouncementPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="role-admin"
-                      checked={formData.targetRoles.includes("admin")}
-                      onCheckedChange={() => handleRoleToggle("admin")}
+                      checked={formData.targetRoles.includes('admin')}
+                      onCheckedChange={() => handleRoleToggle('admin')}
                     />
                     <Label htmlFor="role-admin" className="cursor-pointer">
                       Admin
@@ -220,8 +235,8 @@ export default function CreateAnnouncementPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="role-superadmin"
-                      checked={formData.targetRoles.includes("superadmin")}
-                      onCheckedChange={() => handleRoleToggle("superadmin")}
+                      checked={formData.targetRoles.includes('superadmin')}
+                      onCheckedChange={() => handleRoleToggle('superadmin')}
                     />
                     <Label htmlFor="role-superadmin" className="cursor-pointer">
                       Super Admin
@@ -250,13 +265,11 @@ export default function CreateAnnouncementPage() {
               Cancel
             </Button>
             <Button type="submit" disabled={loading || formData.targetRoles.length === 0}>
-              {loading ? "Creating..." : "Create Announcement"}
+              {loading ? 'Creating...' : 'Create Announcement'}
             </Button>
           </CardFooter>
         </Card>
       </form>
     </div>
-  )
+  );
 }
-
-

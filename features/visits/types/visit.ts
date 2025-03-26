@@ -1,4 +1,4 @@
-import { BaseEntity, TimeSlot } from "@/types/common";
+import { BaseEntity, TimeSlot } from '@/types/common';
 
 /**
  * Visit status type
@@ -105,4 +105,4 @@ export interface QRCodeVerificationResponse {
   valid: boolean;
   visit?: Visit;
   error?: string;
-} 
+}

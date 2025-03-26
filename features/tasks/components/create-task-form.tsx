@@ -1,19 +1,16 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { format } from "date-fns";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useTasks } from "@/features/tasks/hooks/use-tasks";
-import { useToast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
-import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { format } from 'date-fns';
+import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import type { CreateTaskInput } from '../types';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
   Form,
   FormControl,
@@ -22,39 +19,44 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import type { CreateTaskInput } from "../types";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
+import { useTasks } from '@/features/tasks/hooks/use-tasks';
+import { cn } from '@/lib/utils';
 
 // Define form schema using zod
 const formSchema = z.object({
-  title: z.string().min(3, {
-    message: "Title must be at least 3 characters.",
-  }).max(100, {
-    message: "Title cannot exceed 100 characters.",
+  title: z
+    .string()
+    .min(3, {
+      message: 'Title must be at least 3 characters.',
+    })
+    .max(100, {
+      message: 'Title cannot exceed 100 characters.',
+    }),
+  description: z
+    .string()
+    .min(10, {
+      message: 'Description must be at least 10 characters.',
+    })
+    .max(500, {
+      message: 'Description cannot exceed 500 characters.',
+    }),
+  status: z.enum(['pending', 'in_progress', 'completed'], {
+    required_error: 'Please select a status',
   }),
-  description: z.string().min(10, {
-    message: "Description must be at least 10 characters.",
-  }).max(500, {
-    message: "Description cannot exceed 500 characters.",
-  }),
-  status: z.enum(["pending", "in_progress", "completed"], {
-    required_error: "Please select a status",
-  }),
-  priority: z.enum(["low", "medium", "high"], {
-    required_error: "Please select a priority",
+  priority: z.enum(['low', 'medium', 'high'], {
+    required_error: 'Please select a priority',
   }),
   dueDate: z.date().optional(),
   assignedToId: z.string().optional(),
@@ -66,31 +68,31 @@ interface CreateTaskFormProps {
 }
 
 export function CreateTaskForm({ onSuccess }: CreateTaskFormProps) {
-  const router = useRouter();
+  const _router = useRouter();
   const { createTask } = useTasks();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Initialize form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      status: "pending",
-      priority: "medium",
+      title: '',
+      description: '',
+      status: 'pending',
+      priority: 'medium',
       dueDate: undefined,
       assignedToId: undefined,
       projectId: undefined,
     },
   });
-  
+
   // Handle form submission
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
-      
-      const taskData: CreateTaskInput = {
+
+      const _taskData: CreateTaskInput = {
         title: values.title,
         description: values.description,
         status: values.status,
@@ -99,35 +101,34 @@ export function CreateTaskForm({ onSuccess }: CreateTaskFormProps) {
         assignedToId: values.assignedToId,
         projectId: values.projectId,
       };
-      
+
       await createTask(taskData);
-      
+
       // Reset form
       form.reset();
-      
+
       // Call success callback if provided
       if (onSuccess) {
         onSuccess();
       }
-      
+
       toast({
-        title: "Task created",
-        description: "Your task has been created successfully.",
+        title: 'Task created',
+        description: 'Your task has been created successfully.',
       });
-      
     } catch (error) {
-      console.error("Error creating task:", error);
-      
+      console.error('Error creating task:', error);
+
       toast({
-        title: "Error",
-        description: "Failed to create task. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to create task. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
     }
   }
-  
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -140,14 +141,12 @@ export function CreateTaskForm({ onSuccess }: CreateTaskFormProps) {
               <FormControl>
                 <Input placeholder="Task title" {...field} />
               </FormControl>
-              <FormDescription>
-                Enter a clear, concise title for the task.
-              </FormDescription>
+              <FormDescription>Enter a clear, concise title for the task.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="description"
@@ -155,20 +154,18 @@ export function CreateTaskForm({ onSuccess }: CreateTaskFormProps) {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Describe the task in detail" 
-                  className="min-h-[100px]" 
-                  {...field} 
+                <Textarea
+                  placeholder="Describe the task in detail"
+                  className="min-h-[100px]"
+                  {...field}
                 />
               </FormControl>
-              <FormDescription>
-                Provide detailed information about the task.
-              </FormDescription>
+              <FormDescription>Provide detailed information about the task.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <FormField
             control={form.control}
@@ -176,10 +173,7 @@ export function CreateTaskForm({ onSuccess }: CreateTaskFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
@@ -195,17 +189,14 @@ export function CreateTaskForm({ onSuccess }: CreateTaskFormProps) {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="priority"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Priority</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select priority" />
@@ -222,7 +213,7 @@ export function CreateTaskForm({ onSuccess }: CreateTaskFormProps) {
             )}
           />
         </div>
-        
+
         <FormField
           control={form.control}
           name="dueDate"
@@ -233,17 +224,13 @@ export function CreateTaskForm({ onSuccess }: CreateTaskFormProps) {
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
-                      variant={"outline"}
+                      variant={'outline'}
                       className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
+                        'w-full pl-3 text-left font-normal',
+                        !field.value && 'text-muted-foreground'
                       )}
                     >
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Select a date</span>
-                      )}
+                      {field.value ? format(field.value, 'PPP') : <span>Select a date</span>}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </FormControl>
@@ -253,21 +240,17 @@ export function CreateTaskForm({ onSuccess }: CreateTaskFormProps) {
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
-                    disabled={(date) =>
-                      date < new Date(new Date().setHours(0, 0, 0, 0))
-                    }
+                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                     initialFocus
                   />
                 </PopoverContent>
               </Popover>
-              <FormDescription>
-                The date by which this task should be completed.
-              </FormDescription>
+              <FormDescription>The date by which this task should be completed.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? (
             <>
@@ -275,10 +258,10 @@ export function CreateTaskForm({ onSuccess }: CreateTaskFormProps) {
               Creating...
             </>
           ) : (
-            "Create Task"
+            'Create Task'
           )}
         </Button>
       </form>
     </Form>
   );
-} 
+}

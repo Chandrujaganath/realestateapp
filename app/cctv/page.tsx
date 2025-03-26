@@ -1,20 +1,21 @@
-"use client"
+'use client';
 
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Camera, Building2, Maximize2, RefreshCw } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { useSearchParams } from "next/navigation"
+import { Camera, Building2, Maximize2, RefreshCw } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function CCTVPage() {
-  const { user } = useAuth()
-  const searchParams = useSearchParams()
-  const projectId = searchParams.get("project")
+  const { user } = useAuth();
+  const _searchParams = useSearchParams();
+  const projectId = searchParams.get('project');
 
   // Check if user has permission to view CCTV
-  if (user?.role === "client" || user?.role === "guest") {
+  if (user?.role === 'client' || user?.role === 'guest') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
         <Camera className="h-16 w-16 text-muted-foreground mb-4" />
@@ -24,49 +25,49 @@ export default function CCTVPage() {
           <Button>Return to Dashboard</Button>
         </Link>
       </div>
-    )
+    );
   }
 
   // Placeholder CCTV data
   const cctvCameras = [
     {
       id: 1,
-      name: "Main Entrance",
-      project: "Sunrise Gardens",
+      name: 'Main Entrance',
+      project: 'Sunrise Gardens',
       projectId: 1,
-      status: "online",
-      image: "/placeholder.svg?height=300&width=400",
+      status: 'online',
+      image: '/placeholder.svg?height=300&width=400',
     },
     {
       id: 2,
-      name: "Construction Site A",
-      project: "Sunrise Gardens",
+      name: 'Construction Site A',
+      project: 'Sunrise Gardens',
       projectId: 1,
-      status: "online",
-      image: "/placeholder.svg?height=300&width=400",
+      status: 'online',
+      image: '/placeholder.svg?height=300&width=400',
     },
     {
       id: 3,
-      name: "Parking Area",
-      project: "Sunrise Gardens",
+      name: 'Parking Area',
+      project: 'Sunrise Gardens',
       projectId: 1,
-      status: "offline",
-      image: "/placeholder.svg?height=300&width=400",
+      status: 'offline',
+      image: '/placeholder.svg?height=300&width=400',
     },
     {
       id: 4,
-      name: "Main Entrance",
-      project: "Metropolitan Heights",
+      name: 'Main Entrance',
+      project: 'Metropolitan Heights',
       projectId: 2,
-      status: "online",
-      image: "/placeholder.svg?height=300&width=400",
+      status: 'online',
+      image: '/placeholder.svg?height=300&width=400',
     },
-  ]
+  ];
 
   // Filter cameras by project if projectId is provided
   const filteredCameras = projectId
     ? cctvCameras.filter((camera) => camera.projectId === Number.parseInt(projectId))
-    : cctvCameras
+    : cctvCameras;
 
   return (
     <div className="space-y-8">
@@ -75,8 +76,8 @@ export default function CCTVPage() {
           <h1 className="text-3xl font-bold mb-2">CCTV Monitoring</h1>
           <p className="text-muted-foreground">
             {projectId
-              ? `Live camera feeds for ${filteredCameras[0]?.project || "project"}`
-              : "Live camera feeds from all project sites"}
+              ? `Live camera feeds for ${filteredCameras[0]?.project || 'project'}`
+              : 'Live camera feeds from all project sites'}
           </p>
         </div>
 
@@ -102,9 +103,14 @@ export default function CCTVPage() {
           <Card key={camera.id} className="glass-card overflow-hidden">
             <div className="relative">
               <div className="relative h-48 md:h-64">
-                <Image src={camera.image || "/placeholder.svg"} alt={camera.name} fill className="object-cover" />
+                <Image
+                  src={camera.image || '/placeholder.svg'}
+                  alt={camera.name}
+                  fill
+                  className="object-cover"
+                />
 
-                {camera.status === "offline" && (
+                {camera.status === 'offline' && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                     <p className="text-white font-medium">Camera Offline</p>
                   </div>
@@ -122,9 +128,11 @@ export default function CCTVPage() {
 
                 <div className="absolute bottom-2 left-2 flex items-center gap-2 bg-background/80 backdrop-blur-sm rounded-md px-2 py-1">
                   <div
-                    className={`h-2 w-2 rounded-full ${camera.status === "online" ? "bg-green-500" : "bg-red-500"}`}
+                    className={`h-2 w-2 rounded-full ${camera.status === 'online' ? 'bg-green-500' : 'bg-red-500'}`}
                   ></div>
-                  <span className="text-xs font-medium">{camera.status === "online" ? "Live" : "Offline"}</span>
+                  <span className="text-xs font-medium">
+                    {camera.status === 'online' ? 'Live' : 'Offline'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -180,6 +188,5 @@ export default function CCTVPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
-

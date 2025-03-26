@@ -1,171 +1,190 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Calendar, Building2, Users, Clock, CheckCircle, AlertCircle, Search, ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import { useSearchParams } from "next/navigation"
-import type { Task } from "@/contexts/auth-context"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Calendar,
+  Building2,
+  Users,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Search,
+  ArrowLeft,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { Task } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function TasksPage() {
-  const { getManagerTasks } = useAuth()
-  const searchParams = useSearchParams()
-  const statusFilter = searchParams.get("status")
+  const { getManagerTasks } = useAuth();
+  const searchParams = useSearchParams();
+  const statusFilter = searchParams.get('status');
 
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [typeFilter, setTypeFilter] = useState<string>("all")
-  const [priorityFilter, setPriorityFilter] = useState<string>("all")
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
   useEffect(() => {
-    const fetchTasks = async () => {
+    const _fetchTasks = async () => {
       try {
-        const fetchedTasks = await getManagerTasks()
-        setTasks(fetchedTasks)
+        const fetchedTasks = await getManagerTasks();
+        setTasks(fetchedTasks);
 
         // Apply initial status filter from URL if present
         if (statusFilter) {
-          setFilteredTasks(fetchedTasks.filter((task) => task.status === statusFilter))
+          setFilteredTasks(fetchedTasks.filter((task) => task.status === statusFilter));
         } else {
-          setFilteredTasks(fetchedTasks)
+          setFilteredTasks(fetchedTasks);
         }
       } catch (error) {
-        console.error("Error fetching tasks:", error)
+        console.error('Error fetching tasks:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchTasks()
-  }, [getManagerTasks, statusFilter])
+    fetchTasks();
+  }, [getManagerTasks, statusFilter]);
 
   useEffect(() => {
     // Apply filters whenever they change
-    let result = tasks
+    let result = tasks;
 
     // Status filter
     if (statusFilter) {
-      result = result.filter((task) => task.status === statusFilter)
+      result = result.filter((task) => task.status === statusFilter);
     }
 
     // Type filter
-    if (typeFilter !== "all") {
-      result = result.filter((task) => task.type === typeFilter)
+    if (typeFilter !== 'all') {
+      result = result.filter((task) => task.type === typeFilter);
     }
 
     // Priority filter
-    if (priorityFilter !== "all") {
-      result = result.filter((task) => task.priority === priorityFilter)
+    if (priorityFilter !== 'all') {
+      result = result.filter((task) => task.priority === priorityFilter);
     }
 
     // Search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       result = result.filter(
         (task) =>
           task.description.toLowerCase().includes(query) ||
           task.projectName.toLowerCase().includes(query) ||
           task.requestorName.toLowerCase().includes(query) ||
-          (task.plotNumber && task.plotNumber.toLowerCase().includes(query)),
-      )
+          (task.plotNumber && task.plotNumber.toLowerCase().includes(query))
+      );
     }
 
-    setFilteredTasks(result)
-  }, [tasks, statusFilter, typeFilter, priorityFilter, searchQuery])
+    setFilteredTasks(result);
+  }, [tasks, statusFilter, typeFilter, priorityFilter, searchQuery]);
 
-  const getTaskTypeIcon = (type: Task["type"]) => {
+  const _getTaskTypeIcon = (type: Task['type']) => {
     switch (type) {
-      case "visit_request":
-        return <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-      case "sell_request":
-        return <Building2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-      case "client_query":
-        return <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-      case "guest_assistance":
-        return <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+      case 'visit_request':
+        return <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
+      case 'sell_request':
+        return <Building2 className="h-4 w-4 text-green-600 dark:text-green-400" />;
+      case 'client_query':
+        return <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />;
+      case 'guest_assistance':
+        return <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-muted-foreground" />
+        return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
-  }
+  };
 
-  const getTaskStatusBadge = (status: Task["status"]) => {
+  const _getTaskStatusBadge = (status: Task['status']) => {
     switch (status) {
-      case "pending":
+      case 'pending':
         return (
           <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
             <AlertCircle className="h-3 w-3" />
             Pending
           </span>
-        )
-      case "in_progress":
+        );
+      case 'in_progress':
         return (
           <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
             <Clock className="h-3 w-3" />
             In Progress
           </span>
-        )
-      case "completed":
+        );
+      case 'completed':
         return (
           <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
             <CheckCircle className="h-3 w-3" />
             Completed
           </span>
-        )
-      case "rejected":
+        );
+      case 'rejected':
         return (
           <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
             <AlertCircle className="h-3 w-3" />
             Rejected
           </span>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  const getTaskPriorityBadge = (priority: Task["priority"]) => {
+  const _getTaskPriorityBadge = (priority: Task['priority']) => {
     switch (priority) {
-      case "low":
+      case 'low':
         return (
           <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
             Low
           </span>
-        )
-      case "medium":
+        );
+      case 'medium':
         return (
           <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
             Medium
           </span>
-        )
-      case "high":
+        );
+      case 'high':
         return (
           <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
             High
           </span>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/dashboard/manager" className="flex items-center text-muted-foreground hover:text-foreground mb-2">
+        <Link
+          href="/dashboard/manager"
+          className="flex items-center text-muted-foreground hover:text-foreground mb-2"
+        >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back to Dashboard
         </Link>
@@ -187,7 +206,7 @@ export default function TasksPage() {
                 <Input
                   placeholder="Search tasks..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(_e) => setSearchQuery(e.target.value)}
                   className="pl-8"
                 />
               </div>
@@ -196,22 +215,22 @@ export default function TasksPage() {
             <div>
               <label className="text-sm font-medium mb-1 block">Status</label>
               <Select
-                value={statusFilter || "all"}
+                value={statusFilter || 'all'}
                 onValueChange={(value) => {
                   // Update URL with status filter
-                  const url = new URL(window.location.href)
-                  if (value === "all") {
-                    url.searchParams.delete("status")
+                  const url = new URL(window.location.href);
+                  if (value === 'all') {
+                    url.searchParams.delete('status');
                   } else {
-                    url.searchParams.set("status", value)
+                    url.searchParams.set('status', value);
                   }
-                  window.history.pushState({}, "", url)
+                  window.history.pushState({}, '', url);
 
                   // Apply filter
-                  if (value === "all") {
-                    setFilteredTasks(tasks)
+                  if (value === 'all') {
+                    setFilteredTasks(tasks);
                   } else {
-                    setFilteredTasks(tasks.filter((task) => task.status === value))
+                    setFilteredTasks(tasks.filter((task) => task.status === value));
                   }
                 }}
               >
@@ -271,11 +290,11 @@ export default function TasksPage() {
               <p className="text-muted-foreground mb-6">No tasks found matching your filters</p>
               <Button
                 onClick={() => {
-                  setSearchQuery("")
-                  setTypeFilter("all")
-                  setPriorityFilter("all")
-                  window.history.pushState({}, "", window.location.pathname)
-                  setFilteredTasks(tasks)
+                  setSearchQuery('');
+                  setTypeFilter('all');
+                  setPriorityFilter('all');
+                  window.history.pushState({}, '', window.location.pathname);
+                  setFilteredTasks(tasks);
                 }}
               >
                 Clear Filters
@@ -290,13 +309,13 @@ export default function TasksPage() {
                   <div className="flex items-start gap-4">
                     <div
                       className={`p-3 rounded-full ${
-                        task.type === "visit_request"
-                          ? "bg-blue-100 dark:bg-blue-900/30"
-                          : task.type === "sell_request"
-                            ? "bg-green-100 dark:bg-green-900/30"
-                            : task.type === "client_query"
-                              ? "bg-purple-100 dark:bg-purple-900/30"
-                              : "bg-amber-100 dark:bg-amber-900/30"
+                        task.type === 'visit_request'
+                          ? 'bg-blue-100 dark:bg-blue-900/30'
+                          : task.type === 'sell_request'
+                            ? 'bg-green-100 dark:bg-green-900/30'
+                            : task.type === 'client_query'
+                              ? 'bg-purple-100 dark:bg-purple-900/30'
+                              : 'bg-amber-100 dark:bg-amber-900/30'
                       }`}
                     >
                       {getTaskTypeIcon(task.type)}
@@ -307,16 +326,16 @@ export default function TasksPage() {
                         {getTaskPriorityBadge(task.priority)}
                       </div>
                       <h3 className="text-lg font-medium">
-                        {task.type === "visit_request"
-                          ? "Visit Request"
-                          : task.type === "sell_request"
-                            ? "Sell Request"
-                            : task.type === "client_query"
-                              ? "Client Query"
-                              : "Guest Assistance"}
+                        {task.type === 'visit_request'
+                          ? 'Visit Request'
+                          : task.type === 'sell_request'
+                            ? 'Sell Request'
+                            : task.type === 'client_query'
+                              ? 'Client Query'
+                              : 'Guest Assistance'}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {task.projectName} {task.plotNumber ? `- Plot ${task.plotNumber}` : ""}
+                        {task.projectName} {task.plotNumber ? `- Plot ${task.plotNumber}` : ''}
                       </p>
                       <p className="text-sm mt-1">{task.description}</p>
                       <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
@@ -340,7 +359,7 @@ export default function TasksPage() {
                       </Button>
                     </Link>
 
-                    {task.status === "pending" && (
+                    {task.status === 'pending' && (
                       <Link href={`/manager/tasks/${task.id}?action=start`}>
                         <Button>Start Task</Button>
                       </Link>
@@ -353,7 +372,5 @@ export default function TasksPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
-
-

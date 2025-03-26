@@ -1,22 +1,22 @@
-import type React from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2 } from 'lucide-react';
+import type React from 'react';
 
 interface LoadingSpinnerProps {
-  size?: number
-  className?: string
+  size?: number;
+  className?: string;
 }
 
-export function LoadingSpinner({ size = 24, className = "" }: LoadingSpinnerProps) {
-  return <Loader2 className={`animate-spin ${className}`} size={size} />
+export function LoadingSpinner({ size = 24, className = '' }: LoadingSpinnerProps) {
+  return <Loader2 className={`animate-spin ${className}`} size={size} />;
 }
 
 interface LoadingOverlayProps {
-  isLoading: boolean
-  children: React.ReactNode
-  text?: string
+  isLoading: boolean;
+  children: React.ReactNode;
+  text?: string;
 }
 
-export function LoadingOverlay({ isLoading, children, text = "Loading..." }: LoadingOverlayProps) {
+export function LoadingOverlay({ isLoading, children, text = 'Loading...' }: LoadingOverlayProps) {
   return (
     <div className="relative">
       {children}
@@ -28,7 +28,7 @@ export function LoadingOverlay({ isLoading, children, text = "Loading..." }: Loa
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export function LoadingPage() {
@@ -37,14 +37,14 @@ export function LoadingPage() {
       <LoadingSpinner size={48} className="text-primary mb-4" />
       <p className="text-lg font-medium">Loading...</p>
     </div>
-  )
+  );
 }
 
 export function LoadingButton({
   isLoading,
   children,
   ...props
-}: React.ComponentProps<"button"> & { isLoading: boolean }) {
+}: React.ComponentProps<'button'> & { isLoading: boolean }) {
   return (
     <button
       disabled={isLoading}
@@ -60,6 +60,5 @@ export function LoadingButton({
         children
       )}
     </button>
-  )
+  );
 }
-

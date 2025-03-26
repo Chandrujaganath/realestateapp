@@ -1,12 +1,13 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useAuth } from '@/contexts/auth-context'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { QrCode, ArrowLeft, RefreshCw } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+import { QrCode, ArrowLeft, RefreshCw } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/contexts/auth-context';
 
 interface ExtendedUser {
   displayName?: string;
@@ -15,24 +16,27 @@ interface ExtendedUser {
 
 export default function ClientQrPage() {
   const { user } = useAuth() as { user: ExtendedUser | null };
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   if (!user) {
-    return null // Will be handled by middleware
+    return null; // Will be handled by middleware
   }
 
-  const handleRefreshQr = () => {
-    setLoading(true)
+  const _handleRefreshQr = () => {
+    setLoading(true);
     // In a real implementation, this would call an API to regenerate the QR code
     setTimeout(() => {
-      setLoading(false)
-    }, 1000)
-  }
+      setLoading(false);
+    }, 1000);
+  };
 
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/dashboard/client" className="flex items-center text-muted-foreground hover:text-foreground mb-2">
+        <Link
+          href="/dashboard/client"
+          className="flex items-center text-muted-foreground hover:text-foreground mb-2"
+        >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back to Dashboard
         </Link>
@@ -44,12 +48,14 @@ export default function ClientQrPage() {
         <Card className="glass-card max-w-md w-full">
           <CardHeader className="text-center">
             <CardTitle>Site Access QR Code</CardTitle>
-            <CardDescription>Show this QR code at the site entrance for all your properties</CardDescription>
+            <CardDescription>
+              Show this QR code at the site entrance for all your properties
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
             <div className="bg-white p-4 rounded-lg mb-4">
               <Image
-                src={user.permanentQrCodeUrl || "/placeholder.svg?height=300&width=300"}
+                src={user.permanentQrCodeUrl || '/placeholder.svg?height=300&width=300'}
                 alt="Permanent QR Code"
                 width={250}
                 height={250}
@@ -75,7 +81,12 @@ export default function ClientQrPage() {
             </div>
 
             <div className="mt-6 w-full">
-              <Button variant="outline" className="w-full glass-button" onClick={handleRefreshQr} disabled={loading}>
+              <Button
+                variant="outline"
+                className="w-full glass-button"
+                onClick={handleRefreshQr}
+                disabled={loading}
+              >
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent"></span>
@@ -100,7 +111,9 @@ export default function ClientQrPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-md p-4">
-              <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-2">Usage Guidelines:</h3>
+              <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-2">
+                Usage Guidelines:
+              </h3>
               <ul className="list-disc list-inside space-y-1 text-amber-700 dark:text-amber-400 text-sm">
                 <li>This QR code is linked to your identity</li>
                 <li>It provides access to all properties you own</li>
@@ -120,7 +133,5 @@ export default function ClientQrPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-
-

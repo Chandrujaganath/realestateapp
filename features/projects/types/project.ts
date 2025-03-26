@@ -1,4 +1,4 @@
-import { Address, BaseEntity, Status } from "@/types/common";
+import { Address, BaseEntity, Status } from '@/types/common';
 
 /**
  * Project status type
@@ -167,4 +167,4 @@ export interface UpdatePlotPayload {
     east: string;
     west: string;
   };
-} 
+}

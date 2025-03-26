@@ -1,12 +1,13 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useAuth } from '@/contexts/auth-context'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from 'react';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function TaskAllocationSettings() {
-  const auth = useAuth()
-  const [loading, setLoading] = useState(false)
+  const _auth = useAuth();
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -24,7 +25,5 @@ export default function TaskAllocationSettings() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-
-

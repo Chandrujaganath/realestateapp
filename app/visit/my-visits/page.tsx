@@ -1,141 +1,142 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Calendar, Clock, Building2, QrCode, CheckCircle, XCircle } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { format } from "date-fns"
+import { format } from 'date-fns';
+import { Calendar, Clock, Building2, QrCode, CheckCircle, XCircle } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
 
 interface Visit {
-  id: string
-  projectId: string
-  projectName: string
-  plotId: string | null
-  plotNumber: string | null
-  status: "pending" | "approved" | "completed" | "cancelled"
-  visitDate: Date
-  timeSlot: string
-  qrCodeUrl: string | null
-  entryTime: Date | null
-  exitTime: Date | null
+  id: string;
+  projectId: string;
+  projectName: string;
+  plotId: string | null;
+  plotNumber: string | null;
+  status: 'pending' | 'approved' | 'completed' | 'cancelled';
+  visitDate: Date;
+  timeSlot: string;
+  qrCodeUrl: string | null;
+  entryTime: Date | null;
+  exitTime: Date | null;
 }
 
 export default function MyVisitsPage() {
-  const { user } = useAuth()
-  const [visits, setVisits] = useState<Visit[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null)
-  const [showQrCode, setShowQrCode] = useState(false)
+  const { user } = useAuth();
+  const [visits, setVisits] = useState<Visit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
+  const [showQrCode, setShowQrCode] = useState(false);
 
   useEffect(() => {
-    const fetchVisits = async () => {
-      if (!user) return
+    const _fetchVisits = async () => {
+      if (!user) return;
 
       try {
         // In a real implementation, fetch visits from Firestore
         // For now, we'll use mock data
-        const mockVisits: Visit[] = [
+        const _mockVisits: Visit[] = [
           {
-            id: "1",
-            projectId: "1",
-            projectName: "Sunrise Gardens",
-            plotId: "plot-12",
-            plotNumber: "12",
-            status: "pending",
+            id: '1',
+            projectId: '1',
+            projectName: 'Sunrise Gardens',
+            plotId: 'plot-12',
+            plotNumber: '12',
+            status: 'pending',
             visitDate: new Date(2025, 2, 25), // March 25, 2025
-            timeSlot: "10:00 AM",
+            timeSlot: '10:00 AM',
             qrCodeUrl: null,
             entryTime: null,
             exitTime: null,
           },
           {
-            id: "2",
-            projectId: "2",
-            projectName: "Metropolitan Heights",
-            plotId: "plot-5",
-            plotNumber: "5",
-            status: "approved",
+            id: '2',
+            projectId: '2',
+            projectName: 'Metropolitan Heights',
+            plotId: 'plot-5',
+            plotNumber: '5',
+            status: 'approved',
             visitDate: new Date(2025, 3, 2), // April 2, 2025
-            timeSlot: "2:30 PM",
-            qrCodeUrl: "/placeholder.svg?height=300&width=300",
+            timeSlot: '2:30 PM',
+            qrCodeUrl: '/placeholder.svg?height=300&width=300',
             entryTime: null,
             exitTime: null,
           },
           {
-            id: "3",
-            projectId: "3",
-            projectName: "Riverside Villas",
+            id: '3',
+            projectId: '3',
+            projectName: 'Riverside Villas',
             plotId: null,
             plotNumber: null,
-            status: "completed",
+            status: 'completed',
             visitDate: new Date(2025, 2, 10), // March 10, 2025
-            timeSlot: "11:15 AM",
-            qrCodeUrl: "/placeholder.svg?height=300&width=300",
+            timeSlot: '11:15 AM',
+            qrCodeUrl: '/placeholder.svg?height=300&width=300',
             entryTime: new Date(2025, 2, 10, 11, 10), // 11:10 AM
             exitTime: new Date(2025, 2, 10, 12, 5), // 12:05 PM
           },
-        ]
+        ];
 
-        setVisits(mockVisits)
+        setVisits(mockVisits);
       } catch (error) {
-        console.error("Error fetching visits:", error)
+        console.error('Error fetching visits:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchVisits()
-  }, [user])
+    fetchVisits();
+  }, [user]);
 
-  const handleShowQrCode = (visit: Visit) => {
-    setSelectedVisit(visit)
-    setShowQrCode(true)
-  }
+  const _handleShowQrCode = (visit: Visit) => {
+    setSelectedVisit(visit);
+    setShowQrCode(true);
+  };
 
-  const getStatusBadge = (status: Visit["status"]) => {
+  const _getStatusBadge = (status: Visit['status']) => {
     switch (status) {
-      case "pending":
+      case 'pending':
         return (
           <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
             <Clock className="h-4 w-4" />
             <span className="text-sm font-medium">Pending Approval</span>
           </div>
-        )
-      case "approved":
+        );
+      case 'approved':
         return (
           <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
             <CheckCircle className="h-4 w-4" />
             <span className="text-sm font-medium">Approved</span>
           </div>
-        )
-      case "completed":
+        );
+      case 'completed':
         return (
           <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
             <CheckCircle className="h-4 w-4" />
             <span className="text-sm font-medium">Completed</span>
           </div>
-        )
-      case "cancelled":
+        );
+      case 'cancelled':
         return (
           <div className="flex items-center gap-1 text-red-600 dark:text-red-400">
             <XCircle className="h-4 w-4" />
             <span className="text-sm font-medium">Cancelled</span>
           </div>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   if (showQrCode && selectedVisit) {
@@ -149,7 +150,7 @@ export default function MyVisitsPage() {
           <CardContent className="flex flex-col items-center">
             <div className="bg-white p-4 rounded-lg mb-4">
               <Image
-                src={selectedVisit.qrCodeUrl || "/placeholder.svg?height=300&width=300"}
+                src={selectedVisit.qrCodeUrl || '/placeholder.svg?height=300&width=300'}
                 alt="QR Code"
                 width={250}
                 height={250}
@@ -166,7 +167,7 @@ export default function MyVisitsPage() {
               <div className="bg-background/50 backdrop-blur-sm rounded-md p-3">
                 <p className="text-sm text-muted-foreground">Visit Date & Time</p>
                 <p className="font-medium">
-                  {format(selectedVisit.visitDate, "PPP")} at {selectedVisit.timeSlot}
+                  {format(selectedVisit.visitDate, 'PPP')} at {selectedVisit.timeSlot}
                 </p>
               </div>
 
@@ -179,14 +180,18 @@ export default function MyVisitsPage() {
             </div>
 
             <div className="mt-6 w-full">
-              <Button variant="outline" className="w-full glass-button" onClick={() => setShowQrCode(false)}>
+              <Button
+                variant="outline"
+                className="w-full glass-button"
+                onClick={() => setShowQrCode(false)}
+              >
                 Back to My Visits
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -223,7 +228,9 @@ export default function MyVisitsPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle>{visit.projectName}</CardTitle>
-                    <CardDescription>{visit.plotNumber ? `Plot ${visit.plotNumber}` : "General Visit"}</CardDescription>
+                    <CardDescription>
+                      {visit.plotNumber ? `Plot ${visit.plotNumber}` : 'General Visit'}
+                    </CardDescription>
                   </div>
                   {getStatusBadge(visit.status)}
                 </div>
@@ -233,7 +240,7 @@ export default function MyVisitsPage() {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-primary" />
-                      <span>{format(visit.visitDate, "PPP")}</span>
+                      <span>{format(visit.visitDate, 'PPP')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-primary" />
@@ -243,8 +250,8 @@ export default function MyVisitsPage() {
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500" />
                         <span className="text-sm">
-                          Entry: {format(visit.entryTime, "h:mm a")}
-                          {visit.exitTime && ` • Exit: ${format(visit.exitTime, "h:mm a")}`}
+                          Entry: {format(visit.entryTime, 'h:mm a')}
+                          {visit.exitTime && ` • Exit: ${format(visit.exitTime, 'h:mm a')}`}
                         </span>
                       </div>
                     )}
@@ -258,14 +265,14 @@ export default function MyVisitsPage() {
                       </Button>
                     </Link>
 
-                    {visit.status === "approved" && visit.qrCodeUrl && (
+                    {visit.status === 'approved' && visit.qrCodeUrl && (
                       <Button onClick={() => handleShowQrCode(visit)}>
                         <QrCode className="mr-2 h-4 w-4" />
                         Show QR Code
                       </Button>
                     )}
 
-                    {visit.status === "completed" && (
+                    {visit.status === 'completed' && (
                       <Link href={`/visit/feedback/${visit.id}`}>
                         <Button>Submit Feedback</Button>
                       </Link>
@@ -278,6 +285,5 @@ export default function MyVisitsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

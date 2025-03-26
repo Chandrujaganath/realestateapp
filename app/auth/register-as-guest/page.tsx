@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 import { useAuth } from '@/contexts/auth-context';
 
 // Define type for form data
@@ -14,22 +15,18 @@ interface GuestRegistrationForm {
 
 export default function RegisterAsGuestPage() {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  
-  const handleGuestRegistration = async (formData: GuestRegistrationForm) => {
+  const [_error, setError] = useState<string | null>(null);
+  const { signUpAsGuest } = useAuth();
+
+  const _handleGuestRegistration = async (formData: GuestRegistrationForm) => {
     try {
-      await useAuth().signUpAsGuest(
-        formData.email,
-        formData.password,
-        formData.name,
-        formData.phone
-      );
+      await signUpAsGuest(formData.email, formData.password, formData.name, formData.phone);
       // Redirect to main dashboard - middleware will handle the rest
-      router.push("/dashboard");
+      router.push('/dashboard');
     } catch (error: any) {
       setError(error?.message || 'Registration failed');
     }
   };
-  
+
   // Rest of your component...
-} 
+}

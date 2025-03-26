@@ -1,17 +1,28 @@
-"use client"
+'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '@/lib/firebase';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
+import { unsubscribe } from 'diagnostics_channel';
+
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
   onAuthStateChanged,
   User as FirebaseUser,
-  UserCredential
+  UserCredential,
 } from 'firebase/auth';
-import { unsubscribe } from 'diagnostics_channel';
-import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  serverTimestamp,
+  doc,
+  updateDoc,
+} from 'firebase/firestore';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+import { auth } from '@/lib/firebase';
 import { db } from '@/lib/firebase';
 
 // Add Plot type for import in CCTV pages
@@ -23,7 +34,7 @@ export interface Plot {
   location: string;
   area: number;
   price: number;
-  status: "available" | "reserved" | "sold";
+  status: 'available' | 'reserved' | 'sold';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,12 +49,13 @@ interface VisitRequest {
   requestDate: string;
   preferredDate: string;
   preferredTime: string;
-  status: "pending" | "approved" | "rejected";
+  status: 'pending' | 'approved' | 'rejected';
   notes?: string;
   rejectionReason?: string;
 }
 
 interface AuthContextType {
+  [x: string]: any;
   user: FirebaseUser | null;
   loading: boolean;
   error: string | null;
@@ -67,16 +79,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Check if auth is defined before using it
     if (!auth) {
-      setError("Authentication is not initialized");
+      setError('Authentication is not initialized');
       setLoading(false);
       return () => {};
     }
-    
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
     });
-    
+
     return () => unsubscribe();
   }, []);
 
@@ -84,11 +96,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     try {
       if (!auth) {
-        throw new Error("Authentication is not initialized");
+        throw new Error('Authentication is not initialized');
       }
       return await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
-      setError("Failed to sign in: " + (err instanceof Error ? err.message : String(err)));
+      setError('Failed to sign in: ' + (err instanceof Error ? err.message : String(err)));
       throw err;
     }
   };
@@ -97,11 +109,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     try {
       if (!auth) {
-        throw new Error("Authentication is not initialized");
+        throw new Error('Authentication is not initialized');
       }
       return await createUserWithEmailAndPassword(auth, email, password);
     } catch (err) {
-      setError("Failed to create account: " + (err instanceof Error ? err.message : String(err)));
+      setError('Failed to create account: ' + (err instanceof Error ? err.message : String(err)));
       throw err;
     }
   };
@@ -113,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await signOut(auth);
       }
     } catch (err) {
-      setError("Failed to log out: " + (err instanceof Error ? err.message : String(err)));
+      setError('Failed to log out: ' + (err instanceof Error ? err.message : String(err)));
       throw err;
     }
   };
@@ -121,15 +133,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const getUserOwnedPlots = async (): Promise<Plot[]> => {
     try {
       if (!user || !db) {
-        console.warn("User not authenticated or Firestore not initialized");
+        console.warn('User not authenticated or Firestore not initialized');
         return [];
       }
-      
+
       // Query plots collection for plots owned by the current user
-      const plotsRef = collection(db, 'plots');
-      const q = query(plotsRef, where('ownerId', '==', user.uid));
+      const _plotsRef = collection(db, 'plots');
+      const _q = query(plotsRef, where('ownerId', '==', user.uid));
       const querySnapshot = await getDocs(q);
-      
+
       const plots: Plot[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
@@ -143,13 +155,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           price: data.price,
           status: data.status,
           createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date()
+          updatedAt: data.updatedAt?.toDate() || new Date(),
         });
       });
-      
+
       return plots;
     } catch (error) {
-      console.error("Error fetching user plots:", error);
+      console.error('Error fetching user plots:', error);
       return [];
     }
   };
@@ -157,20 +169,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const createProject = async (projectData: any) => {
     try {
       if (!user || !db) {
-        throw new Error("User not authenticated or Firestore not initialized");
+        throw new Error('User not authenticated or Firestore not initialized');
       }
 
-      const projectsRef = collection(db, 'projects');
-      const projectWithMetadata = {
+      const _projectsRef = collection(db, 'projects');
+      const _projectWithMetadata = {
         ...projectData,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        createdBy: user.uid
+        createdBy: user.uid,
       };
 
       await addDoc(projectsRef, projectWithMetadata);
     } catch (error) {
-      console.error("Error creating project:", error);
+      console.error('Error creating project:', error);
       throw error;
     }
   };
@@ -178,18 +190,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const getProjectTemplates = async () => {
     try {
       if (!db) {
-        throw new Error("Firestore not initialized");
+        throw new Error('Firestore not initialized');
       }
 
-      const templatesRef = collection(db, 'projectTemplates');
+      const _templatesRef = collection(db, 'projectTemplates');
       const querySnapshot = await getDocs(templatesRef);
-      
-      return querySnapshot.docs.map(doc => ({
+
+      return querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
     } catch (error) {
-      console.error("Error fetching project templates:", error);
+      console.error('Error fetching project templates:', error);
       return [];
     }
   };
@@ -197,18 +209,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const getVisitRequests = async (): Promise<VisitRequest[]> => {
     try {
       if (!db) {
-        throw new Error("Firestore not initialized");
+        throw new Error('Firestore not initialized');
       }
 
-      const requestsRef = collection(db, 'visitRequests');
+      const _requestsRef = collection(db, 'visitRequests');
       const querySnapshot = await getDocs(requestsRef);
-      
-      return querySnapshot.docs.map(doc => ({
+
+      return querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })) as VisitRequest[];
     } catch (error) {
-      console.error("Error fetching visit requests:", error);
+      console.error('Error fetching visit requests:', error);
       return [];
     }
   };
@@ -216,16 +228,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const approveVisitRequest = async (id: string) => {
     try {
       if (!db) {
-        throw new Error("Firestore not initialized");
+        throw new Error('Firestore not initialized');
       }
 
       const requestRef = doc(db, 'visitRequests', id);
       await updateDoc(requestRef, {
-        status: "approved",
-        approvedAt: serverTimestamp()
+        status: 'approved',
+        approvedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error("Error approving visit request:", error);
+      console.error('Error approving visit request:', error);
       throw error;
     }
   };
@@ -233,36 +245,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const rejectVisitRequest = async (id: string, reason: string) => {
     try {
       if (!db) {
-        throw new Error("Firestore not initialized");
+        throw new Error('Firestore not initialized');
       }
 
       const requestRef = doc(db, 'visitRequests', id);
       await updateDoc(requestRef, {
-        status: "rejected",
+        status: 'rejected',
         rejectionReason: reason,
-        rejectedAt: serverTimestamp()
+        rejectedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error("Error rejecting visit request:", error);
+      console.error('Error rejecting visit request:', error);
       throw error;
     }
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
-      error, 
-      signIn, 
-      signUp, 
-      logOut, 
-      getUserOwnedPlots,
-      createProject,
-      getProjectTemplates,
-      getVisitRequests,
-      approveVisitRequest,
-      rejectVisitRequest
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        error,
+        signIn,
+        signUp,
+        logOut,
+        getUserOwnedPlots,
+        createProject,
+        getProjectTemplates,
+        getVisitRequests,
+        approveVisitRequest,
+        rejectVisitRequest,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

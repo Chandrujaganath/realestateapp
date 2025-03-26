@@ -100,4 +100,3 @@ function getUserRole() {
   return userDoc.data.role;
 }
 */
-

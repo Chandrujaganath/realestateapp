@@ -1,26 +1,38 @@
-"use client"
+'use client';
 
-import type React from "react"
+import { Building2, ArrowLeft, LayoutTemplateIcon as Template, Plus, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from '@/contexts/auth-context'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Building2, ArrowLeft, LayoutTemplateIcon as Template, Plus, Trash2 } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/contexts/auth-context';
 
 // Define the type for day
-type DayType = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+type DayType = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
 
 // Define the type for the status
-type StatusType = "active" | "inactive" | "completed";
+type StatusType = 'active' | 'inactive' | 'completed';
 
 // Define the type for form data
 interface TimeSlot {
@@ -50,104 +62,109 @@ interface FormData {
 }
 
 export default function CreateProjectPage() {
-  const router = useRouter()
-  const { createProject, getProjectTemplates } = useAuth()
-  const [activeTab, setActiveTab] = useState<"template" | "scratch">("template")
-  
-  const [templates, setTemplates] = useState<ProjectTemplate[]>([])
-  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const { createProject, getProjectTemplates } = useAuth();
+  const [activeTab, setActiveTab] = useState<'template' | 'scratch'>('template');
+
+  const [templates, setTemplates] = useState<ProjectTemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    name: "",
-    city: "",
-    description: "",
-    status: "active",
+    name: '',
+    city: '',
+    description: '',
+    status: 'active',
     managersAssigned: [],
     timeSlots: [
       {
-        day: "monday",
-        slots: [{ start: "09:00", end: "10:00" }],
+        day: 'monday',
+        slots: [{ start: '09:00', end: '10:00' }],
       },
     ],
-  })
+  });
 
-  const [fetchingTemplates, setFetchingTemplates] = useState(true)
+  const [fetchingTemplates, setFetchingTemplates] = useState(true);
 
   // Use useEffect instead of useState for fetching templates
   useEffect(() => {
-    const fetchTemplates = async () => {
+    const _fetchTemplates = async () => {
       try {
-        const templatesData = await getProjectTemplates()
-        setTemplates(templatesData)
-        setFetchingTemplates(false)
+        const _templatesData = await getProjectTemplates();
+        setTemplates(templatesData);
+        setFetchingTemplates(false);
       } catch (error) {
-        console.error("Error fetching templates:", error)
-        setFetchingTemplates(false)
+        console.error('Error fetching templates:', error);
+        setFetchingTemplates(false);
       }
-    }
+    };
 
-    fetchTemplates()
-  }, [getProjectTemplates])
+    fetchTemplates();
+  }, [getProjectTemplates]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleStatusChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, status: value as StatusType }))
-  }
+    setFormData((prev) => ({ ...prev, status: value as StatusType }));
+  };
 
-  const handleTemplateSelect = (templateId: string) => {
-    setSelectedTemplate(templateId)
+  const _handleTemplateSelect = (templateId: string) => {
+    setSelectedTemplate(templateId);
 
     // Find the selected template
-    const template = templates.find((t) => t.id === templateId)
+    const template = templates.find((_t) => t.id === templateId);
 
     if (template) {
       // Pre-fill form with template data
       setFormData((prev) => ({
         ...prev,
         timeSlots: template.defaultTimeSlots,
-      }))
+      }));
     }
-  }
+  };
 
-  const addTimeSlot = (dayIndex: number) => {
-    const updatedTimeSlots = [...formData.timeSlots]
-    updatedTimeSlots[dayIndex].slots.push({ start: "09:00", end: "10:00" })
-    setFormData((prev) => ({ ...prev, timeSlots: updatedTimeSlots }))
-  }
+  const _addTimeSlot = (dayIndex: number) => {
+    const updatedTimeSlots = [...formData.timeSlots];
+    updatedTimeSlots[dayIndex].slots.push({ start: '09:00', end: '10:00' });
+    setFormData((prev) => ({ ...prev, timeSlots: updatedTimeSlots }));
+  };
 
-  const removeTimeSlot = (dayIndex: number, slotIndex: number) => {
-    const updatedTimeSlots = [...formData.timeSlots]
-    updatedTimeSlots[dayIndex].slots.splice(slotIndex, 1)
-    setFormData((prev) => ({ ...prev, timeSlots: updatedTimeSlots }))
-  }
+  const _removeTimeSlot = (dayIndex: number, slotIndex: number) => {
+    const updatedTimeSlots = [...formData.timeSlots];
+    updatedTimeSlots[dayIndex].slots.splice(slotIndex, 1);
+    setFormData((prev) => ({ ...prev, timeSlots: updatedTimeSlots }));
+  };
 
-  const updateTimeSlot = (dayIndex: number, slotIndex: number, field: "start" | "end", value: string) => {
-    const updatedTimeSlots = [...formData.timeSlots]
-    updatedTimeSlots[dayIndex].slots[slotIndex][field] = value
-    setFormData((prev) => ({ ...prev, timeSlots: updatedTimeSlots }))
-  }
+  const updateTimeSlot = (
+    dayIndex: number,
+    slotIndex: number,
+    _field: 'start' | 'end',
+    value: string
+  ) => {
+    const updatedTimeSlots = [...formData.timeSlots];
+    updatedTimeSlots[dayIndex].slots[slotIndex][field] = value;
+    setFormData((prev) => ({ ...prev, timeSlots: updatedTimeSlots }));
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+  const _handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const projectData = {
+      const _projectData = {
         ...formData,
-        templateId: activeTab === "template" ? selectedTemplate : undefined,
-      }
+        templateId: activeTab === 'template' ? selectedTemplate : undefined,
+      };
 
-      await createProject(projectData)
-      router.push("/admin/projects")
+      await createProject(projectData);
+      router.push('/admin/projects');
     } catch (error) {
-      console.error("Error creating project:", error)
-      setLoading(false)
+      console.error('Error creating project:', error);
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -158,7 +175,11 @@ export default function CreateProjectPage() {
         <h1 className="text-3xl font-bold">Create New Project</h1>
       </div>
 
-      <Tabs defaultValue="template" value={activeTab} onValueChange={setActiveTab}>
+      <Tabs
+        defaultValue="template"
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as 'template' | 'scratch')}
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="template">
             <Template className="mr-2 h-4 w-4" />
@@ -175,14 +196,16 @@ export default function CreateProjectPage() {
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle>Select a Template</CardTitle>
-                <CardDescription>Choose a pre-defined template to quickly set up your project</CardDescription>
+                <CardDescription>
+                  Choose a pre-defined template to quickly set up your project
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {fetchingTemplates ? (
                   <div className="space-y-4">
                     {Array(3)
                       .fill(0)
-                      .map((_, i) => (
+                      .map((_, _i) => (
                         <Card key={i} className="border border-border/50">
                           <CardContent className="p-4">
                             <div className="flex items-start gap-4">
@@ -201,9 +224,10 @@ export default function CreateProjectPage() {
                     <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <h3 className="text-lg font-medium mb-2">No templates available</h3>
                     <p className="text-muted-foreground mb-4">
-                      There are no project templates available. You can create a project from scratch.
+                      There are no project templates available. You can create a project from
+                      scratch.
                     </p>
-                    <Button type="button" onClick={() => setActiveTab("scratch")}>
+                    <Button type="button" onClick={() => setActiveTab('scratch')}>
                       Create from Scratch
                     </Button>
                   </div>
@@ -213,16 +237,22 @@ export default function CreateProjectPage() {
                       {templates.map((template) => (
                         <Card
                           key={template.id}
-                          className={`border ${selectedTemplate === template.id ? "border-primary" : "border-border/50"}`}
+                          className={`border ${selectedTemplate === template.id ? 'border-primary' : 'border-border/50'}`}
                         >
                           <CardContent className="p-4">
                             <div className="flex items-start gap-4">
-                              <RadioGroupItem value={template.id} id={template.id} className="mt-0.5" />
+                              <RadioGroupItem
+                                value={template.id}
+                                id={template.id}
+                                className="mt-0.5"
+                              />
                               <div>
                                 <Label htmlFor={template.id} className="text-base font-medium">
                                   {template.name}
                                 </Label>
-                                <p className="text-sm text-muted-foreground">{template.description}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {template.description}
+                                </p>
                               </div>
                             </div>
                           </CardContent>
@@ -238,7 +268,9 @@ export default function CreateProjectPage() {
               <Card className="glass-card">
                 <CardHeader>
                   <CardTitle>Project Details</CardTitle>
-                  <CardDescription>Customize the basic information for your project</CardDescription>
+                  <CardDescription>
+                    Customize the basic information for your project
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4">
@@ -298,7 +330,7 @@ export default function CreateProjectPage() {
                     Cancel
                   </Button>
                   <Button type="submit" disabled={loading}>
-                    {loading ? "Creating..." : "Create Project"}
+                    {loading ? 'Creating...' : 'Create Project'}
                   </Button>
                 </CardFooter>
               </Card>
@@ -389,25 +421,35 @@ export default function CreateProjectPage() {
                         <div key={slotIndex} className="flex items-center gap-2">
                           <div className="grid grid-cols-2 gap-2 flex-1">
                             <div className="grid gap-1.5">
-                              <Label htmlFor={`${daySlot.day}-start-${slotIndex}`} className="text-sm">
+                              <Label
+                                htmlFor={`${daySlot.day}-start-${slotIndex}`}
+                                className="text-sm"
+                              >
                                 Start Time
                               </Label>
                               <Input
                                 type="time"
                                 id={`${daySlot.day}-start-${slotIndex}`}
                                 value={slot.start}
-                                onChange={(e) => updateTimeSlot(dayIndex, slotIndex, "start", e.target.value)}
+                                onChange={(e) =>
+                                  updateTimeSlot(dayIndex, slotIndex, 'start', e.target.value)
+                                }
                               />
                             </div>
                             <div className="grid gap-1.5">
-                              <Label htmlFor={`${daySlot.day}-end-${slotIndex}`} className="text-sm">
+                              <Label
+                                htmlFor={`${daySlot.day}-end-${slotIndex}`}
+                                className="text-sm"
+                              >
                                 End Time
                               </Label>
                               <Input
                                 type="time"
                                 id={`${daySlot.day}-end-${slotIndex}`}
                                 value={slot.end}
-                                onChange={(e) => updateTimeSlot(dayIndex, slotIndex, "end", e.target.value)}
+                                onChange={(e) =>
+                                  updateTimeSlot(dayIndex, slotIndex, 'end', e.target.value)
+                                }
                               />
                             </div>
                           </div>
@@ -424,7 +466,12 @@ export default function CreateProjectPage() {
                         </div>
                       ))}
 
-                      <Button type="button" variant="outline" size="sm" onClick={() => addTimeSlot(dayIndex)}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addTimeSlot(dayIndex)}
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Time Slot
                       </Button>
@@ -437,7 +484,7 @@ export default function CreateProjectPage() {
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? "Creating..." : "Create Project"}
+                  {loading ? 'Creating...' : 'Create Project'}
                 </Button>
               </CardFooter>
             </Card>
@@ -445,7 +492,5 @@ export default function CreateProjectPage() {
         </form>
       </Tabs>
     </div>
-  )
+  );
 }
-
-

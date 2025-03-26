@@ -1,59 +1,62 @@
-"use client"
+'use client';
 
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Map, Maximize2, Download } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { useSearchParams } from "next/navigation"
+import { Map, Maximize2, Download } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function PlotPage() {
-  const { user } = useAuth()
-  const searchParams = useSearchParams()
-  const projectId = searchParams.get("project")
+  const { user } = useAuth();
+  const _searchParams = useSearchParams();
+  const projectId = searchParams.get('project');
 
   // Placeholder plot data
   const plots = [
     {
       id: 1,
-      name: "Master Plan",
-      project: "Sunrise Gardens",
+      name: 'Master Plan',
+      project: 'Sunrise Gardens',
       projectId: 1,
-      description: "Complete layout of the Sunrise Gardens development",
-      image: "/placeholder.svg?height=400&width=600",
+      description: 'Complete layout of the Sunrise Gardens development',
+      image: '/placeholder.svg?height=400&width=600',
     },
     {
       id: 2,
-      name: "Phase 1 Plots",
-      project: "Sunrise Gardens",
+      name: 'Phase 1 Plots',
+      project: 'Sunrise Gardens',
       projectId: 1,
-      description: "Detailed view of Phase 1 residential plots",
-      image: "/placeholder.svg?height=400&width=600",
+      description: 'Detailed view of Phase 1 residential plots',
+      image: '/placeholder.svg?height=400&width=600',
     },
     {
       id: 3,
-      name: "Master Plan",
-      project: "Metropolitan Heights",
+      name: 'Master Plan',
+      project: 'Metropolitan Heights',
       projectId: 2,
-      description: "Complete layout of the Metropolitan Heights development",
-      image: "/placeholder.svg?height=400&width=600",
+      description: 'Complete layout of the Metropolitan Heights development',
+      image: '/placeholder.svg?height=400&width=600',
     },
     {
       id: 4,
-      name: "Floor Plans",
-      project: "Metropolitan Heights",
+      name: 'Floor Plans',
+      project: 'Metropolitan Heights',
       projectId: 2,
-      description: "Typical floor plans for apartment units",
-      image: "/placeholder.svg?height=400&width=600",
+      description: 'Typical floor plans for apartment units',
+      image: '/placeholder.svg?height=400&width=600',
     },
-  ]
+  ];
 
   // Filter plots by project if projectId is provided
-  const filteredPlots = projectId ? plots.filter((plot) => plot.projectId === Number.parseInt(projectId)) : plots
+  const filteredPlots = projectId
+    ? plots.filter((plot) => plot.projectId === Number.parseInt(projectId))
+    : plots;
 
-  const isAdmin = user?.role === "admin" || user?.role === "superadmin"
-  const isManager = user?.role === "manager"
+  const _isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+  const _isManager = user?.role === 'manager';
 
   return (
     <div className="space-y-8">
@@ -62,8 +65,8 @@ export default function PlotPage() {
           <h1 className="text-3xl font-bold mb-2">Plot Visualizer</h1>
           <p className="text-muted-foreground">
             {projectId
-              ? `View plots and layouts for ${filteredPlots[0]?.project || "project"}`
-              : "View plots and layouts for all projects"}
+              ? `View plots and layouts for ${filteredPlots[0]?.project || 'project'}`
+              : 'View plots and layouts for all projects'}
           </p>
         </div>
 
@@ -82,7 +85,12 @@ export default function PlotPage() {
           <Card key={plot.id} className="glass-card overflow-hidden">
             <div className="relative">
               <div className="relative h-48 md:h-64">
-                <Image src={plot.image || "/placeholder.svg"} alt={plot.name} fill className="object-cover" />
+                <Image
+                  src={plot.image || '/placeholder.svg'}
+                  alt={plot.name}
+                  fill
+                  className="object-cover"
+                />
 
                 <div className="absolute top-2 right-2 flex gap-2">
                   <Button
@@ -145,6 +153,5 @@ export default function PlotPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
-

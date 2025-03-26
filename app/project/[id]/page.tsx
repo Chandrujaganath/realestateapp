@@ -1,50 +1,51 @@
-"use client"
+'use client';
 
-import { useAuth } from '@/hooks/use-auth'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Building2, MapPin, Calendar, Clock, Users, Map, Camera, FileText } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import BackButton from "@/components/back-button"
+import { Building2, MapPin, Calendar, Clock, Users, Map, Camera, FileText } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+
+import BackButton from '@/components/back-button';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function ProjectDetailPage({ params }: { params: { id: string } }) {
-  const { user } = useAuth()
-  const projectId = params.id
+  const { user } = useAuth();
+  const _projectId = params.id;
 
   // Placeholder project data
   const project = {
     id: Number.parseInt(projectId),
-    name: "Sunrise Gardens",
-    location: "East Suburb, City",
+    name: 'Sunrise Gardens',
+    location: 'East Suburb, City',
     description:
-      "Luxury residential complex with modern amenities and green spaces. Features include swimming pools, fitness centers, and landscaped gardens. Located in a prime area with easy access to schools, shopping centers, and public transportation.",
+      'Luxury residential complex with modern amenities and green spaces. Features include swimming pools, fitness centers, and landscaped gardens. Located in a prime area with easy access to schools, shopping centers, and public transportation.',
     progress: 75,
-    startDate: "January 2024",
-    completionDate: "December 2025",
+    startDate: 'January 2024',
+    completionDate: 'December 2025',
     units: 120,
     amenities: [
-      "Swimming Pool",
-      "Fitness Center",
+      'Swimming Pool',
+      'Fitness Center',
       "Children's Playground",
-      "Landscaped Gardens",
-      "Clubhouse",
-      "Security System",
-      "24/7 Maintenance",
-      "Parking Space",
+      'Landscaped Gardens',
+      'Clubhouse',
+      'Security System',
+      '24/7 Maintenance',
+      'Parking Space',
     ],
     images: [
-      "/placeholder.svg?height=400&width=600",
-      "/placeholder.svg?height=400&width=600",
-      "/placeholder.svg?height=400&width=600",
+      '/placeholder.svg?height=400&width=600',
+      '/placeholder.svg?height=400&width=600',
+      '/placeholder.svg?height=400&width=600',
     ],
-  }
+  };
 
   return (
     <div className="space-y-8">
       <BackButton href="/project" label="Back to Projects" />
-      
+
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold mb-2">{project.name}</h1>
@@ -54,7 +55,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
           </p>
         </div>
 
-        {user?.role !== "guest" && (
+        {user?.role !== 'guest' && (
           <Link href={`/visit/book?project=${project.id}`}>
             <Button>
               <Calendar className="mr-2 h-4 w-4" />
@@ -67,14 +68,19 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <div className="relative h-80 rounded-xl overflow-hidden">
-            <Image src={project.images[0] || "/placeholder.svg"} alt={project.name} fill className="object-cover" />
+            <Image
+              src={project.images[0] || '/placeholder.svg'}
+              alt={project.name}
+              fill
+              className="object-cover"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4 mt-4">
-            {project.images.slice(1).map((image, index) => (
+            {project.images.slice(1).map((_image, index) => (
               <div key={index} className="relative h-40 rounded-xl overflow-hidden">
                 <Image
-                  src={image || "/placeholder.svg"}
+                  src={image || '/placeholder.svg'}
                   alt={`${project.name} ${index + 2}`}
                   fill
                   className="object-cover"
@@ -114,11 +120,16 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                   <span className="font-medium">{project.progress}%</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
-                  <div className="bg-primary h-2 rounded-full" style={{ width: `${project.progress}%` }}></div>
+                  <div
+                    className="bg-primary h-2 rounded-full"
+                    style={{ width: `${project.progress}%` }}
+                  ></div>
                 </div>
               </div>
 
-              {(user?.role === "admin" || user?.role === "superadmin" || user?.role === "manager") && (
+              {(user?.role === 'admin' ||
+                user?.role === 'superadmin' ||
+                user?.role === 'manager') && (
                 <div className="pt-4">
                   <Link href={`/project/${project.id}/edit`}>
                     <Button variant="outline" className="w-full glass-button">
@@ -130,7 +141,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
             </CardContent>
           </Card>
 
-          {user?.role !== "guest" && (
+          {user?.role !== 'guest' && (
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
@@ -150,7 +161,9 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                   </Button>
                 </Link>
 
-                {(user?.role === "admin" || user?.role === "superadmin" || user?.role === "manager") && (
+                {(user?.role === 'admin' ||
+                  user?.role === 'superadmin' ||
+                  user?.role === 'manager') && (
                   <Link href={`/cctv?project=${project.id}`}>
                     <Button variant="outline" className="w-full justify-start glass-button">
                       <Camera className="mr-2 h-4 w-4" />
@@ -176,7 +189,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="amenities">Amenities</TabsTrigger>
           <TabsTrigger value="updates">Construction Updates</TabsTrigger>
-          {(user?.role === "admin" || user?.role === "superadmin" || user?.role === "manager") && (
+          {(user?.role === 'admin' || user?.role === 'superadmin' || user?.role === 'manager') && (
             <TabsTrigger value="management">Management</TabsTrigger>
           )}
         </TabsList>
@@ -223,7 +236,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {project.amenities.map((amenity, index) => (
+                {project.amenities.map((_amenity, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <div className="bg-primary/10 p-2 rounded-full">
                       <Building2 className="h-4 w-4 text-primary" />
@@ -249,8 +262,8 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                   </div>
                   <h3 className="font-semibold">Foundation Work Completed</h3>
                   <p className="text-muted-foreground">
-                    All foundation work has been completed ahead of schedule. The structural framework will begin next
-                    week.
+                    All foundation work has been completed ahead of schedule. The structural
+                    framework will begin next week.
                   </p>
                 </div>
 
@@ -260,7 +273,8 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                   </div>
                   <h3 className="font-semibold">Site Preparation</h3>
                   <p className="text-muted-foreground">
-                    Site clearing and preparation has been completed. Foundation work is scheduled to begin next week.
+                    Site clearing and preparation has been completed. Foundation work is scheduled
+                    to begin next week.
                   </p>
                 </div>
 
@@ -270,7 +284,8 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                   </div>
                   <h3 className="font-semibold">Project Launch</h3>
                   <p className="text-muted-foreground">
-                    Sunrise Gardens project officially launched. Initial planning and design phase completed.
+                    Sunrise Gardens project officially launched. Initial planning and design phase
+                    completed.
                   </p>
                 </div>
               </div>
@@ -278,7 +293,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
           </Card>
         </TabsContent>
 
-        {(user?.role === "admin" || user?.role === "superadmin" || user?.role === "manager") && (
+        {(user?.role === 'admin' || user?.role === 'superadmin' || user?.role === 'manager') && (
           <TabsContent value="management" className="mt-6">
             <Card className="glass-card">
               <CardHeader>
@@ -369,6 +384,5 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         )}
       </Tabs>
     </div>
-  )
+  );
 }
-

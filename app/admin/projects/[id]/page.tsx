@@ -1,17 +1,18 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/hooks/use-auth"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowLeft, Building2, Edit, MapPin, Users, Calendar, Clock, Trash } from "lucide-react"
-import Link from "next/link"
-import { type Project } from "@/features/projects/types/project"
-import BackButton from "@/components/back-button"
+import { ArrowLeft, Building2, Edit, MapPin, Users, Calendar, Clock, Trash } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import BackButton from '@/components/back-button';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { type Project } from '@/features/projects/types/project';
+import { useAuth } from '@/hooks/use-auth';
 
 // Extended Project type to include fields used in this component
 interface ExtendedProject extends Project {
@@ -26,56 +27,58 @@ interface ExtendedProject extends Project {
 
 // In Next.js 15, params are now async and should be handled appropriately
 export default function ProjectDetailPage({ params }: { params: { id: string } }) {
-  const router = useRouter()
-  const { getProjectById, getManagers } = useAuth()
-  const [project, setProject] = useState<ExtendedProject | null>(null)
-  const [assignedManagers, setAssignedManagers] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const router = useRouter();
+  const { getProjectById, getManagers } = useAuth();
+  const [project, setProject] = useState<ExtendedProject | null>(null);
+  const [assignedManagers, setAssignedManagers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProjectData = async () => {
+    const _fetchProjectData = async () => {
       try {
         if (!getProjectById) {
-          console.error("getProjectById function is not available");
+          console.error('getProjectById function is not available');
           setLoading(false);
           return;
         }
-        
+
         // Use the id from params directly since this is a client component
-        const projectId = params.id
-        const projectData = await getProjectById(projectId)
-        setProject(projectData as ExtendedProject)
+        const _projectId = params.id;
+        const projectData = await getProjectById(projectId);
+        setProject(projectData as ExtendedProject);
 
         if (projectData && getManagers) {
           // Fetch assigned managers
-          const allManagers = await getManagers()
-          const managers = allManagers.filter((manager) => projectData.managersAssigned.includes(manager.uid))
-          setAssignedManagers(managers)
+          const _allManagers = await getManagers();
+          const _managers = allManagers.filter((manager) =>
+            projectData.managersAssigned.includes(manager.uid)
+          );
+          setAssignedManagers(managers);
         }
       } catch (error) {
-        console.error("Error fetching project:", error)
-        setLoading(false)
+        console.error('Error fetching project:', error);
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProjectData()
-  }, [params.id, getProjectById, getManagers])
+    fetchProjectData();
+  }, [params.id, getProjectById, getManagers]);
 
-  const getStatusColor = (status: Project["status"]) => {
+  const _getStatusColor = (_status: Project['status']) => {
     switch (status) {
-      case "active":
-        return "bg-green-500/10 text-green-500 border-green-500/20"
-      case "inactive":
-        return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
-      case "completed":
-        return "bg-blue-500/10 text-blue-500 border-blue-500/20"
+      case 'active':
+        return 'bg-green-500/10 text-green-500 border-green-500/20';
+      case 'inactive':
+        return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
+      case 'completed':
+        return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
       default:
-        return "bg-gray-500/10 text-gray-500 border-gray-500/20"
+        return 'bg-gray-500/10 text-gray-500 border-gray-500/20';
     }
-  }
+  };
 
   if (loading) {
-    return <ProjectDetailSkeleton />
+    return <ProjectDetailSkeleton />;
   }
 
   if (!project) {
@@ -89,17 +92,17 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
             <p className="text-muted-foreground text-center mb-4">
               The project you are looking for does not exist or has been deleted.
             </p>
-            <Button onClick={() => router.push("/admin/projects")}>Back to Projects</Button>
+            <Button onClick={() => router.push('/admin/projects')}>Back to Projects</Button>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
       <BackButton href="/admin/projects" label="Back to Projects" />
-      
+
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">{project.name}</h1>
         <Button onClick={() => router.push(`/admin/projects/${params.id}/edit`)}>
@@ -155,8 +158,11 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                       <p className="text-sm text-muted-foreground">No time slots available</p>
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                        {daySlot.slots.map((slot, index) => (
-                          <div key={index} className="flex items-center gap-2 bg-muted/50 rounded-md p-2">
+                        {daySlot.slots.map((slot, _index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 bg-muted/50 rounded-md p-2"
+                          >
                             <Clock className="h-4 w-4 text-muted-foreground" />
                             <span>
                               {slot.start} - {slot.end}
@@ -182,7 +188,9 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
               <div className="flex flex-col items-center justify-center py-10">
                 <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium mb-2">Plot Editor</h3>
-                <p className="text-muted-foreground text-center mb-4">The plot editor is available in the edit mode.</p>
+                <p className="text-muted-foreground text-center mb-4">
+                  The plot editor is available in the edit mode.
+                </p>
                 <Link href={`/admin/projects/${params.id}/edit?tab=plots`}>
                   <Button>
                     <Edit className="mr-2 h-4 w-4" />
@@ -226,7 +234,10 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
               ) : (
                 <div className="space-y-4">
                   {assignedManagers.map((manager) => (
-                    <div key={manager.uid} className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
+                    <div
+                      key={manager.uid}
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-md"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                           <Users className="h-5 w-5 text-primary" />
@@ -239,11 +250,11 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                       <Badge
                         className={
                           manager.isOnLeave
-                            ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
-                            : "bg-green-500/10 text-green-500 border-green-500/20"
+                            ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                            : 'bg-green-500/10 text-green-500 border-green-500/20'
                         }
                       >
-                        {manager.isOnLeave ? "On Leave" : "Active"}
+                        {manager.isOnLeave ? 'On Leave' : 'Active'}
                       </Badge>
                     </div>
                   ))}
@@ -278,7 +289,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
 function ProjectDetailSkeleton() {
@@ -333,13 +344,13 @@ function ProjectDetailSkeleton() {
             <div className="space-y-6">
               {Array(3)
                 .fill(0)
-                .map((_, i) => (
+                .map((_, _i) => (
                   <div key={i} className="space-y-2">
                     <Skeleton className="h-6 w-24" />
                     <div className="grid grid-cols-3 gap-2">
                       {Array(3)
                         .fill(0)
-                        .map((_, j) => (
+                        .map((_, _j) => (
                           <Skeleton key={j} className="h-10 w-full" />
                         ))}
                     </div>
@@ -350,6 +361,5 @@ function ProjectDetailSkeleton() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-

@@ -1,29 +1,29 @@
-"use client"
+'use client';
 
-import type React from "react"
+import { AlertCircle, AlertTriangle, XCircle } from 'lucide-react';
+import type React from 'react';
 
-import { AlertCircle, AlertTriangle, XCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 
 interface ErrorAlertProps {
-  title: string
-  description: string
-  variant?: "default" | "destructive" | "warning"
-  action?: React.ReactNode
+  title: string;
+  description: string;
+  variant?: 'default' | 'destructive' | 'warning';
+  action?: React.ReactNode;
 }
 
-export function ErrorAlert({ title, description, variant = "default", action }: ErrorAlertProps) {
-  const getIcon = () => {
+export function ErrorAlert({ title, description, variant = 'default', action }: ErrorAlertProps) {
+  const _getIcon = () => {
     switch (variant) {
-      case "destructive":
-        return <XCircle className="h-4 w-4" />
-      case "warning":
-        return <AlertTriangle className="h-4 w-4" />
+      case 'destructive':
+        return <XCircle className="h-4 w-4" />;
+      case 'warning':
+        return <AlertTriangle className="h-4 w-4" />;
       default:
-        return <AlertCircle className="h-4 w-4" />
+        return <AlertCircle className="h-4 w-4" />;
     }
-  }
+  };
 
   return (
     <Alert variant={variant}>
@@ -32,13 +32,13 @@ export function ErrorAlert({ title, description, variant = "default", action }: 
       <AlertDescription>{description}</AlertDescription>
       {action && <div className="mt-2">{action}</div>}
     </Alert>
-  )
+  );
 }
 
 interface ErrorStateProps {
-  title: string
-  description: string
-  retryAction?: () => void
+  title: string;
+  description: string;
+  retryAction?: () => void;
 }
 
 export function ErrorState({ title, description, retryAction }: ErrorStateProps) {
@@ -49,6 +49,5 @@ export function ErrorState({ title, description, retryAction }: ErrorStateProps)
       <p className="text-muted-foreground mb-4 max-w-md">{description}</p>
       {retryAction && <Button onClick={retryAction}>Try Again</Button>}
     </div>
-  )
+  );
 }
-

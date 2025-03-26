@@ -1,38 +1,23 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useAuth } from "@/hooks/useAuth"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { 
   Calendar,
-  Search, 
-  Clock, 
-  User, 
-  MapPin, 
+  Search,
+  Clock,
+  User,
+  MapPin,
   Home,
   CheckCircle,
   XCircle,
-  Download
-} from "lucide-react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Download,
+} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { DateRange } from 'react-day-picker';
+
+import { DatePickerWithRange } from '@/components/date-picker';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -41,11 +26,27 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { DatePickerWithRange } from "@/components/date-picker"
-import { DateRange } from "react-day-picker"
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/useAuth';
 
 interface VisitRequest {
   id: string;
@@ -57,192 +58,208 @@ interface VisitRequest {
   requestDate: string;
   preferredDate: string;
   preferredTime: string;
-  status: "pending" | "approved" | "rejected";
+  status: 'pending' | 'approved' | 'rejected';
   notes?: string;
   rejectionReason?: string;
 }
 
 export default function VisitRequestsPage() {
-  const { getVisitRequests, approveVisitRequest, rejectVisitRequest } = useAuth()
-  const [visitRequests, setVisitRequests] = useState<VisitRequest[]>([])
-  const [filteredRequests, setFilteredRequests] = useState<VisitRequest[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending")
-  const [loading, setLoading] = useState(true)
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
-  const [rejectionReason, setRejectionReason] = useState("")
-  const [processingAction, setProcessingAction] = useState(false)
+  const { getVisitRequests, approveVisitRequest, rejectVisitRequest } = useAuth();
+  const [visitRequests, setVisitRequests] = useState<VisitRequest[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<VisitRequest[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>(
+    'pending'
+  );
+  const [loading, setLoading] = useState(true);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [processingAction, setProcessingAction] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
-  })
+  });
 
   useEffect(() => {
-    const fetchRequests = async () => {
+    const _fetchRequests = async () => {
       try {
         if (getVisitRequests) {
-          const data = await getVisitRequests()
-          setVisitRequests(data || [])
-          setFilteredRequests(data.filter(req => req.status === statusFilter) || [])
+          const data = await getVisitRequests();
+          setVisitRequests(data || []);
+          setFilteredRequests(data.filter((req) => req.status === statusFilter) || []);
         }
       } catch (error) {
-        console.error("Failed to fetch visit requests:", error)
+        console.error('Failed to fetch visit requests:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchRequests()
-  }, [getVisitRequests])
+    fetchRequests();
+  }, [getVisitRequests]);
 
   useEffect(() => {
-    let filtered = visitRequests
+    let filtered = visitRequests;
 
     // Filter by status
-    if (statusFilter !== "all") {
-      filtered = filtered.filter(request => request.status === statusFilter)
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((request) => request.status === statusFilter);
     }
 
     // Filter by date range
     if (dateRange.from && dateRange.to) {
-      filtered = filtered.filter(request => {
-        const requestDate = new Date(request.requestDate)
-        return requestDate >= dateRange.from && requestDate <= dateRange.to
-      })
+      filtered = filtered.filter((request) => {
+        const requestDate = new Date(request.requestDate);
+        return requestDate >= dateRange.from! && requestDate <= dateRange.to!;
+      });
     }
 
     // Filter by search query
-    if (searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(request => 
-        request.visitorName.toLowerCase().includes(query) ||
-        request.projectName.toLowerCase().includes(query) ||
-        request.propertyType.toLowerCase().includes(query)
-      )
+    if (searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (request) =>
+          request.visitorName.toLowerCase().includes(query) ||
+          request.projectName.toLowerCase().includes(query) ||
+          request.propertyType.toLowerCase().includes(query)
+      );
     }
 
-    setFilteredRequests(filtered)
-  }, [searchQuery, statusFilter, dateRange, visitRequests])
+    setFilteredRequests(filtered);
+  }, [searchQuery, statusFilter, dateRange, visitRequests]);
 
-  const handleApproveRequest = async (id: string) => {
-    setProcessingAction(true)
+  const _handleApproveRequest = async (id: string) => {
+    setProcessingAction(true);
     try {
       if (approveVisitRequest) {
-        await approveVisitRequest(id)
-        
+        await approveVisitRequest(id);
+
         // Update local state
-        setVisitRequests(prev => 
-          prev.map(req => 
-            req.id === id ? { ...req, status: "approved" } : req
-          )
-        )
+        setVisitRequests((prev) =>
+          prev.map((req) => (req.id === id ? { ...req, status: 'approved' } : req))
+        );
       }
     } catch (error) {
-      console.error("Failed to approve visit request:", error)
+      console.error('Failed to approve visit request:', error);
     } finally {
-      setProcessingAction(false)
+      setProcessingAction(false);
     }
-  }
+  };
 
-  const handleRejectRequest = async () => {
-    if (!selectedRequestId) return
+  const _handleRejectRequest = async () => {
+    if (!selectedRequestId) return;
 
-    setProcessingAction(true)
+    setProcessingAction(true);
     try {
       if (rejectVisitRequest) {
-        await rejectVisitRequest(selectedRequestId, rejectionReason)
-        
+        await rejectVisitRequest(selectedRequestId, rejectionReason);
+
         // Update local state
-        setVisitRequests(prev => 
-          prev.map(req => 
-            req.id === selectedRequestId ? { ...req, status: "rejected", rejectionReason } : req
+        setVisitRequests((prev) =>
+          prev.map((req) =>
+            req.id === selectedRequestId ? { ...req, status: 'rejected', rejectionReason } : req
           )
-        )
+        );
 
         // Reset state
-        setSelectedRequestId(null)
-        setRejectionReason("")
+        setSelectedRequestId(null);
+        setRejectionReason('');
       }
     } catch (error) {
-      console.error("Failed to reject visit request:", error)
+      console.error('Failed to reject visit request:', error);
     } finally {
-      setProcessingAction(false)
+      setProcessingAction(false);
     }
-  }
+  };
 
   if (loading) {
-    return <VisitRequestsSkeleton />
+    return <VisitRequestsSkeleton />;
   }
 
   // Mock data for demonstration
-  const mockRequests = filteredRequests.length > 0 ? filteredRequests : [
-    {
-      id: "1",
-      visitorName: "John Doe",
-      visitorEmail: "john.doe@example.com",
-      visitorPhone: "+1 234 567 8901",
-      projectName: "Sunrise Gardens",
-      propertyType: "2BHK Apartment",
-      requestDate: "2023-06-01",
-      preferredDate: "2023-06-15",
-      preferredTime: "10:00 AM",
-      status: "pending",
-      notes: "Interested in lake view apartments",
-    },
-    {
-      id: "2",
-      visitorName: "Jane Smith",
-      visitorEmail: "jane.smith@example.com",
-      visitorPhone: "+1 345 678 9012",
-      projectName: "Metropolitan Heights",
-      propertyType: "3BHK Apartment",
-      requestDate: "2023-06-02",
-      preferredDate: "2023-06-20",
-      preferredTime: "2:00 PM",
-      status: "pending",
-      notes: "Looking for a corner unit with good ventilation",
-    },
-    {
-      id: "3",
-      visitorName: "Robert Johnson",
-      visitorEmail: "robert.johnson@example.com",
-      visitorPhone: "+1 456 789 0123",
-      projectName: "Urban Square",
-      propertyType: "Commercial Space",
-      requestDate: "2023-05-28",
-      preferredDate: "2023-06-10",
-      preferredTime: "11:30 AM",
-      status: "approved",
-      notes: "Interested in retail space on ground floor",
-    },
-    {
-      id: "4",
-      visitorName: "Emily Wilson",
-      visitorEmail: "emily.wilson@example.com",
-      visitorPhone: "+1 567 890 1234",
-      projectName: "Lakeside Villas",
-      propertyType: "Villa",
-      requestDate: "2023-05-25",
-      preferredDate: "2023-06-05",
-      preferredTime: "4:00 PM",
-      status: "rejected",
-      rejectionReason: "No availability on requested date",
-      notes: "Wants to see model villa first",
-    },
-  ]
+  const _mockRequests =
+    filteredRequests.length > 0
+      ? filteredRequests
+      : [
+          {
+            id: '1',
+            visitorName: 'John Doe',
+            visitorEmail: 'john.doe@example.com',
+            visitorPhone: '+1 234 567 8901',
+            projectName: 'Sunrise Gardens',
+            propertyType: '2BHK Apartment',
+            requestDate: '2023-06-01',
+            preferredDate: '2023-06-15',
+            preferredTime: '10:00 AM',
+            status: 'pending',
+            notes: 'Interested in lake view apartments',
+          },
+          {
+            id: '2',
+            visitorName: 'Jane Smith',
+            visitorEmail: 'jane.smith@example.com',
+            visitorPhone: '+1 345 678 9012',
+            projectName: 'Metropolitan Heights',
+            propertyType: '3BHK Apartment',
+            requestDate: '2023-06-02',
+            preferredDate: '2023-06-20',
+            preferredTime: '2:00 PM',
+            status: 'pending',
+            notes: 'Looking for a corner unit with good ventilation',
+          },
+          {
+            id: '3',
+            visitorName: 'Robert Johnson',
+            visitorEmail: 'robert.johnson@example.com',
+            visitorPhone: '+1 456 789 0123',
+            projectName: 'Urban Square',
+            propertyType: 'Commercial Space',
+            requestDate: '2023-05-28',
+            preferredDate: '2023-06-10',
+            preferredTime: '11:30 AM',
+            status: 'approved',
+            notes: 'Interested in retail space on ground floor',
+          },
+          {
+            id: '4',
+            visitorName: 'Emily Wilson',
+            visitorEmail: 'emily.wilson@example.com',
+            visitorPhone: '+1 567 890 1234',
+            projectName: 'Lakeside Villas',
+            propertyType: 'Villa',
+            requestDate: '2023-05-25',
+            preferredDate: '2023-06-05',
+            preferredTime: '4:00 PM',
+            status: 'rejected',
+            rejectionReason: 'No availability on requested date',
+            notes: 'Wants to see model villa first',
+          },
+        ];
 
-  const getStatusBadge = (status: VisitRequest["status"]) => {
+  const _getStatusBadge = (status: VisitRequest['status']) => {
     switch (status) {
-      case "pending":
-        return <Badge variant="outline" className="flex items-center gap-1"><Clock className="h-3 w-3" /> Pending</Badge>
-      case "approved":
-        return <Badge variant="default" className="flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Approved</Badge>
-      case "rejected":
-        return <Badge variant="destructive" className="flex items-center gap-1"><XCircle className="h-3 w-3" /> Rejected</Badge>
+      case 'pending':
+        return (
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Clock className="h-3 w-3" /> Pending
+          </Badge>
+        );
+      case 'approved':
+        return (
+          <Badge variant="default" className="flex items-center gap-1">
+            <CheckCircle className="h-3 w-3" /> Approved
+          </Badge>
+        );
+      case 'rejected':
+        return (
+          <Badge variant="destructive" className="flex items-center gap-1">
+            <XCircle className="h-3 w-3" /> Rejected
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>;
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -254,9 +271,7 @@ export default function VisitRequestsPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Requests
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{visitRequests.length}</div>
@@ -264,37 +279,31 @@ export default function VisitRequestsPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pending
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {visitRequests.filter(req => req.status === "pending").length}
+              {visitRequests.filter((req) => req.status === 'pending').length}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Approved
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Approved</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {visitRequests.filter(req => req.status === "approved").length}
+              {visitRequests.filter((req) => req.status === 'approved').length}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Rejected
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Rejected</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {visitRequests.filter(req => req.status === "rejected").length}
+              {visitRequests.filter((req) => req.status === 'rejected').length}
             </div>
           </CardContent>
         </Card>
@@ -308,9 +317,11 @@ export default function VisitRequestsPage() {
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4 items-end mb-6">
             <div className="grid w-full md:w-64">
-              <Select 
-                value={statusFilter} 
-                onValueChange={setStatusFilter}
+              <Select
+                value={statusFilter}
+                onValueChange={(value: 'pending' | 'approved' | 'rejected' | 'all') =>
+                  setStatusFilter(value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by status" />
@@ -324,7 +335,14 @@ export default function VisitRequestsPage() {
               </Select>
             </div>
             <div className="grid w-full md:w-72">
-              <DatePickerWithRange date={dateRange} setDate={setDateRange} />
+              <DatePickerWithRange
+                date={dateRange}
+                setDate={(date) => {
+                  if (date) {
+                    setDateRange(date);
+                  }
+                }}
+              />
             </div>
             <div className="relative w-full md:w-64">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -387,14 +405,14 @@ export default function VisitRequestsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {getStatusBadge(request.status)}
+                      {getStatusBadge(request.status as 'pending' | 'approved' | 'rejected')}
                     </TableCell>
                     <TableCell className="text-right">
-                      {request.status === "pending" && (
+                      {request.status === 'pending' && (
                         <div className="flex justify-end gap-2">
-                          <Button 
-                            variant="default" 
-                            size="sm" 
+                          <Button
+                            variant="default"
+                            size="sm"
                             onClick={() => handleApproveRequest(request.id)}
                             disabled={processingAction}
                           >
@@ -403,8 +421,8 @@ export default function VisitRequestsPage() {
                           </Button>
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button 
-                                variant="destructive" 
+                              <Button
+                                variant="destructive"
                                 size="sm"
                                 onClick={() => setSelectedRequestId(request.id)}
                                 disabled={processingAction}
@@ -417,8 +435,8 @@ export default function VisitRequestsPage() {
                               <DialogHeader>
                                 <DialogTitle>Reject Visit Request</DialogTitle>
                                 <DialogDescription>
-                                  Please provide a reason for rejecting this visit request.
-                                  This will be communicated to the visitor.
+                                  Please provide a reason for rejecting this visit request. This
+                                  will be communicated to the visitor.
                                 </DialogDescription>
                               </DialogHeader>
                               <div className="space-y-4 py-4">
@@ -433,17 +451,17 @@ export default function VisitRequestsPage() {
                                 </div>
                               </div>
                               <DialogFooter>
-                                <Button 
-                                  variant="outline" 
+                                <Button
+                                  variant="outline"
                                   onClick={() => {
-                                    setSelectedRequestId(null)
-                                    setRejectionReason("")
+                                    setSelectedRequestId(null);
+                                    setRejectionReason('');
                                   }}
                                 >
                                   Cancel
                                 </Button>
-                                <Button 
-                                  variant="destructive" 
+                                <Button
+                                  variant="destructive"
                                   onClick={handleRejectRequest}
                                   disabled={!rejectionReason || processingAction}
                                 >
@@ -454,7 +472,7 @@ export default function VisitRequestsPage() {
                           </Dialog>
                         </div>
                       )}
-                      {request.status !== "pending" && (
+                      {request.status !== 'pending' && (
                         <Button variant="outline" size="sm">
                           <Calendar className="mr-1 h-3 w-3" />
                           View Details
@@ -469,7 +487,7 @@ export default function VisitRequestsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 function VisitRequestsSkeleton() {
@@ -533,7 +551,5 @@ function VisitRequestsSkeleton() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-
-
