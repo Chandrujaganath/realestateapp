@@ -1,8 +1,5 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import {
   Building2,
   Home,
@@ -18,52 +15,59 @@ import {
   ClipboardList,
   DollarSign,
   Clock,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import type { UserRole } from "@/contexts/auth-context"
-import { cn } from "@/lib/utils"
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { UserRole } from '@/features/users/types/user';
 
 interface SidebarProps {
-  userRole: UserRole
+  userRole: 'admin' | 'agent' | 'client';
 }
 
 export default function Sidebar({ userRole }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false)
-  const pathname = usePathname()
-
+  const [collapsed, setCollapsed] = useState(false);
+  const _pathname = usePathname();
   // Define navigation items based on user role
-  const navItems = getNavItems(userRole)
+  const _navItems = getNavItems(userRole as UserRole);
 
   return (
     <div
       className={cn(
-        "h-screen sticky top-0 glass border-r border-border/50 transition-all duration-300 overflow-hidden",
-        collapsed ? "w-16" : "w-64",
+        'h-screen sticky top-0 glass border-r border-border/50 transition-all duration-300 overflow-hidden',
+        collapsed ? 'w-16' : 'w-64'
       )}
     >
       <div className="flex items-center justify-between p-4 border-b border-border/50">
-        <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
+        <div className={cn('flex items-center gap-2', collapsed && 'justify-center')}>
           <Building2 className="h-6 w-6 text-primary flex-shrink-0" />
           {!collapsed && <span className="font-bold">Real Estate</span>}
         </div>
-        <Button variant="ghost" size="icon" onClick={() => setCollapsed(!collapsed)} className="flex-shrink-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setCollapsed(!collapsed)}
+          className="flex-shrink-0"
+        >
           {collapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
         </Button>
       </div>
 
       <nav className="p-2">
         <ul className="space-y-1">
-          {navItems.map((item) => (
+          {_navItems.map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                  pathname === item.href ? "bg-primary/10 text-primary" : "hover:bg-primary/5",
-                  collapsed && "justify-center px-2",
+                  'flex items-center gap-3 px-3 py-2 rounded-md transition-colors',
+                  _pathname === item.href ? 'bg-primary/10 text-primary' : 'hover:bg-primary/5',
+                  collapsed && 'justify-center px-2'
                 )}
               >
-                <item.icon className={cn("h-5 w-5 flex-shrink-0", collapsed && "h-6 w-6")} />
+                <item.icon className={cn('h-5 w-5 flex-shrink-0', collapsed && 'h-6 w-6')} />
                 {!collapsed && <span>{item.label}</span>}
               </Link>
             </li>
@@ -71,65 +75,84 @@ export default function Sidebar({ userRole }: SidebarProps) {
         </ul>
       </nav>
     </div>
-  )
+  );
 }
 
 function getNavItems(role: UserRole) {
   // Common navigation items for all roles
   const commonItems = [
     {
-      label: "Dashboard",
+      label: 'Dashboard',
       href: `/dashboard/${role}`,
       icon: Home,
     },
     {
-      label: "Projects",
-      href: "/project",
+      label: 'Projects',
+      href: '/project',
       icon: Building2,
     },
-  ]
+  ];
 
   // Role-specific navigation items
   const roleSpecificItems = {
-    guest: [{ label: "Announcements", href: "/announcement", icon: Bell }],
+    guest: [{ label: 'Announcements', href: '/announcement', icon: Bell }],
     client: [
-      { label: "Visit Booking", href: "/visit", icon: Calendar },
-      { label: "Plot Viewer", href: "/plot", icon: Map },
-      { label: "Announcements", href: "/announcement", icon: Bell },
-      { label: "Settings", href: "/settings", icon: Settings },
+      { label: 'Visit Booking', href: '/visit', icon: Calendar },
+      { label: 'Plot Viewer', href: '/plot', icon: Map },
+      { label: 'Announcements', href: '/announcement', icon: Bell },
+      { label: 'Settings', href: '/settings', icon: Settings },
     ],
     manager: [
-      { label: "Tasks", href: "/manager/tasks", icon: ClipboardList },
-      { label: "Visit Requests", href: "/manager/visit-requests", icon: Calendar },
-      { label: "Sell Requests", href: "/manager/sell-requests", icon: DollarSign },
-      { label: "Attendance", href: "/manager/attendance", icon: Clock },
-      { label: "Leave", href: "/manager/leave", icon: Calendar },
-      { label: "Plot Management", href: "/plot", icon: Map },
-      { label: "CCTV Monitoring", href: "/cctv", icon: Camera },
-      { label: "Announcements", href: "/announcement", icon: Bell },
-      { label: "Settings", href: "/settings", icon: Settings },
+      { label: 'Tasks', href: '/manager/tasks', icon: ClipboardList },
+      {
+        label: 'Visit Requests',
+        href: '/manager/visit-requests',
+        icon: Calendar,
+      },
+      {
+        label: 'Sell Requests',
+        href: '/manager/sell-requests',
+        icon: DollarSign,
+      },
+      { label: 'Attendance', href: '/manager/attendance', icon: Clock },
+      { label: 'Leave', href: '/manager/leave', icon: Calendar },
+      { label: 'Plot Management', href: '/plot', icon: Map },
+      { label: 'CCTV Monitoring', href: '/cctv', icon: Camera },
+      { label: 'Announcements', href: '/announcement', icon: Bell },
+      { label: 'Settings', href: '/settings', icon: Settings },
     ],
     admin: [
-      { label: "User Management", href: "/dashboard/admin/users", icon: Users },
-      { label: "Visit Schedule", href: "/visit", icon: Calendar },
-      { label: "Plot Management", href: "/plot", icon: Map },
-      { label: "CCTV Monitoring", href: "/cctv", icon: Camera },
-      { label: "Announcements", href: "/announcement", icon: Bell },
-      { label: "Analytics", href: "/dashboard/admin/analytics", icon: BarChart3 },
-      { label: "Settings", href: "/settings", icon: Settings },
+      { label: 'User Management', href: '/dashboard/admin/users', icon: Users },
+      { label: 'Visit Schedule', href: '/visit', icon: Calendar },
+      { label: 'Plot Management', href: '/plot', icon: Map },
+      { label: 'CCTV Monitoring', href: '/cctv', icon: Camera },
+      { label: 'Announcements', href: '/announcement', icon: Bell },
+      {
+        label: 'Analytics',
+        href: '/dashboard/admin/analytics',
+        icon: BarChart3,
+      },
+      { label: 'Settings', href: '/settings', icon: Settings },
     ],
     superadmin: [
-      { label: "User Management", href: "/dashboard/superadmin/users", icon: Users },
-      { label: "Visit Schedule", href: "/visit", icon: Calendar },
-      { label: "Plot Management", href: "/plot", icon: Map },
-      { label: "CCTV Monitoring", href: "/cctv", icon: Camera },
-      { label: "Announcements", href: "/announcement", icon: Bell },
-      { label: "Analytics", href: "/dashboard/superadmin/analytics", icon: BarChart3 },
-      { label: "System Settings", href: "/settings", icon: Settings },
+      {
+        label: 'User Management',
+        href: '/dashboard/superadmin/users',
+        icon: Users,
+      },
+      { label: 'Visit Schedule', href: '/visit', icon: Calendar },
+      { label: 'Plot Management', href: '/plot', icon: Map },
+      { label: 'CCTV Monitoring', href: '/cctv', icon: Camera },
+      { label: 'Announcements', href: '/announcement', icon: Bell },
+      {
+        label: 'Analytics',
+        href: '/dashboard/superadmin/analytics',
+        icon: BarChart3,
+      },
+      { label: 'System Settings', href: '/settings', icon: Settings },
     ],
-  }
+  };
 
-  return [...commonItems, ...roleSpecificItems[role]]
+  const roleItems = roleSpecificItems[role as keyof typeof roleSpecificItems];
+  return [...commonItems, ...roleItems];
 }
-
-

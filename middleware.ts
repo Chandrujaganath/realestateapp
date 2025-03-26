@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-import { _adminAuth, _verifyToken } from '@/lib/firebase-admin';
+// Remove the import for now since it's not being used
+// import { adminAuth, verifyToken } from '@/lib/firebase-admin';
 
 // Define protected routes and their allowed roles
 const protectedRoutes: Record<string, string[]> = {
